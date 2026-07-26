@@ -5,9 +5,19 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ThemeSection } from "@/components/site-header/theme-section";
 import { useRegisterThemeSection } from "@/components/site-header/gnb-theme";
+import { useLocale } from "@/components/site-header/locale-context";
 import { Logo } from "@/components/logo";
 import { VideoSlot } from "@/components/media/video-slot";
 import { WorkListPanel } from "./work-list-panel";
+
+// Section headers ("Work" / "Contact") stay English in every locale — same
+// convention as the "Service"/"About" headers.
+const COPY = {
+  tagline: {
+    ko: ["이 길을 함께 걷겠습니다 —", "첫 스케치부터 마지막 픽셀까지."],
+    en: ["Let's walk this road together —", "from the first sketch to the last pixel."],
+  },
+};
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -33,6 +43,7 @@ function smoothstep(t: number) {
 }
 
 export function WorkSection() {
+  const { locale } = useLocale();
   const trackRef = useRef<HTMLDivElement | null>(null);
   const listStageRef = useRef<HTMLDivElement | null>(null);
   const circleRef = useRef<HTMLDivElement | null>(null);
@@ -129,10 +140,13 @@ export function WorkSection() {
             <Logo tone="ink" size="small" className="mb-8 md:mb-10" />
 
             <div className="mb-8 flex flex-col items-start justify-between gap-6 md:mb-12 md:flex-row md:items-end">
-              <p className="font-display text-4xl italic text-ink md:text-7xl">Contact</p>
-              <p className="max-w-sm text-right font-display text-2xl italic leading-snug text-ink md:text-3xl">
-                Let&apos;s walk this road together —<br />
-                from the first sketch to the last pixel.
+              <p className="font-display text-4xl italic text-ink md:text-7xl">
+                Contact
+              </p>
+              <p className="max-w-sm text-right text-sm leading-relaxed text-muted md:text-base">
+                {COPY.tagline[locale][0]}
+                <br />
+                {COPY.tagline[locale][1]}
               </p>
             </div>
 

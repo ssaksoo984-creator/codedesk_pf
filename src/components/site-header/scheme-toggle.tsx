@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import clsx from "clsx";
+import { useLocale } from "./locale-context";
 
 type Scheme = "sun" | "moon";
 
@@ -23,6 +24,7 @@ function MoonIcon() {
 }
 
 export function SchemeToggle({ className }: { className?: string }) {
+  const { locale } = useLocale();
   // The blocking script in <head> already applies data-scheme before
   // hydration, so read it back here instead of setting state in an effect.
   const [scheme, setScheme] = useState<Scheme>(() =>
@@ -36,11 +38,20 @@ export function SchemeToggle({ className }: { className?: string }) {
     window.localStorage.setItem("scheme", scheme);
   }, [scheme]);
 
+  const label =
+    scheme === "sun"
+      ? locale === "ko"
+        ? "다크 모드로 전환"
+        : "Switch to dark mode"
+      : locale === "ko"
+        ? "라이트 모드로 전환"
+        : "Switch to light mode";
+
   return (
     <button
       type="button"
       onClick={() => setScheme((s) => (s === "sun" ? "moon" : "sun"))}
-      aria-label={scheme === "sun" ? "다크 모드로 전환" : "라이트 모드로 전환"}
+      aria-label={label}
       suppressHydrationWarning
       className={clsx(
         "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors duration-300 md:h-11 md:w-11",

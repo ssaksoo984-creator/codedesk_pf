@@ -1,6 +1,7 @@
 "use client";
 
 import { WORK_PROJECTS } from "@/lib/work-content";
+import { useLocale } from "@/components/site-header/locale-context";
 import clsx from "clsx";
 import { useEffect, useRef, useState } from "react";
 
@@ -17,6 +18,7 @@ interface WorkListPanelProps {
  * not just scroll.
  */
 export function WorkListPanel({ onActiveChange }: WorkListPanelProps) {
+  const { locale } = useLocale();
   const [active, setActive] = useState(0);
   const [dragging, setDragging] = useState(false);
   const scrollerRef = useRef<HTMLDivElement | null>(null);
@@ -49,8 +51,14 @@ export function WorkListPanel({ onActiveChange }: WorkListPanelProps) {
   function handlePointerDown(e: React.PointerEvent<HTMLDivElement>) {
     const el = scrollerRef.current;
     if (!el || e.pointerType === "touch") return;
-    setDragging(true);
     dragState.current = { startY: e.clientY, startScrollTop: el.scrollTop, moved: false };
+    // Pointer capture on an ancestor breaks native <a> click activation in
+    // some browsers — skip drag-tracking entirely when the gesture starts
+    // on a link so clicking it always navigates. Wheel/touch scroll still
+    // work everywhere; this only forgoes click-drag-to-scroll from on top
+    // of a link itself.
+    if (e.target instanceof HTMLElement && e.target.closest("a")) return;
+    setDragging(true);
     el.setPointerCapture(e.pointerId);
   }
 
@@ -58,7 +66,9 @@ export function WorkListPanel({ onActiveChange }: WorkListPanelProps) {
     const el = scrollerRef.current;
     if (!el || !dragging) return;
     const dy = e.clientY - dragState.current.startY;
-    if (Math.abs(dy) > 3) dragState.current.moved = true;
+    // A generous threshold — anything tighter misreads ordinary click jitter
+    // (especially on trackpads) as a drag and silently swallows the link click.
+    if (Math.abs(dy) > 8) dragState.current.moved = true;
     el.scrollTop = dragState.current.startScrollTop - dy;
   }
 
@@ -95,6 +105,8 @@ export function WorkListPanel({ onActiveChange }: WorkListPanelProps) {
           <a
             key={project.index}
             href={project.url}
+            target={project.url === "#" ? undefined : "_blank"}
+            rel={project.url === "#" ? undefined : "noopener noreferrer"}
             ref={(el) => {
               itemRefs.current[i] = el;
             }}
@@ -108,11 +120,11 @@ export function WorkListPanel({ onActiveChange }: WorkListPanelProps) {
             <div className="flex items-baseline gap-4 md:gap-6">
               <span className="font-display text-sm italic text-white/40">{project.index}</span>
               <h3 className="font-display text-2xl italic text-paper md:text-4xl">
-                {project.title}
+                {project.title[locale]}
               </h3>
             </div>
             <span className="hidden text-xs uppercase tracking-[0.15em] text-white/40 sm:inline">
-              {project.category}
+              {project.category[locale]}
             </span>
           </a>
         ))}
@@ -120,19 +132,39 @@ export function WorkListPanel({ onActiveChange }: WorkListPanelProps) {
       </div>
 
       <div className="relative hidden w-full overflow-hidden rounded-2xl bg-charcoal/40 md:sticky md:top-0 md:block md:h-[510px]">
-        {WORK_PROJECTS.map((project, i) => (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            key={project.index}
-            src={project.image}
-            alt={project.title}
-            loading="lazy"
-            className={clsx(
-              "absolute inset-0 h-full w-full object-cover transition-opacity duration-500",
-              active === i ? "opacity-100" : "opacity-0"
-            )}
-          />
-        ))}
+        {WORK_PROJECTS.map((project, i) =>
+          project.video ? (
+            <div
+              key={project.index}
+              className={clsx(
+                "absolute inset-0 bg-gradient-to-br from-sky-200 via-sky-400 to-sky-600 transition-opacity duration-500",
+                active === i ? "opacity-100" : "opacity-0"
+              )}
+            >
+              <video
+                src={project.video}
+                autoPlay
+                loop
+                muted
+                playsInline
+                preload="metadata"
+                className="h-full w-full object-contain"
+              />
+            </div>
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              key={project.index}
+              src={project.image}
+              alt={project.title[locale]}
+              loading="lazy"
+              className={clsx(
+                "absolute inset-0 h-full w-full object-cover transition-opacity duration-500",
+                active === i ? "opacity-100" : "opacity-0"
+              )}
+            />
+          )
+        )}
       </div>
     </div>
   );

@@ -3,6 +3,7 @@
 import { Logo } from "@/components/logo";
 import { ServiceScroller } from "@/components/service/service-scroller";
 import { useRegisterThemeSection } from "@/components/site-header/gnb-theme";
+import { useLocale } from "@/components/site-header/locale-context";
 import { ABOUT_IMAGES, ABOUT_SLIDES } from "@/lib/about-content";
 import { SERVICE_INTRO } from "@/lib/service-content";
 import gsap from "gsap";
@@ -38,11 +39,12 @@ interface CardLayout {
 }
 
 export function SphereGallery() {
+  const { locale } = useLocale();
   const trackRef = useRef<HTMLDivElement | null>(null);
   const sceneRef = useRef<HTMLDivElement | null>(null);
   const sphereRef = useRef<HTMLDivElement | null>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const titleRef = useRef<HTMLHeadingElement | null>(null);
+  const titleRef = useRef<HTMLDivElement | null>(null);
   const descRef = useRef<HTMLParagraphElement | null>(null);
   const finaleStageRef = useRef<HTMLDivElement | null>(null);
   const finaleLogoRef = useRef<HTMLDivElement | null>(null);
@@ -296,12 +298,11 @@ export function SphereGallery() {
             <p className="mb-3 text-xs uppercase tracking-[0.2em] text-muted">
               About — 0{slideIndex + 1} / 0{ABOUT_SLIDES.length}
             </p>
-            <h2
-              ref={titleRef}
-              className="font-display text-3xl italic leading-tight text-ink transition-opacity duration-200 md:text-6xl"
-            >
-              {activeSlide.title}
-            </h2>
+            <div ref={titleRef} className="transition-opacity duration-200">
+              <h2 className="font-display text-3xl italic leading-tight text-ink md:text-6xl">
+                {activeSlide.title.en}
+              </h2>
+            </div>
           </div>
 
           <div
@@ -312,7 +313,7 @@ export function SphereGallery() {
               ref={descRef}
               className="text-sm leading-relaxed text-muted transition-opacity duration-200 md:text-base"
             >
-              {activeSlide.desc}
+              {activeSlide.desc[locale]}
             </p>
           </div>
 
@@ -384,10 +385,10 @@ export function SphereGallery() {
           >
             <Logo tone="paper" size="small" className="mb-8 md:mb-10" />
             <p className="mb-6 font-display text-4xl italic text-paper md:mb-8 md:text-6xl">
-              {SERVICE_INTRO.title}
+              {SERVICE_INTRO.title.en}
             </p>
             <p className="mb-10 max-w-md text-sm leading-relaxed text-white/55 md:mb-14 md:text-base">
-              {SERVICE_INTRO.description}
+              {SERVICE_INTRO.description[locale]}
             </p>
             <ServiceScroller />
           </div>

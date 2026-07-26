@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { pretendard, cormorant } from "./fonts";
 import { GnbThemeProvider } from "@/components/site-header/gnb-theme";
+import { LocaleProvider } from "@/components/site-header/locale-context";
 import { PageBackground } from "@/components/site-header/page-background";
 import "./globals.css";
 
@@ -36,10 +37,12 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col">
-        <GnbThemeProvider>
-          <PageBackground />
-          {children}
-        </GnbThemeProvider>
+        <LocaleProvider>
+          <GnbThemeProvider>
+            <PageBackground />
+            {children}
+          </GnbThemeProvider>
+        </LocaleProvider>
       </body>
     </html>
   );

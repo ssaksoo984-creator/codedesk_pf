@@ -36,6 +36,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# editor - contains real FTP/SFTP credentials, never commit
+.vscode/sftp.json
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

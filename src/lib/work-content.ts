@@ -1,59 +1,44 @@
 export interface WorkProject {
   index: string;
-  title: string;
-  category: string;
-  image: string;
+  title: { ko: string; en: string };
+  category: { ko: string; en: string };
+  /** Sticky preview panel shows a video when set, otherwise falls back to image. */
+  image?: string;
+  video?: string;
   url: string;
 }
 
+// Only real, shipped projects go here — the list grows as more come in, so
+// keep it short rather than padding it out with placeholders.
 export const WORK_PROJECTS: WorkProject[] = [
   {
     index: "01",
-    title: "Nova Health",
-    category: "Healthcare Platform",
-    image: "https://picsum.photos/seed/codedesk-work-1/1200/1500",
-    url: "#",
+    title: { ko: "ARTE", en: "ARTE" },
+    category: {
+      ko: "성형외과 홈페이지 디자인 개발",
+      en: "Plastic Surgery Clinic Website Design & Development",
+    },
+    image: "/media/home_work/work_01_Arte.png",
+    url: "https://note-clinic-portfolio.vercel.app/",
   },
   {
     index: "02",
-    title: "Arc Studio",
-    category: "Creative Agency Site",
-    image: "https://picsum.photos/seed/codedesk-work-2/1200/1500",
-    url: "#",
+    title: { ko: "Reboot Camp", en: "Reboot Camp" },
+    category: {
+      ko: "헬스 홈페이지 디자인 개발",
+      en: "Fitness Website Design & Development",
+    },
+    image: "/media/home_work/work_02_reboot.png",
+    url: "https://reboot-camp-liard.vercel.app/",
   },
   {
     index: "03",
-    title: "Ledger",
-    category: "Fintech Dashboard",
-    image: "https://picsum.photos/seed/codedesk-work-3/1200/1500",
-    url: "#",
-  },
-  {
-    index: "04",
-    title: "Loop Market",
-    category: "E-commerce",
-    image: "https://picsum.photos/seed/codedesk-work-4/1200/1500",
-    url: "#",
-  },
-  {
-    index: "05",
-    title: "Fieldnote",
-    category: "SaaS Tool",
-    image: "https://picsum.photos/seed/codedesk-work-5/1200/1500",
-    url: "#",
-  },
-  {
-    index: "06",
-    title: "Alto Realty",
-    category: "Real Estate",
-    image: "https://picsum.photos/seed/codedesk-work-6/1200/1500",
-    url: "#",
-  },
-  {
-    index: "07",
-    title: "Kiln",
-    category: "Portfolio Template",
-    image: "https://picsum.photos/seed/codedesk-work-7/1200/1500",
+    title: { ko: "국립중앙박물관", en: "National Museum of Korea" },
+    category: {
+      ko: "공공기관 디자인",
+      en: "Public Institution Website Design",
+    },
+    video: "/media/home_work/work_03_koreannationalmuseum.mp4",
     url: "#",
   },
 ];

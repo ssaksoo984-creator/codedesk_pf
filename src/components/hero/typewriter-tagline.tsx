@@ -7,6 +7,8 @@ interface Segment {
   point?: boolean;
 }
 
+// Always English regardless of locale — this line is a stylized rhetorical
+// flourish, not translated UI copy.
 const LINES: Segment[][] = [
   [{ text: "who is the " }, { text: "best", point: true }, { text: "?" }],
   [{ text: "what's so " }, { text: "creative", point: true }, { text: "?" }],

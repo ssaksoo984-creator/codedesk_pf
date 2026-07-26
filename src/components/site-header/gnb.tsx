@@ -5,6 +5,7 @@ import clsx from "clsx";
 import { Logo } from "@/components/logo";
 import { NAV_ITEMS } from "@/lib/nav-items";
 import { useGnbTheme } from "./gnb-theme";
+import { useLocale } from "./locale-context";
 import { SchemeToggle } from "./scheme-toggle";
 
 function MenuIcon({ open }: { open: boolean }) {
@@ -34,6 +35,7 @@ function MenuIcon({ open }: { open: boolean }) {
 
 export function Gnb() {
   const { theme } = useGnbTheme();
+  const { locale } = useLocale();
   const [open, setOpen] = useState(false);
   const panelRef = useRef<HTMLDivElement | null>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
@@ -88,7 +90,15 @@ export function Gnb() {
             ref={triggerRef}
             type="button"
             aria-expanded={open}
-            aria-label={open ? "메뉴 닫기" : "메뉴 열기"}
+            aria-label={
+              locale === "ko"
+                ? open
+                  ? "메뉴 닫기"
+                  : "메뉴 열기"
+                : open
+                  ? "Close menu"
+                  : "Open menu"
+            }
             onClick={() => setOpen((v) => !v)}
             className={clsx(
               "flex h-10 w-10 items-center justify-center rounded-xl transition-colors duration-300 md:h-11 md:w-11",

@@ -2,6 +2,7 @@
 
 import clsx from "clsx";
 import { useGnbTheme } from "./gnb-theme";
+import { useLocale } from "./locale-context";
 
 /**
  * Fixed bottom-right "TOP" button. Adapts color exactly like the GNB pill
@@ -11,6 +12,7 @@ import { useGnbTheme } from "./gnb-theme";
  */
 export function BackToTop() {
   const { theme } = useGnbTheme();
+  const { locale } = useLocale();
   const isLight = theme === "light";
 
   function handleClick() {
@@ -21,7 +23,7 @@ export function BackToTop() {
     <button
       type="button"
       onClick={handleClick}
-      aria-label="맨 위로 이동"
+      aria-label={locale === "ko" ? "맨 위로 이동" : "Back to top"}
       className={clsx(
         "fixed bottom-5 right-5 z-40 flex h-12 w-12 flex-col items-center justify-center gap-0.5 rounded-xl text-[10px] font-semibold tracking-wide shadow-lg transition-colors duration-500 md:bottom-8 md:right-8 md:h-14 md:w-14 md:text-[11px]",
         isLight ? "bg-charcoal text-paper" : "bg-paper text-charcoal"

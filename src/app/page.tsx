@@ -1,5 +1,6 @@
 import { Gnb } from "@/components/site-header/gnb";
 import { BackToTop } from "@/components/site-header/back-to-top";
+import { LocaleToggle } from "@/components/site-header/locale-toggle";
 import { Hero } from "@/components/hero/hero";
 import { AboutSection } from "@/components/about/about-section";
 import { WorkSection } from "@/components/work/work-section";
@@ -15,6 +16,7 @@ export default function Home() {
         <WorkSection />
       </main>
       <SiteFooter />
+      <LocaleToggle />
       <BackToTop />
     </>
   );

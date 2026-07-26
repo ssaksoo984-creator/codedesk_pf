@@ -1,7 +1,16 @@
+"use client";
+
 import { Logo } from "@/components/logo";
 import { NAV_ITEMS } from "@/lib/nav-items";
+import { useLocale } from "@/components/site-header/locale-context";
+
+const TAGLINE = {
+  ko: "아이디어를 실제로 작동하는 제품으로. 디자인과 코드를 함께 만듭니다.",
+  en: "Turning ideas into products that actually work. We build design and code together.",
+};
 
 export function SiteFooter() {
+  const { locale } = useLocale();
   const year = new Date().getFullYear();
 
   return (
@@ -10,7 +19,7 @@ export function SiteFooter() {
         <div>
           <Logo tone="ink" className="mb-4" />
           <p className="max-w-xs text-sm leading-relaxed text-muted">
-            아이디어를 실제로 작동하는 제품으로. 디자인과 코드를 함께 만듭니다.
+            {TAGLINE[locale]}
           </p>
         </div>
 
