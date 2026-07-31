@@ -33,12 +33,32 @@ export const WORK_PROJECTS: WorkProject[] = [
   },
   {
     index: "03",
-    title: { ko: "국립중앙박물관", en: "National Museum of Korea" },
+    title: { ko: "리브한의원", en: "Reeve" },
     category: {
-      ko: "공공기관 디자인",
-      en: "Public Institution Website Design",
+      ko: "한의원 홈페이지 디자인 개발",
+      en: "Korean Medicine Clinic Website Design & Development",
     },
-    video: "/media/home_work/work_03_koreannationalmuseum.mp4",
-    url: "#",
+    image: "/media/home_work/work_03_medical.png",
+    url: "https://hanbang-wzgf.vercel.app/",
+  },
+  {
+    index: "04",
+    title: { ko: "Lookback", en: "Lookback" },
+    category: {
+      ko: "미술 아카이브 사이트",
+      en: "Art Archive Website",
+    },
+    image: "/media/home_work/work_04_artl.png",
+    url: "https://lookback-dusky.vercel.app/",
+  },
+  {
+    index: "05",
+    title: { ko: "Bloom Soft", en: "Bloom Soft" },
+    category: {
+      ko: "테크 기업 사이트",
+      en: "Technology Company Website",
+    },
+    image: "/media/home_work/work_05_company.png",
+    url: "https://bloomcompany-xgvi.vercel.app/",
   },
 ];
