@@ -4,6 +4,7 @@ import { LocaleToggle } from "@/components/site-header/locale-toggle";
 import { Hero } from "@/components/hero/hero";
 import { AboutSection } from "@/components/about/about-section";
 import { WorkSection } from "@/components/work/work-section";
+import { ThoughtSection } from "@/components/thought/thought-section";
 import { SiteFooter } from "@/components/footer/site-footer";
 
 export default function Home() {
@@ -14,6 +15,7 @@ export default function Home() {
         <Hero />
         <AboutSection />
         <WorkSection />
+        <ThoughtSection />
       </main>
       <SiteFooter />
       <LocaleToggle />

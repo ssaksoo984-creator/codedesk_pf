@@ -3,6 +3,7 @@ import { pretendard, cormorant } from "./fonts";
 import { GnbThemeProvider } from "@/components/site-header/gnb-theme";
 import { LocaleProvider } from "@/components/site-header/locale-context";
 import { PageBackground } from "@/components/site-header/page-background";
+import { ViewTracker } from "@/components/thought/view-tracker";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -40,6 +41,7 @@ export default function RootLayout({
         <LocaleProvider>
           <GnbThemeProvider>
             <PageBackground />
+            <ViewTracker />
             {children}
           </GnbThemeProvider>
         </LocaleProvider>
