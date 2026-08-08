@@ -10,6 +10,8 @@ export const MOCK_THOUGHTS: Thought[] = [
 GSAP ScrollTrigger의 scrub 옵션 하나로 스크롤 위치를 애니메이션 진행률에 직접 묶을 수 있다는 게 핵심이었습니다. 스크롤을 올리면 그대로 되감기는 것도 별도 로직 없이 공짜로 따라옵니다.
 
 다음 글에서는 라이트/다크 섹션이 전환될 때 GNB 색이 스크롤 위치에 따라 자동으로 바뀌는 구조를 다뤄볼게요.`,
+    title_en: null,
+    body_en: null,
     thumbnail_url: null,
     created_at: new Date(Date.now() - 2 * 86400000).toISOString(),
   },

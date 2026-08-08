@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import clsx from "clsx";
 import { Logo } from "@/components/logo";
-import { NAV_ITEMS } from "@/lib/nav-items";
+import { NAV_ITEMS, resolveNavHref } from "@/lib/nav-items";
 import { useGnbTheme } from "./gnb-theme";
 import { useLocale } from "./locale-context";
 import { SchemeToggle } from "./scheme-toggle";
@@ -36,6 +37,7 @@ function MenuIcon({ open }: { open: boolean }) {
 export function Gnb() {
   const { theme } = useGnbTheme();
   const { locale } = useLocale();
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const panelRef = useRef<HTMLDivElement | null>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
@@ -124,7 +126,7 @@ export function Gnb() {
           {NAV_ITEMS.map((item, i) => (
             <a
               key={item.href}
-              href={item.href}
+              href={resolveNavHref(item.href, pathname)}
               onClick={() => setOpen(false)}
               className={clsx(
                 "px-6 py-3.5 font-display text-xl italic tracking-tight transition-colors",

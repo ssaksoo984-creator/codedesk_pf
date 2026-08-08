@@ -5,8 +5,19 @@ export interface Thought {
   id: string;
   title: string;
   body: string;
+  /** Optional translations — null until the admin fills them in. */
+  title_en: string | null;
+  body_en: string | null;
   thumbnail_url: string | null;
   created_at: string;
+}
+
+/** Picks the locale's text, falling back to Korean when no translation exists yet. */
+export function localizedThought(t: Thought, locale: "ko" | "en") {
+  return {
+    title: (locale === "en" && t.title_en) || t.title,
+    body: (locale === "en" && t.body_en) || t.body,
+  };
 }
 
 export interface Stats {
@@ -21,11 +32,13 @@ export function excerpt(body: string, max = 160): string {
   return flat.length > max ? `${flat.slice(0, max)}…` : flat;
 }
 
+const THOUGHT_COLUMNS = "id, title, body, title_en, body_en, thumbnail_url, created_at";
+
 export async function listThoughts(): Promise<Thought[]> {
   if (!isConfigured) return MOCK_THOUGHTS;
   const { data, error } = await supabase
     .from("thoughts")
-    .select("id, title, body, thumbnail_url, created_at")
+    .select(THOUGHT_COLUMNS)
     .order("created_at", { ascending: false });
   if (error) throw error;
   return data as Thought[];
@@ -35,7 +48,7 @@ export async function getThought(id: string): Promise<Thought | null> {
   if (!isConfigured) return MOCK_THOUGHTS.find((t) => t.id === id) ?? null;
   const { data, error } = await supabase
     .from("thoughts")
-    .select("id, title, body, thumbnail_url, created_at")
+    .select(THOUGHT_COLUMNS)
     .eq("id", id)
     .maybeSingle();
   if (error) throw error;
@@ -53,19 +66,54 @@ export async function uploadThoughtPhoto(file: File): Promise<string> {
   return supabase.storage.from("thought-photos").getPublicUrl(path).data.publicUrl;
 }
 
-export async function createThought(input: {
+interface ThoughtInput {
   title: string;
   body: string;
+  title_en: string;
+  body_en: string;
   photoFile: File | null;
-}): Promise<Thought> {
+}
+
+export async function createThought(input: ThoughtInput): Promise<Thought> {
   if (!isConfigured) throw new Error("Supabase가 설정되지 않았습니다.");
 
   const thumbnail_url = input.photoFile ? await uploadThoughtPhoto(input.photoFile) : null;
 
   const { data, error } = await supabase
     .from("thoughts")
-    .insert({ title: input.title, body: input.body, thumbnail_url })
-    .select("id, title, body, thumbnail_url, created_at")
+    .insert({
+      title: input.title,
+      body: input.body,
+      title_en: input.title_en || null,
+      body_en: input.body_en || null,
+      thumbnail_url,
+    })
+    .select(THOUGHT_COLUMNS)
+    .single();
+  if (error) throw error;
+  return data as Thought;
+}
+
+/** Photo is optional on edit — pass null to leave the existing thumbnail as-is. */
+export async function updateThought(
+  id: string,
+  input: ThoughtInput
+): Promise<Thought> {
+  if (!isConfigured) throw new Error("Supabase가 설정되지 않았습니다.");
+
+  const thumbnail_url = input.photoFile ? await uploadThoughtPhoto(input.photoFile) : undefined;
+
+  const { data, error } = await supabase
+    .from("thoughts")
+    .update({
+      title: input.title,
+      body: input.body,
+      title_en: input.title_en || null,
+      body_en: input.body_en || null,
+      ...(thumbnail_url ? { thumbnail_url } : {}),
+    })
+    .eq("id", id)
+    .select(THOUGHT_COLUMNS)
     .single();
   if (error) throw error;
   return data as Thought;

@@ -12,3 +12,11 @@ export const NAV_ITEMS: NavItem[] = [
   { label: "Thought", href: "/thought" },
   { label: "Contact", href: "#contact" },
 ];
+
+/** Section anchors ("#about") only resolve on the homepage — from any other
+ * route they need to point back at "/" first, or the browser just appends
+ * the hash to the current path and never scrolls anywhere. */
+export function resolveNavHref(href: string, pathname: string): string {
+  if (!href.startsWith("#")) return href;
+  return pathname === "/" ? href : `/${href}`;
+}

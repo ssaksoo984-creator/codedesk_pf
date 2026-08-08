@@ -8,6 +8,10 @@ create table thoughts (
   id            uuid primary key default gen_random_uuid(),
   title         text not null,
   body          text not null,
+  -- English versions are optional — the site falls back to the Korean
+  -- title/body above when a post has no translation yet.
+  title_en      text,
+  body_en       text,
   thumbnail_url text,
   created_at    timestamptz not null default now()
 );

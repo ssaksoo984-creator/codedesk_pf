@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useLocale } from "@/components/site-header/locale-context";
-import { excerpt, type Thought } from "@/lib/thoughts";
+import { excerpt, localizedThought, type Thought } from "@/lib/thoughts";
 
 const READ_MORE = { ko: "더 읽기", en: "Read more" };
 
@@ -16,6 +16,7 @@ function formatDate(iso: string, locale: "ko" | "en") {
 
 export function ThoughtCard({ thought }: { thought: Thought }) {
   const { locale } = useLocale();
+  const text = localizedThought(thought, locale);
 
   return (
     <Link
@@ -27,7 +28,7 @@ export function ThoughtCard({ thought }: { thought: Thought }) {
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={thought.thumbnail_url}
-            alt={thought.title}
+            alt={text.title}
             loading="lazy"
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
@@ -43,10 +44,10 @@ export function ThoughtCard({ thought }: { thought: Thought }) {
           {formatDate(thought.created_at, locale)}
         </span>
         <h3 className="font-display text-2xl italic leading-snug text-ink">
-          {thought.title}
+          {text.title}
         </h3>
         <p className="line-clamp-3 flex-1 text-sm leading-relaxed text-muted">
-          {excerpt(thought.body)}
+          {excerpt(text.body)}
         </p>
         <span className="text-xs font-semibold uppercase tracking-[0.15em] text-ink/70 transition-colors group-hover:text-ink">
           {READ_MORE[locale]} →

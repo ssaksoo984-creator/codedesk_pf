@@ -9,7 +9,7 @@ import { LocaleToggle } from "@/components/site-header/locale-toggle";
 import { SiteFooter } from "@/components/footer/site-footer";
 import { NoScrollSnap } from "@/components/ui/no-scroll-snap";
 import { useLocale } from "@/components/site-header/locale-context";
-import { getThought, type Thought } from "@/lib/thoughts";
+import { getThought, localizedThought, type Thought } from "@/lib/thoughts";
 
 const COPY = {
   back: { ko: "← Thought로 돌아가기", en: "← Back to Thought" },
@@ -67,7 +67,7 @@ function ThoughtView() {
               {formatDate(thought.created_at, locale)}
             </p>
             <h1 className="mb-10 font-display text-4xl italic leading-tight text-ink md:text-6xl">
-              {thought.title}
+              {localizedThought(thought, locale).title}
             </h1>
 
             {thought.thumbnail_url ? (
@@ -75,14 +75,14 @@ function ThoughtView() {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={thought.thumbnail_url}
-                  alt={thought.title}
+                  alt={localizedThought(thought, locale).title}
                   className="w-full object-cover"
                 />
               </div>
             ) : null}
 
             <div className="whitespace-pre-wrap text-base leading-relaxed text-muted md:text-lg">
-              {thought.body}
+              {localizedThought(thought, locale).body}
             </div>
           </article>
         ) : null}

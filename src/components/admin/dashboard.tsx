@@ -115,6 +115,12 @@ export function Dashboard() {
                   >
                     보기
                   </Link>
+                  <Link
+                    href={`/admin/new?id=${t.id}`}
+                    className="text-xs text-muted transition-colors hover:text-ink"
+                  >
+                    수정
+                  </Link>
                   <button
                     onClick={() => handleDelete(t.id)}
                     disabled={busyId === t.id}

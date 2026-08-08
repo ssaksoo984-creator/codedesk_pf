@@ -1,7 +1,8 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { Logo } from "@/components/logo";
-import { NAV_ITEMS } from "@/lib/nav-items";
+import { NAV_ITEMS, resolveNavHref } from "@/lib/nav-items";
 import { useLocale } from "@/components/site-header/locale-context";
 
 const TAGLINE = {

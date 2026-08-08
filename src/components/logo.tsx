@@ -13,7 +13,7 @@ export function Logo({ className, tone = "ink", size = "default" }: LogoProps) {
 
   return (
     <Link
-      href="#top"
+      href="/"
       aria-label="{Code} · Desk 홈으로 이동"
       className={clsx(
         "inline-flex items-baseline gap-[0.05em] font-semibold tracking-tight select-none",
