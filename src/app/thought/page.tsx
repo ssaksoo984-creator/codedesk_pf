@@ -1,19 +1,17 @@
 import { Gnb } from "@/components/site-header/gnb";
 import { BackToTop } from "@/components/site-header/back-to-top";
 import { LocaleToggle } from "@/components/site-header/locale-toggle";
-import { Hero } from "@/components/hero/hero";
-import { AboutSection } from "@/components/about/about-section";
-import { WorkSection } from "@/components/work/work-section";
 import { SiteFooter } from "@/components/footer/site-footer";
+import { NoScrollSnap } from "@/components/ui/no-scroll-snap";
+import { ThoughtSection } from "@/components/thought/thought-section";
 
-export default function Home() {
+export default function ThoughtPage() {
   return (
     <>
+      <NoScrollSnap />
       <Gnb />
       <main>
-        <Hero />
-        <AboutSection />
-        <WorkSection />
+        <ThoughtSection />
       </main>
       <SiteFooter />
       <LocaleToggle />

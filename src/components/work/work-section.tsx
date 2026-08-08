@@ -60,7 +60,7 @@ export function WorkSection() {
       trigger: trackRef.current,
       start: "top top",
       end: "bottom bottom",
-      scrub: 1,
+      scrub: 0.6,
       onUpdate: (self) => {
         const p = self.progress;
 
@@ -95,7 +95,7 @@ export function WorkSection() {
 
   return (
     <ThemeSection theme="dark" id="work" snap>
-      <div ref={trackRef} className="relative" style={{ height: "700vh" }}>
+      <div ref={trackRef} className="relative" style={{ height: "450vh" }}>
         <div
           ref={lightMarkerRef}
           className="pointer-events-none absolute inset-x-0"

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ThemeSection } from "@/components/site-header/theme-section";
 import { Logo } from "@/components/logo";
 import { Reveal } from "@/components/ui/reveal";
 import { useLocale } from "@/components/site-header/locale-context";
@@ -28,8 +27,8 @@ export function ThoughtSection() {
   }, []);
 
   return (
-    <ThemeSection theme="light" id="thought" snap className="bg-paper">
-      <div className="wrap flex min-h-screen flex-col justify-center py-24 md:py-32">
+    <div className="bg-paper">
+      <div className="wrap pb-24 pt-32 md:pb-32 md:pt-40">
         <Reveal>
           <Logo tone="ink" size="small" className="mb-8 md:mb-10" />
           <div className="mb-12 flex flex-col items-start justify-between gap-6 md:mb-16 md:flex-row md:items-end">
@@ -63,6 +62,6 @@ export function ThoughtSection() {
           </div>
         )}
       </div>
-    </ThemeSection>
+    </div>
   );
 }

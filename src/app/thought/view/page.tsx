@@ -52,7 +52,7 @@ function ThoughtView() {
     <main className="min-h-screen bg-paper pb-24">
       <div className="wrap max-w-3xl pb-24 pt-32 md:pt-40">
         <Link
-          href="/#thought"
+          href="/thought"
           className="mb-12 inline-block text-sm text-muted transition-colors hover:text-ink"
         >
           {COPY.back[locale]}

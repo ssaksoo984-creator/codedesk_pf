@@ -131,7 +131,12 @@ export function WorkListPanel({ onActiveChange }: WorkListPanelProps) {
         <div className="border-t border-white/15" />
       </div>
 
-      <div className="relative hidden w-full overflow-hidden rounded-2xl bg-charcoal/40 md:sticky md:top-0 md:block md:h-[510px]">
+      <a
+        href={WORK_PROJECTS[active].url}
+        target={WORK_PROJECTS[active].url === "#" ? undefined : "_blank"}
+        rel={WORK_PROJECTS[active].url === "#" ? undefined : "noopener noreferrer"}
+        className="group relative hidden w-full overflow-hidden rounded-2xl bg-charcoal/40 md:sticky md:top-0 md:block md:h-[510px]"
+      >
         {WORK_PROJECTS.map((project, i) =>
           project.video ? (
             <div
@@ -165,7 +170,15 @@ export function WorkListPanel({ onActiveChange }: WorkListPanelProps) {
             />
           )
         )}
-      </div>
+
+        {/* Hover cue — makes it obvious the preview itself is a link, not just decoration. */}
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-ink/0 transition-colors duration-300 group-hover:bg-ink/30">
+          <span className="flex translate-y-2 items-center gap-2 rounded-full bg-paper px-5 py-2.5 text-xs font-medium uppercase tracking-[0.15em] text-ink opacity-0 shadow-lg transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+            {locale === "ko" ? "사이트 보기" : "Visit site"}
+            <span aria-hidden>↗</span>
+          </span>
+        </div>
+      </a>
     </div>
   );
 }
