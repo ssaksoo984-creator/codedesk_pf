@@ -20,6 +20,11 @@ create index thoughts_created_at_idx on thoughts (created_at desc);
 create table page_views (
   id          bigint generated always as identity primary key,
   path        text not null,
+  -- Full document.referrer URL the visitor arrived from, null for direct/
+  -- typed-in visits. Never contains search *keywords* — browsers/search
+  -- engines stopped forwarding those over HTTPS years ago; that data only
+  -- lives in Google Search Console, not in referrer headers.
+  referrer    text,
   visitor_id  uuid not null,
   created_at  timestamptz not null default now()
 );
