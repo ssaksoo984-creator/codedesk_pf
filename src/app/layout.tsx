@@ -3,7 +3,8 @@ import { pretendard, cormorant } from "./fonts";
 import { GnbThemeProvider } from "@/components/site-header/gnb-theme";
 import { LocaleProvider } from "@/components/site-header/locale-context";
 import { PageBackground } from "@/components/site-header/page-background";
-import { ViewTracker } from "@/components/thought/view-tracker";
+import { LocaleToggle } from "@/components/site-header/locale-toggle";
+import { BackToTop } from "@/components/site-header/back-to-top";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -27,6 +28,9 @@ export default function RootLayout({
     <html
       lang="ko"
       className={`${pretendard.variable} ${cormorant.variable} h-full antialiased`}
+      // Both the moon-mode and scroll-snap-opt-out scripts below mutate
+      // <html> before hydration runs — expected, not a real mismatch.
+      suppressHydrationWarning
     >
       <head>
         <script
@@ -41,8 +45,9 @@ export default function RootLayout({
         <LocaleProvider>
           <GnbThemeProvider>
             <PageBackground />
-            <ViewTracker />
             {children}
+            <LocaleToggle />
+            <BackToTop />
           </GnbThemeProvider>
         </LocaleProvider>
       </body>

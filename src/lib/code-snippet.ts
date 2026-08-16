@@ -1,6 +1,6 @@
 export const HERO_CODE_LINES: string[] = [
   "// {Code} · Desk — portfolio.config.ts",
-  "import { createSite } from '@codedesk/core';",
+  "import { createSite } from './lib/core';",
   "",
   "export const site = createSite({",
   "  name: '{Code} · Desk',",
@@ -18,7 +18,6 @@ export const HERO_CODE_LINES: string[] = [
   "  { id: 'about', title: 'About', theme: 'light' },",
   "  { id: 'work', title: 'Work', theme: 'light' },",
   "  { id: 'service', title: 'Service', theme: 'dark' },",
-  "  { id: 'thought', title: 'Thought', theme: 'light' },",
   "  { id: 'contact', title: 'Contact', theme: 'dark' },",
   "];",
   "",

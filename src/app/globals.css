@@ -55,10 +55,19 @@ html[data-scheme="moon"] {
 
 /* Real photos/video stay natural instead of turning into negatives —
    inverting twice cancels out. Decorative canvas art is left to invert
-   with everything else. */
+   with everything else. ".true-color" opts in the same cancellation for
+   non-img/video elements that show an actual real-world color (e.g. a
+   Design Guide swatch showing a site's real hex value) — otherwise moon
+   mode reports the wrong color for exactly the thing meant to be accurate.
+   The two invert+hue-rotate passes (this element, then <html> on top of
+   it) round-trip through an intermediate composited layer, and vivid
+   hues — violets/magentas especially — can briefly go out of the 0–255
+   range there and get clamped, so they come out slightly washed out
+   instead of perfectly cancelling. The saturate() bump compensates. */
 html[data-scheme="moon"] img,
-html[data-scheme="moon"] video {
-  filter: invert(1) hue-rotate(180deg);
+html[data-scheme="moon"] video,
+html[data-scheme="moon"] .true-color {
+  filter: invert(1) hue-rotate(180deg) saturate(1.35);
 }
 
 .snap-section {
@@ -170,4 +179,170 @@ body {
 
 .typewriter-caret {
   animation: caret-blink 1s step-end infinite;
+}
+
+/* ---- Design Guide step flow: staggered reveal on mount ---- */
+@keyframes step-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-step-in {
+  animation: step-in 0.5s ease-out both;
+}
+
+/* ---- Hero game teaser: a meteor shower strikes the city + code panel ---- */
+@keyframes teaser-meteor-fall {
+  0% {
+    top: var(--m-top-start, -15%);
+    left: var(--m-left-start, 88%);
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  12% {
+    opacity: 1;
+  }
+  100% {
+    top: var(--m-top-end, 58%);
+    left: var(--m-left-end, 38%);
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+.teaser-meteor {
+  position: absolute;
+  top: var(--m-top-start, -15%);
+  left: var(--m-left-start, 88%);
+  width: var(--m-size, 10px);
+  height: var(--m-size, 10px);
+  border-radius: 9999px;
+  background: radial-gradient(circle, #fff 0%, #ff6a45 35%, #dc2626 70%, transparent 100%);
+  box-shadow:
+    0 0 12px 4px rgba(220, 38, 38, 0.8),
+    0 0 28px 10px rgba(220, 38, 38, 0.35);
+  animation-name: teaser-meteor-fall;
+  animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45);
+  animation-fill-mode: forwards;
+}
+
+.teaser-meteor::after {
+  content: "";
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  width: 50px;
+  height: 3px;
+  border-radius: 9999px;
+  background: linear-gradient(to left, rgba(220, 38, 38, 0.85), transparent);
+  transform: translateY(-50%) rotate(215deg);
+  transform-origin: right center;
+}
+
+@keyframes teaser-shake {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  20% {
+    transform: translate3d(-3px, 2px, 0);
+  }
+  40% {
+    transform: translate3d(3px, -2px, 0);
+  }
+  60% {
+    transform: translate3d(-2px, 3px, 0);
+  }
+  80% {
+    transform: translate3d(2px, -3px, 0);
+  }
+}
+
+.animate-teaser-shake {
+  animation: teaser-shake 350ms ease-in-out 2;
+}
+
+@keyframes teaser-flash {
+  0% {
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.55;
+  }
+  100% {
+    opacity: 0.12;
+  }
+}
+
+.animate-teaser-flash {
+  animation: teaser-flash 1.9s ease-out forwards;
+}
+
+@keyframes teaser-alert-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.animate-teaser-alert-blink {
+  animation: teaser-alert-blink 500ms steps(1, end) infinite;
+}
+
+@keyframes teaser-cta-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-teaser-cta-in {
+  animation: teaser-cta-in 400ms ease-out forwards;
+}
+
+/* ---- Alert badge: pings once on arrival, otherwise only on hover ---- */
+@keyframes ping-once {
+  0% {
+    transform: scale(1);
+    opacity: 0.75;
+  }
+  75%,
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+.animate-ping-once {
+  animation: ping-once 1s cubic-bezier(0, 0, 0.2, 1) 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-teaser-shake,
+  .animate-teaser-flash,
+  .animate-teaser-alert-blink,
+  .animate-teaser-cta-in,
+  .animate-ping-once,
+  .teaser-meteor {
+    animation: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-step-in {
+    animation: none;
+  }
 }

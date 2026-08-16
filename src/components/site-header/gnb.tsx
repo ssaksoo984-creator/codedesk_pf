@@ -73,10 +73,10 @@ export function Gnb() {
   }, [open]);
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 flex justify-center px-3 pt-3 md:pt-4">
+    <header className="pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-center px-3 pt-3 md:pt-4">
       <div
         className={clsx(
-          "flex w-full items-center justify-between rounded-2xl px-4 shadow-lg transition-colors duration-500 md:w-[800px] md:px-6",
+          "pointer-events-auto flex w-full items-center justify-between rounded-2xl px-4 shadow-lg transition-colors duration-500 md:w-[800px] md:px-6",
           "h-16 md:h-20",
           isLight ? "bg-charcoal text-paper" : "bg-paper text-charcoal"
         )}
@@ -118,7 +118,7 @@ export function Gnb() {
           "absolute right-3 top-[4.75rem] w-[min(90vw,320px)] origin-top-right overflow-hidden rounded-2xl shadow-2xl transition-all duration-300 md:right-[calc(50%-400px+1.5rem)] md:top-24",
           isLight ? "bg-charcoal text-paper" : "bg-paper text-charcoal",
           open
-            ? "scale-100 opacity-100"
+            ? "pointer-events-auto scale-100 opacity-100"
             : "pointer-events-none scale-95 opacity-0"
         )}
       >
@@ -137,6 +137,22 @@ export function Gnb() {
               {item.label}
             </a>
           ))}
+          <a
+            href="https://recoveryprotocel.vercel.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => setOpen(false)}
+            className={clsx(
+              "flex items-center gap-2.5 px-6 py-3.5 font-display text-xl italic tracking-tight text-red-500 transition-colors",
+              isLight ? "hover:bg-red-500/10 border-t border-white/10" : "hover:bg-red-500/10 border-t border-black/10"
+            )}
+          >
+            <span className="relative flex h-2 w-2 shrink-0">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-500 opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500" />
+            </span>
+            {locale === "ko" ? "게임 플레이하기" : "Play the Game"}
+          </a>
         </nav>
       </div>
     </header>

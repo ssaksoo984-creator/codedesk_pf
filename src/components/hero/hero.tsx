@@ -1,7 +1,7 @@
 import { ThemeSection } from "@/components/site-header/theme-section";
 import { VideoSlot } from "@/components/media/video-slot";
+import { HeroCityTeaser } from "@/components/game/hero-city-teaser";
 import { RollingCode } from "./rolling-code";
-import { BinaryCityScroll } from "./binary-city-scroll";
 import { TypewriterTagline } from "./typewriter-tagline";
 
 export function Hero() {
@@ -18,7 +18,7 @@ export function Hero() {
               <RollingCode />
             </div>
             <div className="min-h-0 flex-1">
-              <BinaryCityScroll />
+              <HeroCityTeaser />
             </div>
           </div>
         </div>

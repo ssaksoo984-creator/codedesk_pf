@@ -106,10 +106,10 @@ export function WorkSection() {
         <div className="sticky top-0 h-screen w-full overflow-hidden bg-ink">
           <div
             ref={listStageRef}
-            className="wrap absolute inset-0 flex flex-col pb-16 pt-[88px] md:pb-20 md:pt-[112px]"
+            className="wrap absolute inset-0 flex min-h-0 flex-col pb-16 pt-[88px] md:pb-20 md:pt-[112px]"
           >
-            <Logo tone="paper" size="small" className="mb-8 md:mb-10" />
-            <p className="mb-10 font-display text-4xl italic text-paper md:mb-14 md:text-6xl">
+            <Logo tone="paper" size="small" className="mb-8 shrink-0 md:mb-10" />
+            <p className="mb-10 shrink-0 font-display text-4xl italic text-paper md:mb-14 md:text-6xl">
               Work
             </p>
             <WorkListPanel />
