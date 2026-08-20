@@ -274,7 +274,7 @@ export function SphereGallery() {
         if (logoInkRef.current) logoInkRef.current.style.opacity = "1";
         if (logoPaperRef.current) logoPaperRef.current.style.opacity = "0";
         if (blackoutRef.current) {
-          blackoutRef.current.style.opacity = "1";
+          blackoutRef.current.style.opacity = `${ease}`;
           blackoutRef.current.style.background =
             "radial-gradient(circle at center, transparent 75%, #0d0d0d 140%)";
         }

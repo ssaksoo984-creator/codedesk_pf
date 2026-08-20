@@ -38,10 +38,10 @@ export function SiteFooter() {
         </nav>
 
         <a
-          href="mailto:ssaksoo984@gmail.com"
+          href="mailto:ssssssu984@gmail.com"
           className="text-sm text-muted transition-colors hover:text-ink"
         >
-          ssaksoo984@gmail.com
+          ssssssu984@gmail.com
         </a>
       </div>
 

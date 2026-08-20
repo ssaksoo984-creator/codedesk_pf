@@ -9,6 +9,7 @@ import { useLocale } from "@/components/site-header/locale-context";
 import { Logo } from "@/components/logo";
 import { VideoSlot } from "@/components/media/video-slot";
 import { WorkListPanel } from "./work-list-panel";
+import { ContactActions } from "./contact-actions";
 
 // Section headers ("Work" / "Contact") stay English in every locale — same
 // convention as the "Service"/"About" headers.
@@ -194,7 +195,9 @@ export function WorkSection() {
               </p>
             </div>
 
-            <div className="h-[240px] w-full md:h-[400px]">
+            <ContactActions />
+
+            <div className="mt-8 h-[240px] w-full md:mt-12 md:h-[400px]">
               <VideoSlot
                 basename="walking-crowd"
                 label="분주히 걸어가는 사람들 영상 자리"
