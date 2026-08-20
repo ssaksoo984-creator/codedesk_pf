@@ -14,12 +14,27 @@
 @theme inline {
   --font-sans: var(--font-pretendard);
   --font-display: var(--font-cormorant);
+  --font-point: "MapoFlowerIsland", var(--font-cormorant);
 
   --color-paper: var(--paper);
   --color-ink: var(--ink);
   --color-charcoal: var(--charcoal);
   --color-muted: var(--muted);
   --color-line: var(--line);
+}
+
+/* Hangul-only display face for case-study "point text" (resolution quotes,
+   Situation, Reflection) — unicode-range keeps it from ever touching Latin
+   glyphs, so English/numbers inside the same paragraph still fall through
+   to --font-display (Cormorant) untouched. */
+@font-face {
+  font-family: "MapoFlowerIsland";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/MapoFlowerIslandA.woff")
+    format("woff");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+AC00-D7A3, U+1100-11FF, U+3130-318F, U+A960-A97F, U+D7B0-D7FF;
 }
 
 @utility wrap {

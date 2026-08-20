@@ -12,6 +12,7 @@ const TAGLINE = {
 
 export function SiteFooter() {
   const { locale } = useLocale();
+  const pathname = usePathname();
   const year = new Date().getFullYear();
 
   return (
@@ -28,7 +29,7 @@ export function SiteFooter() {
           {NAV_ITEMS.map((item) => (
             <a
               key={item.href}
-              href={item.href}
+              href={resolveNavHref(item.href, pathname)}
               className="font-display text-lg italic text-ink transition-colors hover:text-muted"
             >
               {item.label}

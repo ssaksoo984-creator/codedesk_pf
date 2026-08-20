@@ -14,16 +14,62 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-const SPHERE_ROTATION_DEG = 540;
 const SPHERE_TILT_DEG = 26;
-
-/** Scroll-progress boundaries for each phase of the pinned track. */
-const SPHERE_PHASE_END = 0.4; // orbiting sphere + rotating copy
-const CONVERGE_END = 0.544; // cards collapse to center, finale logo fades in (ink, centered)
-const BLACKOUT_END = 0.672; // background vignette closes to black, logo crossfades to paper
-const RELOCATE_END = 0.8; // logo shrinks + slides top-left and settles there
-const SERVICE_END = 1; // Service title/description/cards fade in below the logo, same spot
 const FINAL_LOGO_SCALE = 0.4; // how small the relocated logo ends up
+
+/** The sphere spins continuously on its own now, independent of scroll —
+ * one full 360° turn every SPHERE_ROTATION_SECONDS, looping forever.
+ * Tweak this to change how fast it spins. */
+const SPHERE_ROTATION_SECONDS = 14;
+
+/** The 3 About slides (title + description) still change by scroll — that
+ * part reads better under the visitor's own control than autoplayed. This
+ * is just the slide text now (the sphere no longer shares this track), so
+ * it's shorter than it needs to be for a whole rotation — tweak this
+ * directly if it still feels too long or short per slide. (Rescaled from
+ * 480 — that number was set while the vh-unit bug below made it behave
+ * like ~53vh in practice; 55 reproduces the same feel now that it's
+ * fixed.) */
+const SLIDES_TRACK_VH = 160;
+
+/** How long the outgoing/incoming slide text takes to cross-fade — keep in
+ * sync with the `duration-200` Tailwind class on titleRef/descRef below. */
+const SLIDE_FADE_MS = 200;
+
+/** A fast scroll (a single trackpad flick can easily cover several vh in
+ * one tick) used to be able to jump straight from slide 1 to slide 3,
+ * skipping 2 entirely, since slide index was read directly off scroll
+ * position with no floor on how long each one stays on screen. This is
+ * the floor: once a slide change starts, the next one can't start for at
+ * least this long, so scrolling fast still steps through 1 → 2 → 3 instead
+ * of skipping ahead — it just catches up to wherever the scroll ended once
+ * it's done stepping. */
+const SLIDE_MIN_DWELL_MS = 350;
+
+/** Extra scroll after slide 3 with nothing scheduled to happen — dead
+ * space on purpose, so there's a moment to actually read the last slide
+ * before Phase B–E's transition takes over. Separate from SLIDES_TRACK_VH
+ * (which only covers paging through the 3 slides) per request. (Rescaled
+ * from 60 for the same vh-unit-bug reason as SLIDES_TRACK_VH above.) */
+const SLIDE_TO_TRANSITION_GAP_VH = 10;
+
+/** Everything after the slides (cards converge → blackout → logo relocates
+ * → Service reveals) is purely visual, so it plays once as a fixed-duration
+ * animation the moment it scrolls into view, the same way the Work
+ * section's circle → Contact transition does — see the comment on the
+ * ScrollTrigger below for why scroll gets briefly held while it plays. */
+const PHASE_BE_TRACK_VH = 200;
+const PHASE_BE_DURATION = 3.5; // seconds
+
+/** Progress boundaries (0–1) for phases B–E, rescaled to their own local
+ * range now that they run independently of Phase A (they used to share one
+ * 0–1 scroll fraction with Phase A ending at 0.4; e.g. old CONVERGE_END
+ * 0.544 becomes (0.544 − 0.4) / (1 − 0.4) = 0.24 here). The choreography
+ * itself is unchanged. */
+const CONVERGE_END = 0.24; // cards collapse to center, finale logo fades in (ink, centered)
+const BLACKOUT_END = 0.453; // background vignette closes to black, logo crossfades to paper
+const RELOCATE_END = 0.667; // logo shrinks + slides top-left and settles there
+const SERVICE_END = 1; // Service title/description/cards fade in below the logo, same spot
 
 function smoothstep(t: number) {
   const x = Math.min(1, Math.max(0, t));
@@ -41,6 +87,7 @@ interface CardLayout {
 export function SphereGallery() {
   const { locale } = useLocale();
   const trackRef = useRef<HTMLDivElement | null>(null);
+  const phaseBMarkerRef = useRef<HTMLDivElement | null>(null);
   const sceneRef = useRef<HTMLDivElement | null>(null);
   const sphereRef = useRef<HTMLDivElement | null>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -55,8 +102,8 @@ export function SphereGallery() {
   const [slideIndex, setSlideIndex] = useState(0);
   const layoutsRef = useRef<CardLayout[]>([]);
 
-  // Registers a short window near the end of the track so the GNB flips to
-  // its dark styling right as the background finishes turning black.
+  // Registered with the GNB's scroll-position-based theme system; moved by
+  // hand in applyPhaseBE() once blackout completes; see the comment there.
   const darkMarkerRef = useRegisterThemeSection("dark");
 
   useEffect(() => {
@@ -104,179 +151,320 @@ export function SphereGallery() {
 
     let currentIndex = -1;
 
-    const trigger = ScrollTrigger.create({
-      trigger: trackRef.current,
-      start: "top top",
-      end: "bottom bottom",
-      scrub: 1,
-      onUpdate: (self) => {
-        const p = self.progress;
+    // ---- Sphere: spins continuously on its own, independent of scroll.
+    // The "focused" card (full color, the rest dimmed) tracks rotation
+    // progress rather than the slide below, since it's really about
+    // whichever card currently faces the viewer as the sphere turns. ----
+    function applyRotation(r: number) {
+      if (sphereRef.current) {
+        sphereRef.current.style.transform = `translateZ(-1px) rotateY(${
+          r * 360
+        }deg) rotateX(${SPHERE_TILT_DEG}deg)`;
+      }
 
-        if (p <= SPHERE_PHASE_END) {
-          // ---- Phase A: sphere orbits, story copy cycles ----
-          const p2 = p / SPHERE_PHASE_END;
+      const focusIndex = Math.floor(r * count);
+      cardRefs.current.forEach((card, i) => {
+        const layout = layoutsRef.current[i];
+        if (!card || !layout) return;
+        const near = Math.abs(i - focusIndex) < 2;
+        card.style.opacity = "1";
+        card.style.transform = `translate3d(${layout.x}px, ${layout.y}px, ${layout.z}px) rotateY(${layout.rotY}deg) rotateX(${layout.rotX}deg)`;
+        card.style.filter = near
+          ? "grayscale(0%) brightness(1)"
+          : "grayscale(85%) brightness(0.85)";
+      });
+    }
 
-          if (sphereRef.current) {
-            sphereRef.current.style.transform = `translateZ(-1px) rotateY(${
-              p2 * SPHERE_ROTATION_DEG
-            }deg) rotateX(${SPHERE_TILT_DEG}deg)`;
-            sphereRef.current.style.opacity = "1";
-          }
+    applyRotation(0);
 
-          const idx = Math.min(
-            ABOUT_SLIDES.length - 1,
-            Math.floor(p2 * ABOUT_SLIDES.length)
-          );
-          if (idx !== currentIndex) {
-            currentIndex = idx;
-            setSlideIndex(idx);
-          }
+    const rotationState = { r: 0 };
+    const rotationTween = gsap.to(rotationState, {
+      r: 1,
+      duration: SPHERE_ROTATION_SECONDS,
+      ease: "none",
+      repeat: -1,
+      onUpdate: () => applyRotation(rotationState.r),
+    });
 
+    // ---- Slides: still scroll-scrubbed, cross-fading between the old and
+    // new text instead of swapping instantly — and always stepping through
+    // 1 → 2 → 3 one at a time (see SLIDE_MIN_DWELL_MS) instead of jumping
+    // straight to wherever a fast scroll landed. ----
+    let slideTarget = 0;
+    let slideTimeout: ReturnType<typeof setTimeout> | null = null;
+    let slideStepping = false;
+
+    function stepSlide() {
+      if (slideStepping || currentIndex === slideTarget) return;
+      slideStepping = true;
+      const next = currentIndex + (slideTarget > currentIndex ? 1 : -1);
+
+      if (titleRef.current) titleRef.current.style.opacity = "0";
+      if (descRef.current) descRef.current.style.opacity = "0";
+      slideTimeout = setTimeout(() => {
+        currentIndex = next;
+        setSlideIndex(next);
+        requestAnimationFrame(() => {
           if (titleRef.current) titleRef.current.style.opacity = "1";
           if (descRef.current) descRef.current.style.opacity = "1";
-          if (finaleStageRef.current) finaleStageRef.current.style.opacity = "0";
-          if (blackoutRef.current) blackoutRef.current.style.opacity = "0";
-          if (serviceStageRef.current) {
-            serviceStageRef.current.style.opacity = "0";
-            serviceStageRef.current.style.pointerEvents = "none";
-          }
+        });
+        slideTimeout = setTimeout(() => {
+          slideStepping = false;
+          stepSlide();
+        }, SLIDE_MIN_DWELL_MS);
+      }, SLIDE_FADE_MS);
+    }
 
-          const focusIndex = Math.floor(p2 * count);
-          cardRefs.current.forEach((card, i) => {
-            const layout = layoutsRef.current[i];
-            if (!card || !layout) return;
-            const near = Math.abs(i - focusIndex) < 2;
-            card.style.opacity = "1";
-            card.style.transform = `translate3d(${layout.x}px, ${layout.y}px, ${layout.z}px) rotateY(${layout.rotY}deg) rotateX(${layout.rotX}deg)`;
-            card.style.filter = near
-              ? "grayscale(0%) brightness(1)"
-              : "grayscale(85%) brightness(0.85)";
-          });
-        } else if (p <= CONVERGE_END) {
-          // ---- Phase B: cards collapse to center, finale logo fades in ----
-          const p2 = (p - SPHERE_PHASE_END) / (CONVERGE_END - SPHERE_PHASE_END);
-          const ease = smoothstep(p2);
+    function applySlideScroll(p: number) {
+      slideTarget = Math.min(ABOUT_SLIDES.length - 1, Math.floor(p * ABOUT_SLIDES.length));
+      stepSlide();
+    }
 
-          if (titleRef.current) titleRef.current.style.opacity = `${Math.max(0, 1 - p2 * 4)}`;
-          if (descRef.current) descRef.current.style.opacity = `${Math.max(0, 1 - p2 * 4)}`;
+    currentIndex = 0;
+    applySlideScroll(0);
 
-          cardRefs.current.forEach((card, i) => {
-            const layout = layoutsRef.current[i];
-            if (!card || !layout) return;
-            card.style.transform = `translate3d(${layout.x * (1 - ease)}px, ${
-              layout.y * (1 - ease)
-            }px, ${layout.z * (1 - ease)}px) rotateY(${
-              layout.rotY * (1 - ease)
-            }deg) rotateX(${layout.rotX * (1 - ease)}deg) scale(${Math.max(
-              0.001,
-              1 - ease
-            )})`;
-            card.style.filter = `grayscale(${ease * 100}%) brightness(${1 - ease})`;
-            card.style.opacity = `${1 - Math.max(0, p2 - 0.85) * 6}`;
-          });
+    // `end` is a function, not a "+=Nvh" string — ScrollTrigger's relative
+    // offset parser doesn't actually resolve vh units (it silently reads
+    // just the leading number as px), so "+=480vh" was quietly behaving
+    // like "+=480px". A function recomputes in real px off the current
+    // viewport height, and also keeps it correct across resizes.
+    const scrubTrigger = ScrollTrigger.create({
+      trigger: trackRef.current,
+      start: "top top",
+      end: () => `+=${(SLIDES_TRACK_VH / 100) * window.innerHeight}`,
+      scrub: 1,
+      onUpdate: (self) => applySlideScroll(self.progress),
+    });
 
-          if (finaleStageRef.current) {
-            const reveal = Math.max(0, (p2 - 0.5) / 0.5);
-            finaleStageRef.current.style.opacity = `${Math.min(1, reveal)}`;
-          }
-          if (finaleLogoRef.current) {
-            finaleLogoRef.current.style.transform = "translate3d(0, 0, 0) scale(1)";
-          }
-          if (logoInkRef.current) logoInkRef.current.style.opacity = "1";
-          if (logoPaperRef.current) logoPaperRef.current.style.opacity = "0";
+    // ---- Phases B–E: converge → blackout → relocate → Service reveal —
+    // plays once as a fixed-duration animation the moment it scrolls into
+    // view, with scroll briefly held (input blocked, not just visually
+    // pinned) so a fast scroll can't cut the sequence off partway through.
+    // A click/tap skips straight to the end. ----
+    let darkTriggered = false;
+
+    function applyPhaseBE(p: number) {
+      if (p <= CONVERGE_END) {
+        // ---- cards collapse to center, finale logo fades in ----
+        const p2 = p / CONVERGE_END;
+        const ease = smoothstep(p2);
+
+        if (titleRef.current) titleRef.current.style.opacity = `${Math.max(0, 1 - p2 * 4)}`;
+        if (descRef.current) descRef.current.style.opacity = `${Math.max(0, 1 - p2 * 4)}`;
+
+        cardRefs.current.forEach((card, i) => {
+          const layout = layoutsRef.current[i];
+          if (!card || !layout) return;
+          card.style.transform = `translate3d(${layout.x * (1 - ease)}px, ${
+            layout.y * (1 - ease)
+          }px, ${layout.z * (1 - ease)}px) rotateY(${
+            layout.rotY * (1 - ease)
+          }deg) rotateX(${layout.rotX * (1 - ease)}deg) scale(${Math.max(0.001, 1 - ease)})`;
+          card.style.filter = `grayscale(${ease * 100}%) brightness(${1 - ease})`;
+          card.style.opacity = `${1 - Math.max(0, p2 - 0.85) * 6}`;
+        });
+
+        if (finaleStageRef.current) {
+          const reveal = Math.max(0, (p2 - 0.5) / 0.5);
+          finaleStageRef.current.style.opacity = `${Math.min(1, reveal)}`;
+        }
+        if (finaleLogoRef.current) {
+          finaleLogoRef.current.style.transform = "translate3d(0, 0, 0) scale(1)";
+        }
+        if (logoInkRef.current) logoInkRef.current.style.opacity = "1";
+        if (logoPaperRef.current) logoPaperRef.current.style.opacity = "0";
+        if (blackoutRef.current) {
+          blackoutRef.current.style.opacity = "1";
+          blackoutRef.current.style.background =
+            "radial-gradient(circle at center, transparent 75%, #0d0d0d 140%)";
+        }
+        if (serviceStageRef.current) {
+          serviceStageRef.current.style.opacity = "0";
+          serviceStageRef.current.style.pointerEvents = "none";
+        }
+      } else {
+        // Cards stay fully collapsed and hidden from here on.
+        cardRefs.current.forEach((card) => {
+          if (card) card.style.opacity = "0";
+        });
+        if (titleRef.current) titleRef.current.style.opacity = "0";
+        if (descRef.current) descRef.current.style.opacity = "0";
+        if (finaleStageRef.current) finaleStageRef.current.style.opacity = "1";
+
+        if (p <= BLACKOUT_END) {
+          // ---- vignette closes in from the edges, logo inverts ----
+          const p3 = (p - CONVERGE_END) / (BLACKOUT_END - CONVERGE_END);
+          const innerRadius = (1 - p3) * 75;
+
           if (blackoutRef.current) {
             blackoutRef.current.style.opacity = "1";
             blackoutRef.current.style.background =
-              "radial-gradient(circle at center, transparent 75%, #0d0d0d 140%)";
+              p3 >= 0.999
+                ? "#0d0d0d"
+                : `radial-gradient(circle at center, transparent ${innerRadius}%, #0d0d0d ${
+                    innerRadius + 65
+                  }%)`;
+          }
+          if (logoInkRef.current) logoInkRef.current.style.opacity = `${1 - p3}`;
+          if (logoPaperRef.current) logoPaperRef.current.style.opacity = `${p3}`;
+          if (finaleLogoRef.current) {
+            finaleLogoRef.current.style.transform = "translate3d(0, 0, 0) scale(1)";
           }
           if (serviceStageRef.current) {
             serviceStageRef.current.style.opacity = "0";
             serviceStageRef.current.style.pointerEvents = "none";
           }
+        } else if (p <= RELOCATE_END) {
+          // ---- logo shrinks, slides toward the top-left, and fades out
+          // along the way instead of settling there — it just disappears
+          // mid-move. ----
+          const p4 = (p - BLACKOUT_END) / (RELOCATE_END - BLACKOUT_END);
+          const ease = smoothstep(p4);
+
+          if (blackoutRef.current) {
+            blackoutRef.current.style.opacity = "1";
+            blackoutRef.current.style.background = "#0d0d0d";
+          }
+          if (logoInkRef.current) logoInkRef.current.style.opacity = "0";
+          if (logoPaperRef.current) logoPaperRef.current.style.opacity = `${1 - ease}`;
+          if (serviceStageRef.current) {
+            serviceStageRef.current.style.opacity = "0";
+            serviceStageRef.current.style.pointerEvents = "none";
+          }
+          if (finaleLogoRef.current) {
+            const scale = 1 - ease * (1 - FINAL_LOGO_SCALE);
+            finaleLogoRef.current.style.transform = `translate3d(${
+              relocateX * ease
+            }px, ${relocateY * ease}px, 0) scale(${scale})`;
+          }
         } else {
-          // Cards stay fully collapsed and hidden from here on.
-          cardRefs.current.forEach((card) => {
-            if (card) card.style.opacity = "0";
-          });
-          if (titleRef.current) titleRef.current.style.opacity = "0";
-          if (descRef.current) descRef.current.style.opacity = "0";
-          if (finaleStageRef.current) finaleStageRef.current.style.opacity = "1";
+          // ---- logo is gone — the Service header (logo + title, same
+          // layout as Work/Contact) fades in at the same anchor spot ----
+          const p5 = (p - RELOCATE_END) / (SERVICE_END - RELOCATE_END);
+          const reveal = smoothstep(p5);
 
-          if (p <= BLACKOUT_END) {
-            // ---- Phase C: vignette closes in from the edges, logo inverts ----
-            const p3 = (p - CONVERGE_END) / (BLACKOUT_END - CONVERGE_END);
-            const innerRadius = (1 - p3) * 75;
-
-            if (blackoutRef.current) {
-              blackoutRef.current.style.opacity = "1";
-              blackoutRef.current.style.background =
-                p3 >= 0.999
-                  ? "#0d0d0d"
-                  : `radial-gradient(circle at center, transparent ${innerRadius}%, #0d0d0d ${
-                      innerRadius + 65
-                    }%)`;
-            }
-            if (logoInkRef.current) logoInkRef.current.style.opacity = `${1 - p3}`;
-            if (logoPaperRef.current) logoPaperRef.current.style.opacity = `${p3}`;
-            if (finaleLogoRef.current) {
-              finaleLogoRef.current.style.transform = "translate3d(0, 0, 0) scale(1)";
-            }
-            if (serviceStageRef.current) {
-              serviceStageRef.current.style.opacity = "0";
-              serviceStageRef.current.style.pointerEvents = "none";
-            }
-          } else if (p <= RELOCATE_END) {
-            // ---- Phase D: logo shrinks, slides toward the top-left, and
-            // fades out along the way instead of settling there — it just
-            // disappears mid-move. ----
-            const p4 = (p - BLACKOUT_END) / (RELOCATE_END - BLACKOUT_END);
-            const ease = smoothstep(p4);
-
-            if (blackoutRef.current) {
-              blackoutRef.current.style.opacity = "1";
-              blackoutRef.current.style.background = "#0d0d0d";
-            }
-            if (logoInkRef.current) logoInkRef.current.style.opacity = "0";
-            if (logoPaperRef.current) logoPaperRef.current.style.opacity = `${1 - ease}`;
-            if (serviceStageRef.current) {
-              serviceStageRef.current.style.opacity = "0";
-              serviceStageRef.current.style.pointerEvents = "none";
-            }
-            if (finaleLogoRef.current) {
-              const scale = 1 - ease * (1 - FINAL_LOGO_SCALE);
-              finaleLogoRef.current.style.transform = `translate3d(${
-                relocateX * ease
-              }px, ${relocateY * ease}px, 0) scale(${scale})`;
-            }
-          } else {
-            // ---- Phase E: logo is gone — the Service header (logo + title,
-            // same layout as Work/Contact) fades in at the same anchor spot ----
-            const p5 = (p - RELOCATE_END) / (SERVICE_END - RELOCATE_END);
-            const reveal = smoothstep(p5);
-
-            if (blackoutRef.current) {
-              blackoutRef.current.style.opacity = "1";
-              blackoutRef.current.style.background = "#0d0d0d";
-            }
-            if (logoPaperRef.current) logoPaperRef.current.style.opacity = "0";
-            if (serviceStageRef.current) {
-              serviceStageRef.current.style.opacity = `${reveal}`;
-              serviceStageRef.current.style.pointerEvents = p5 > 0.5 ? "auto" : "none";
-            }
+          if (blackoutRef.current) {
+            blackoutRef.current.style.opacity = "1";
+            blackoutRef.current.style.background = "#0d0d0d";
+          }
+          if (logoPaperRef.current) logoPaperRef.current.style.opacity = "0";
+          if (serviceStageRef.current) {
+            serviceStageRef.current.style.opacity = `${reveal}`;
+            serviceStageRef.current.style.pointerEvents = p5 > 0.5 ? "auto" : "none";
           }
         }
+      }
+
+      // The GNB's dark/light flip is driven by a marker's scroll position
+      // (see gnb-theme.tsx) — but scroll is frozen for the whole time this
+      // plays (see `lock`/`unlock` below), so it'd never fire on its own.
+      // Move the marker across the activation line by hand at the moment
+      // blackout completes, and fire a synthetic scroll event so the
+      // existing scroll-position-based system picks it up regardless.
+      if (p >= BLACKOUT_END && !darkTriggered) {
+        darkTriggered = true;
+        if (darkMarkerRef.current) darkMarkerRef.current.style.top = "0px";
+        window.dispatchEvent(new Event("scroll"));
+      } else if (p < BLACKOUT_END && darkTriggered) {
+        darkTriggered = false;
+        if (darkMarkerRef.current) darkMarkerRef.current.style.top = "58%";
+        window.dispatchEvent(new Event("scroll"));
+      }
+    }
+
+    applyPhaseBE(0);
+
+    const state = { p: 0 };
+    let playing = false;
+
+    function lock() {
+      playing = true;
+      document.body.style.overflow = "hidden";
+    }
+    function unlock() {
+      playing = false;
+      document.body.style.overflow = "";
+    }
+
+    const transitionTween = gsap.to(state, {
+      p: 1,
+      duration: PHASE_BE_DURATION,
+      ease: "power1.inOut",
+      paused: true,
+      onUpdate: () => applyPhaseBE(state.p),
+      onComplete: unlock,
+    });
+
+    function handleSkip() {
+      if (!playing) return;
+      transitionTween.progress(1);
+      unlock();
+    }
+    const sceneEl = sceneRef.current;
+    sceneEl?.addEventListener("click", handleSkip);
+
+    // Crossing into the B–E zone doesn't necessarily mean slide 3 has
+    // actually finished settling on screen yet — a fast scroll can cross
+    // the (deliberately short) gap before the slide-3 fade-in from
+    // stepSlide() above has landed, which was cutting slide 3 off before
+    // it was ever really seen. Wait for the slide queue to fully settle on
+    // the last slide before letting the animation start, instead of
+    // relying on the gap's scroll distance alone to guarantee that.
+    function tryEnterTransition() {
+      if (state.p >= 1 || playing) return;
+      // Bail if scroll has left the trigger zone again while this was
+      // waiting on the slide queue (e.g. in → quickly back out) — otherwise
+      // the retry can fire the lock after the user's already scrolled away.
+      if (!transitionTrigger.isActive) return;
+      if (slideStepping || currentIndex !== ABOUT_SLIDES.length - 1) {
+        setTimeout(tryEnterTransition, 60);
+        return;
+      }
+      rotationTween.pause();
+      lock();
+      transitionTween.play();
+    }
+
+    const transitionTrigger = ScrollTrigger.create({
+      trigger: phaseBMarkerRef.current,
+      start: "top top",
+      end: () => `+=${(PHASE_BE_TRACK_VH / 100) * window.innerHeight}`,
+      onEnter: tryEnterTransition,
+      onLeaveBack: () => {
+        transitionTween.pause(0);
+        unlock();
+        applyPhaseBE(0);
+        rotationTween.resume();
       },
     });
 
     return () => {
-      trigger.kill();
+      scrubTrigger.kill();
+      transitionTrigger.kill();
+      transitionTween.kill();
+      rotationTween.kill();
+      if (slideTimeout) clearTimeout(slideTimeout);
+      sceneEl?.removeEventListener("click", handleSkip);
+      document.body.style.overflow = "";
     };
-  }, []);
+  }, [darkMarkerRef]);
 
   const activeSlide = ABOUT_SLIDES[slideIndex];
 
   return (
-    <div ref={trackRef} className="relative" style={{ height: "750vh" }}>
+    <div
+      ref={trackRef}
+      className="relative"
+      style={{
+        height: `${SLIDES_TRACK_VH + SLIDE_TO_TRANSITION_GAP_VH + PHASE_BE_TRACK_VH}vh`,
+      }}
+    >
+      <div
+        ref={phaseBMarkerRef}
+        className="pointer-events-none absolute inset-x-0"
+        style={{ top: `${SLIDES_TRACK_VH + SLIDE_TO_TRANSITION_GAP_VH}vh`, height: "1px" }}
+        aria-hidden
+      />
       <div
         ref={darkMarkerRef}
         className="pointer-events-none absolute inset-x-0"
@@ -290,6 +478,21 @@ export function SphereGallery() {
         className="sticky top-0 h-screen w-full overflow-hidden bg-paper"
         style={{ perspective: "1400px" }}
       >
+        {/* The sphere now spins continuously (see rotationTween above)
+            instead of only turning while the user actively scrolled, so
+            cards are always somewhere mid-rotation, clipping in and out
+            at the sticky viewport's top/bottom edge — including their drop
+            shadow — every single loop. Fading that edge out instead of
+            hard-cropping it is the same trick RollingCode uses. */}
+        <div
+          className="pointer-events-none absolute inset-x-0 top-0 z-10 h-24 bg-gradient-to-b from-paper to-transparent md:h-32"
+          aria-hidden
+        />
+        <div
+          className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-24 bg-gradient-to-t from-paper to-transparent md:h-32"
+          aria-hidden
+        />
+
         <div className="wrap relative flex h-full items-center">
           <div
             className="pointer-events-none absolute top-[14%] z-20 max-w-[280px] md:top-[18%]"

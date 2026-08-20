@@ -1,7 +1,7 @@
 "use client";
 
 import clsx from "clsx";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { useLocale, type Locale } from "@/components/site-header/locale-context";
 import type { DesignGuide } from "@/lib/work-content";
 import { WorkArrowIcon } from "./work-arrow-icon";
@@ -48,36 +48,134 @@ function Zoomable({ item, className, children }: { item: LightboxItem; className
  * page-scrolling block (no sticky rail) since the column itself is already
  * fairly narrow. Which tabs exist, and what each one shows, is entirely
  * data-driven per project — a marketing site documents layout/IA/colors,
- * a SaaS design piece might document IA/design-system/responsive instead. */
-export function WorkDesignGuide({ guide }: { guide: DesignGuide }) {
+ * a SaaS design piece might document IA/design-system/responsive instead.
+ * `embedded` drops the outer heading/border/spacing for when this is
+ * nested as the Action tab's own sub-tab bar inside CaseStudyTabs, instead
+ * of standing alone as the whole right column. */
+export function WorkDesignGuide({
+  guide,
+  embedded = false,
+}: {
+  guide: DesignGuide;
+  embedded?: boolean;
+}) {
   const { locale } = useLocale();
   const [activeId, setActiveId] = useState(guide.panels[0]?.id);
   const [lightboxItem, setLightboxItem] = useState<LightboxItem | null>(null);
   const panel = guide.panels.find((p) => p.id === activeId) ?? guide.panels[0];
 
+  // Click-and-drag horizontal scrolling for the sub-tab bar, for when it
+  // overflows off-screen (a project with many panels, or a narrow embedded
+  // column) — touch already scrolls it natively, so only mouse drags are
+  // handled here. `moved` tracks whether the drag actually crossed a small
+  // threshold, so a plain click on a tab still fires normally; a dragged
+  // click is swallowed once via capture so it doesn't also switch tabs.
+  const tabBarRef = useRef<HTMLDivElement | null>(null);
+  const dragRef = useRef({ down: false, startX: 0, startScrollLeft: 0, moved: false });
+
+  function onTabBarPointerDown(e: React.PointerEvent) {
+    if (e.pointerType !== "mouse" || !tabBarRef.current) return;
+    dragRef.current = { down: true, startX: e.clientX, startScrollLeft: tabBarRef.current.scrollLeft, moved: false };
+  }
+
+  function onTabBarPointerMove(e: React.PointerEvent) {
+    const d = dragRef.current;
+    if (!d.down || !tabBarRef.current) return;
+    const dx = e.clientX - d.startX;
+    if (Math.abs(dx) > 4) d.moved = true;
+    tabBarRef.current.scrollLeft = d.startScrollLeft - dx;
+  }
+
+  function onTabBarPointerUp() {
+    dragRef.current.down = false;
+  }
+
+  function onTabBarClickCapture(e: React.MouseEvent) {
+    if (dragRef.current.moved) {
+      e.preventDefault();
+      e.stopPropagation();
+      dragRef.current.moved = false;
+    }
+  }
+
+  // Whether the tab bar has more tabs hidden past either edge — the drag
+  // affordance alone gave no hint there was anything to drag *to*, so an
+  // edge fade (plus a trailing arrow while more sits to the right) makes
+  // the overflow visible before a visitor has to discover it by accident.
+  const [showLeftMore, setShowLeftMore] = useState(false);
+  const [showRightMore, setShowRightMore] = useState(false);
+
+  useEffect(() => {
+    const el = tabBarRef.current;
+    if (!el) return;
+    function update() {
+      if (!el) return;
+      setShowLeftMore(el.scrollLeft > 4);
+      setShowRightMore(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
+    }
+    update();
+    el.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    return () => {
+      el.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+    };
+  }, [guide.panels]);
+
   if (!panel) return null;
 
   return (
     <LightboxContext.Provider value={setLightboxItem}>
-      <div className="mt-10 border-t border-white/15 pt-8 md:mt-12 md:pt-10">
-        <span className="font-display text-xs italic text-white/30">Design Guide</span>
-        <h2 className="mt-2 font-display text-2xl italic text-paper md:text-3xl">
-          {HEADING[locale]}
-        </h2>
+      <div className={embedded ? undefined : "mt-10 border-t border-white/15 pt-8 md:mt-12 md:pt-10"}>
+        {!embedded && (
+          <>
+            <span className="font-display text-xs italic text-white/30">Design Guide</span>
+            <h2 className="mt-2 font-display text-2xl italic text-paper md:text-3xl">
+              {HEADING[locale]}
+            </h2>
+          </>
+        )}
 
-        <div className="no-scrollbar mt-6 flex gap-2 overflow-x-auto">
-          {guide.panels.map((p) => (
-            <button
-              key={p.id}
-              onClick={() => setActiveId(p.id)}
-              className={clsx(
-                "shrink-0 rounded-full px-4 py-1.5 text-sm transition-colors duration-200",
-                panel.id === p.id ? "bg-paper text-ink" : "text-white/45 hover:text-paper"
-              )}
+        <div className={clsx("relative", !embedded && "mt-6")}>
+          <div
+            ref={tabBarRef}
+            onPointerDown={onTabBarPointerDown}
+            onPointerMove={onTabBarPointerMove}
+            onPointerUp={onTabBarPointerUp}
+            onPointerLeave={onTabBarPointerUp}
+            onClickCapture={onTabBarClickCapture}
+            className="no-scrollbar flex select-none gap-2 overflow-x-auto cursor-grab active:cursor-grabbing"
+          >
+            {guide.panels.map((p) => (
+              <button
+                key={p.id}
+                onClick={() => setActiveId(p.id)}
+                className={clsx(
+                  "shrink-0 rounded-full px-4 py-1.5 text-sm transition-colors duration-200",
+                  panel.id === p.id ? "bg-paper text-ink" : "text-white/45 hover:text-paper"
+                )}
+              >
+                {p.label[locale]}
+              </button>
+            ))}
+          </div>
+
+          {showLeftMore && (
+            <div
+              className="pointer-events-none absolute inset-y-0 left-0 flex w-10 items-center bg-gradient-to-r from-ink to-transparent"
+              aria-hidden
             >
-              {p.label[locale]}
-            </button>
-          ))}
+              <WorkArrowIcon className="h-3 w-3 rotate-[225deg] text-white/40" />
+            </div>
+          )}
+          {showRightMore && (
+            <div
+              className="pointer-events-none absolute inset-y-0 right-0 flex w-10 items-center justify-end bg-gradient-to-l from-ink to-transparent"
+              aria-hidden
+            >
+              <WorkArrowIcon className="h-3 w-3 rotate-45 text-white/40" />
+            </div>
+          )}
         </div>
 
         <div className="mt-8">
@@ -159,7 +257,6 @@ const SECTION_LABEL = {
     en: "A relative rank, not an exact usage figure — this is what I used to prioritize the main dashboard.",
   },
   causes: { ko: "이탈 원인 (추정)", en: "Suspected Drop-off Causes" },
-  resolution: { ko: "해결 방법", en: "How I Solved It" },
 };
 
 function GuidePanelView({ panel, locale }: { panel: GuidePanel; locale: Locale }) {
@@ -174,31 +271,9 @@ function GuidePanelView({ panel, locale }: { panel: GuidePanel; locale: Locale }
   const visibleImages = hasThemeToggle ? images.filter((img) => img.theme === theme) : images;
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="animate-step-in flex flex-col gap-6">
       {panel.intro && (
         <p className="text-sm leading-relaxed text-white/60">{panel.intro[locale]}</p>
-      )}
-
-      {panel.bubbles && panel.bubbles.length > 0 && (
-        <div className="grid gap-6 sm:grid-cols-2">
-          {panel.bubbles.map((group, i) => (
-            <div key={i}>
-              <div className="mb-3 text-xs font-medium uppercase tracking-wide text-white/40">
-                {group.label[locale]}
-              </div>
-              <div className="flex flex-col items-start gap-2">
-                {group.items.map((item, j) => (
-                  <div
-                    key={j}
-                    className="max-w-full rounded-2xl rounded-tl-sm bg-white/[0.06] px-4 py-2.5 text-sm leading-snug text-white/75"
-                  >
-                    {item[locale]}
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
       )}
 
       {images.length > 0 && (
@@ -310,25 +385,71 @@ function GuidePanelView({ panel, locale }: { panel: GuidePanel; locale: Locale }
             {SECTION_LABEL.ranking[locale]}
           </div>
           <p className="mt-1 text-xs text-white/40">{SECTION_LABEL.rankingNote[locale]}</p>
-          <div className="mt-4 flex flex-col gap-3">
+          <ol className="mt-4 flex flex-col">
             {panel.ranking.map((item, i) => (
-              <div key={i}>
-                <div className="flex items-baseline justify-between gap-3">
+              <li
+                key={i}
+                className="flex items-baseline justify-between gap-3 border-t border-white/10 py-3 first:border-t-0"
+              >
+                <span className="flex items-baseline gap-3">
+                  <span className="shrink-0 font-display text-sm italic text-white/30">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
                   <span className="text-sm text-paper">{item.label[locale]}</span>
-                  {item.note && (
-                    <span className="text-right text-xs text-white/40">{item.note[locale]}</span>
-                  )}
-                </div>
-                <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
-                  <div
-                    className="h-full rounded-full bg-paper/70"
-                    style={{ width: `${Math.max(30, 100 - i * 28)}%` }}
-                  />
-                </div>
-              </div>
+                </span>
+                {item.note && (
+                  <span className="shrink-0 text-right text-xs text-white/40">
+                    {item.note[locale]}
+                  </span>
+                )}
+              </li>
             ))}
-          </div>
+          </ol>
         </div>
+      )}
+
+      {panel.compareCards && panel.compareCards.length > 0 && (
+        <div
+          className={clsx(
+            "grid gap-3",
+            panel.compareCards.length === 2 ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1 sm:grid-cols-3"
+          )}
+        >
+          {panel.compareCards.map((c, i) => (
+            <div key={i} className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+              <div className="font-display text-base italic text-paper">{c.label[locale]}</div>
+              <p className="mt-2 text-sm leading-relaxed text-white/55">{c.note[locale]}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {panel.featureTable && panel.featureTable.length > 0 && (
+        <div className="overflow-hidden rounded-xl border border-white/10">
+          {panel.featureTable.map((row, i) => (
+            <div
+              key={i}
+              className={clsx(
+                "grid grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] gap-4 px-4 py-3",
+                i !== 0 && "border-t border-white/10"
+              )}
+            >
+              <span className="text-sm text-paper">{row.feature[locale]}</span>
+              <span className="text-sm text-white/50">{row.reason[locale]}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {panel.zones && panel.zones.length > 0 && (
+        <ul className="flex flex-col gap-2">
+          {panel.zones.map((z, i) => (
+            <li key={i} className="flex gap-3 text-sm">
+              <span className="shrink-0 font-display italic text-white/30">{z.label[locale]}</span>
+              <span className="text-white/55">{z.note[locale]}</span>
+            </li>
+          ))}
+        </ul>
       )}
 
       {panel.percentBars && panel.percentBars.length > 0 && (
@@ -382,11 +503,8 @@ function GuidePanelView({ panel, locale }: { panel: GuidePanel; locale: Locale }
       )}
 
       {panel.resolution && (
-        <div className="rounded-xl border border-white/15 bg-white/[0.03] p-4">
-          <div className="font-display text-base italic text-paper">
-            {SECTION_LABEL.resolution[locale]}
-          </div>
-          <p className="mt-2 text-sm leading-relaxed text-white/60">
+        <div className="border-l-2 border-white/25 pl-5">
+          <p className="font-point text-sm italic leading-relaxed text-white/75 md:text-base">
             {panel.resolution[locale]}
           </p>
         </div>

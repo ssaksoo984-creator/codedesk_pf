@@ -24,9 +24,14 @@ interface WorkBrowserProps {
    * no trailing link, as on the dedicated /work page. */
   limit?: number;
   moreHref?: string;
+  /** Set when the caller lives inside a fixed-height, overflow-hidden
+   * viewport and needs its own internal scroll region instead of growing
+   * with the page. Defaults to `Boolean(limit)` for backward compatibility,
+   * but a capped list living in normal page flow should pass `false`. */
+  constrained?: boolean;
 }
 
-export function WorkBrowser({ limit, moreHref }: WorkBrowserProps) {
+export function WorkBrowser({ limit, moreHref, constrained }: WorkBrowserProps) {
   const { locale } = useLocale();
   const [filter, setFilter] = useState<FilterTag>("All");
   const [view, setView] = useState<"list" | "grid">("list");
@@ -38,13 +43,10 @@ export function WorkBrowser({ limit, moreHref }: WorkBrowserProps) {
 
   const visible = limit ? filtered.slice(0, limit) : filtered;
   const showMore = Boolean(limit && moreHref);
-  // Only the capped homepage teaser lives inside a fixed-height,
-  // overflow-hidden viewport and needs its own internal scroll region — the
-  // full /work page should just grow with the page like normal content.
-  const constrained = Boolean(limit);
+  const isConstrained = constrained ?? Boolean(limit);
 
   return (
-    <div className={clsx("flex flex-col", constrained && "min-h-0 flex-1")}>
+    <div className={clsx("flex flex-col", isConstrained && "min-h-0 flex-1")}>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4 md:mb-8">
         <div className="flex flex-wrap items-center gap-1.5 md:gap-2">
           {FILTERS.map((f) => (
@@ -85,7 +87,7 @@ export function WorkBrowser({ limit, moreHref }: WorkBrowserProps) {
         </div>
       </div>
 
-      <div className={clsx(constrained && "no-scrollbar min-h-0 flex-1 overflow-y-auto")}>
+      <div className={clsx(isConstrained && "no-scrollbar min-h-0 flex-1 overflow-y-auto")}>
         {view === "list" ? (
           <div className="flex flex-col border-b border-white/15">
             {visible.map((project) => (
@@ -99,7 +101,11 @@ export function WorkBrowser({ limit, moreHref }: WorkBrowserProps) {
                     {project.index}
                   </span>
                   <div className="min-w-0">
-                    <div className="truncate font-display text-xl italic text-paper transition-transform duration-300 ease-out group-hover:translate-x-1.5 md:text-3xl">
+                    {/* pr-2 keeps the hard `truncate` clip line clear of the
+                        glyph — an italic-slant fallback for Korean text
+                        overhangs its layout box, and without this buffer the
+                        last character gets its edge cut off. */}
+                    <div className="truncate pr-2 font-point text-xl italic text-paper transition-transform duration-300 ease-out group-hover:translate-x-1.5 md:text-3xl">
                       {project.title[locale]}
                     </div>
                     <div className="mt-0.5 truncate text-[11px] text-white/40 md:text-sm">
@@ -132,7 +138,7 @@ export function WorkBrowser({ limit, moreHref }: WorkBrowserProps) {
                 </div>
                 <div className="mt-2.5 flex items-start justify-between gap-2 md:mt-3.5">
                   <div className="min-w-0">
-                    <div className="truncate font-display text-sm italic text-paper md:text-lg">
+                    <div className="truncate pr-2 font-point text-sm italic text-paper md:text-lg">
                       {project.title[locale]}
                     </div>
                     <div className="truncate text-[10px] text-white/40 md:text-xs">

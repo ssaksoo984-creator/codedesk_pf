@@ -4,11 +4,12 @@ export interface NavItem {
 }
 
 // Section labels stay English in every locale — same convention as the
-// "About"/"Work"/"Service"/"Contact" section headers themselves.
+// "About"/"Work"/"Contact" section headers themselves.
 export const NAV_ITEMS: NavItem[] = [
   { label: "About", href: "#about" },
   { label: "Work", href: "/work" },
-  { label: "Service", href: "#service" },
+  // Service dropped from the nav — "How I Work" now only ever surfaces as
+  // the About sequence's own finale, not a section jumped to independently.
   // Thought removed for portfolio — keep navigation concise
   { label: "Contact", href: "#contact" },
 ];

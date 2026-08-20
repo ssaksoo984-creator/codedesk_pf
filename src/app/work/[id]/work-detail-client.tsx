@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+import clsx from "clsx";
 import Link from "next/link";
 import type { WorkProject } from "@/lib/work-content";
 import { useLocale } from "@/components/site-header/locale-context";
@@ -9,6 +11,7 @@ import { SiteFooter } from "@/components/footer/site-footer";
 import { NoScrollSnap } from "@/components/ui/no-scroll-snap";
 import { WorkArrowIcon } from "@/components/work/work-arrow-icon";
 import { WorkDesignGuide } from "@/components/work/work-design-guide";
+import { CaseStudyTabs } from "@/components/work/case-study";
 
 const COPY = {
   back: { ko: "Work로 돌아가기", en: "Back to Work" },
@@ -16,6 +19,8 @@ const COPY = {
   prev: { ko: "이전 프로젝트", en: "Previous" },
   next: { ko: "다음 프로젝트", en: "Next" },
   skills: { ko: "사용 스킬", en: "Skills" },
+  role: { ko: "역할", en: "Role" },
+  client: { ko: "클라이언트", en: "Client" },
   process: { ko: "작업 노트", en: "Process Notes" },
 };
 
@@ -27,6 +32,7 @@ interface WorkDetailClientProps {
 
 export function WorkDetailClient({ project, prev, next }: WorkDetailClientProps) {
   const { locale } = useLocale();
+  const [showProcess, setShowProcess] = useState(false);
 
   return (
     <>
@@ -54,10 +60,15 @@ export function WorkDetailClient({ project, prev, next }: WorkDetailClientProps)
                 <p className="mt-4 text-sm text-white/50 md:text-base">
                   {project.category[locale]}
                 </p>
+                {project.client && (
+                  <p className="mt-1 text-xs text-white/35">
+                    {COPY.client[locale]} · {project.client[locale]}
+                  </p>
+                )}
 
-                {(project.tags ?? []).length > 0 && (
+                {((project.tags ?? []).length > 0 || project.stage) && (
                   <div className="mt-5 flex flex-wrap gap-2">
-                    {project.tags!.map((tag) => (
+                    {(project.tags ?? []).map((tag) => (
                       <span
                         key={tag}
                         className="rounded-full border border-white/15 px-3 py-1 text-[11px] uppercase tracking-wide text-white/50"
@@ -65,6 +76,11 @@ export function WorkDetailClient({ project, prev, next }: WorkDetailClientProps)
                         {tag}
                       </span>
                     ))}
+                    {project.stage && (
+                      <span className="rounded-full border border-dashed border-white/25 px-3 py-1 text-[11px] uppercase tracking-wide text-white/40">
+                        {project.stage[locale]}
+                      </span>
+                    )}
                   </div>
                 )}
 
@@ -86,20 +102,30 @@ export function WorkDetailClient({ project, prev, next }: WorkDetailClientProps)
                   </div>
                 )}
 
+                {(project.roles ?? []).length > 0 && (
+                  <div className="mt-6 max-w-md">
+                    <span className="font-display text-xs italic text-white/30">
+                      {COPY.role[locale]}
+                    </span>
+                    <ul className="mt-2 flex flex-col gap-1">
+                      {project.roles!.map((r, i) => (
+                        <li
+                          key={i}
+                          className="flex items-baseline justify-between gap-3 border-t border-white/10 py-1.5 text-sm first:border-t-0 first:pt-0"
+                        >
+                          <span className="text-white/60">{r.label[locale]}</span>
+                          <span className="shrink-0 text-right text-white/40">
+                            {r.value[locale]}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
                 <p className="mt-8 max-w-md text-base leading-relaxed text-white/70">
                   {project.description ? project.description[locale] : project.category[locale]}
                 </p>
-
-                {project.process && (
-                  <div className="mt-6 max-w-md">
-                    <span className="font-display text-xs italic text-white/30">
-                      {COPY.process[locale]}
-                    </span>
-                    <p className="mt-2 text-sm leading-relaxed text-white/50">
-                      {project.process[locale]}
-                    </p>
-                  </div>
-                )}
 
                 {project.url && (
                   <a
@@ -135,7 +161,34 @@ export function WorkDetailClient({ project, prev, next }: WorkDetailClientProps)
                   <div className="aspect-video w-full rounded-2xl bg-white/5" />
                 )}
 
-                {project.designGuide && <WorkDesignGuide guide={project.designGuide} />}
+                {project.process && (
+                  <div className="self-end text-right">
+                    <button
+                      type="button"
+                      onClick={() => setShowProcess((v) => !v)}
+                      className="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 text-xs text-white/60 transition-colors duration-200 hover:text-paper md:text-sm"
+                    >
+                      {COPY.process[locale]}
+                      <WorkArrowIcon
+                        className={clsx(
+                          "h-3 w-3 transition-transform duration-300",
+                          showProcess && "rotate-[225deg]"
+                        )}
+                      />
+                    </button>
+                    {showProcess && (
+                      <p className="mt-3 rounded-2xl bg-white/[0.04] p-5 text-left text-sm leading-relaxed text-white/60 md:p-6">
+                        {project.process[locale]}
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {project.situation || project.reflection ? (
+                  <CaseStudyTabs project={project} />
+                ) : (
+                  project.designGuide && <WorkDesignGuide guide={project.designGuide} />
+                )}
               </div>
             </div>
 
