@@ -50,7 +50,7 @@ export function WorkDetailClient({ project, prev, next }: WorkDetailClientProps)
             </Link>
 
             <div className="mt-8 grid gap-10 md:mt-14 md:grid-cols-2 md:gap-16">
-              <div className="md:sticky md:top-[132px] md:h-fit md:self-start">
+              <div className="min-w-0 md:sticky md:top-[132px] md:h-fit md:self-start">
                 <span className="font-display text-sm italic text-white/30">
                   {project.index}
                 </span>
@@ -140,7 +140,7 @@ export function WorkDetailClient({ project, prev, next }: WorkDetailClientProps)
                 )}
               </div>
 
-              <div className="flex flex-col gap-4 md:pt-1">
+              <div className="flex min-w-0 flex-col gap-4 md:pt-1">
                 {project.video ? (
                   <video
                     src={project.video}
