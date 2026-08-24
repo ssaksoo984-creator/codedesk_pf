@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import { pretendard, cormorant } from "./fonts";
 import { GnbThemeProvider } from "@/components/site-header/gnb-theme";
 import { LocaleProvider } from "@/components/site-header/locale-context";
@@ -50,6 +51,7 @@ export default function RootLayout({
             <BackToTop />
           </GnbThemeProvider>
         </LocaleProvider>
+        <Analytics />
       </body>
     </html>
   );
