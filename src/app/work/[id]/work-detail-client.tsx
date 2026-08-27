@@ -12,6 +12,7 @@ import { NoScrollSnap } from "@/components/ui/no-scroll-snap";
 import { WorkArrowIcon } from "@/components/work/work-arrow-icon";
 import { WorkDesignGuide } from "@/components/work/work-design-guide";
 import { CaseStudyTabs } from "@/components/work/case-study";
+import { ImageShowcase } from "@/components/work/image-showcase";
 
 const COPY = {
   back: { ko: "Work로 돌아가기", en: "Back to Work" },
@@ -191,6 +192,8 @@ export function WorkDetailClient({ project, prev, next }: WorkDetailClientProps)
                 )}
               </div>
             </div>
+
+            {project.imageShowcase && <ImageShowcase showcase={project.imageShowcase} />}
 
             {(prev || next) && (
               <div className="mt-20 flex items-center justify-between border-t border-white/15 pt-8 md:mt-28">

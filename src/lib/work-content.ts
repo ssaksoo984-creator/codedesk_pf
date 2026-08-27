@@ -1,3 +1,5 @@
+import { KARTS_IMAGE_SHOWCASE } from "./karts-showcase";
+
 interface Copy {
   ko: string;
   en: string;
@@ -109,6 +111,38 @@ export interface DesignGuide {
   panels: GuidePanel[];
 }
 
+interface ShowcaseImagePair {
+  light: string;
+  dark: string;
+}
+
+export interface ShowcaseCard {
+  title: Copy;
+  /** Omitted for screens with no desktop version — the Desktop/Mobile tab
+   * hides itself rather than rendering disabled. */
+  desktop?: ShowcaseImagePair;
+  mobile: ShowcaseImagePair;
+}
+
+export interface ShowcaseGroup {
+  label: Copy;
+  /** One-line note tying the group back to the case study's user-pattern
+   * findings (e.g. "quoted" from the Action tab's own usage-pattern copy). */
+  caption: Copy;
+  cards: ShowcaseCard[];
+}
+
+/** A full-width, screen-by-screen gallery shown above a project's normal
+ * two-column layout — for projects with enough real screens captured that a
+ * flat scroll through them makes the case on its own. `main` renders first,
+ * ungrouped; `groups` split the rest by user type (or whatever axis the
+ * project's screens naturally fall into). Optional: most projects don't
+ * have this many captures, and lean on `designGuide`'s curated shots instead. */
+export interface ImageShowcase {
+  main: ShowcaseCard;
+  groups: ShowcaseGroup[];
+}
+
 export interface WorkProject {
   index: string;
   title: { ko: string; en: string };
@@ -138,6 +172,10 @@ export interface WorkProject {
   /** Omitted for design-only work with no live deployment — the "Visit site" CTA hides itself. */
   url?: string;
   designGuide?: DesignGuide;
+  /** Full-width screen-by-screen gallery, shown above the normal two-column
+   * layout. Optional: only set for projects with enough captured screens to
+   * warrant one. */
+  imageShowcase?: ImageShowcase;
   /** STAR case-study framing — Situation & Task / (Action == designGuide,
    * nested as its own sub-tabs) / Reflection, shown as top-level tabs on
    * the detail page. Optional: only set for projects documented this way;
@@ -779,6 +817,7 @@ export const WORK_PROJECTS: WorkProject[] = [
       en: "\"Organized, but never oversimplified.\" That was the goal. In a system carrying this many functions, simplifying isn't the answer — what it needed was hierarchy, not subtraction. The frequent things up front; the occasional things exactly where you'd look for them.",
     },
     image: "/media/home_work/karts/thumb.png",
+    imageShowcase: KARTS_IMAGE_SHOWCASE,
     designGuide: {
       panels: [
         {

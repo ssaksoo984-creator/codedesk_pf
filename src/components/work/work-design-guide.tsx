@@ -1,48 +1,17 @@
 "use client";
 
 import clsx from "clsx";
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocale, type Locale } from "@/components/site-header/locale-context";
 import type { DesignGuide } from "@/lib/work-content";
 import { WorkArrowIcon } from "./work-arrow-icon";
+import { LightboxProvider, Zoomable } from "./lightbox";
 
 type GuidePanel = DesignGuide["panels"][number];
 type GuideImage = NonNullable<GuidePanel["images"]>[number];
 type GuideListItem = NonNullable<GuidePanel["list"]>[number];
 
 const HEADING = { ko: "설계 가이드", en: "Design Guide" };
-
-interface LightboxItem {
-  src: string;
-  alt: string;
-}
-
-/** Lets any image nested arbitrarily deep under WorkDesignGuide open the one
- * shared full-size viewer, without threading an `onOpen` prop through every
- * intermediate component (PhoneFrame, ScrollableFrame, ImageCarousel, ...). */
-const LightboxContext = createContext<((item: LightboxItem) => void) | null>(null);
-
-function useLightbox() {
-  const open = useContext(LightboxContext);
-  if (!open) throw new Error("useLightbox must be used within WorkDesignGuide");
-  return open;
-}
-
-/** Wraps an image/video preview so it's clickable and keyboard-operable
- * (a plain onClick on <img> isn't focusable). Visual look is untouched aside
- * from the zoom cursor — the click affordance is discoverable, not shouty. */
-function Zoomable({ item, className, children }: { item: LightboxItem; className?: string; children: React.ReactNode }) {
-  const open = useLightbox();
-  return (
-    <button
-      type="button"
-      onClick={() => open(item)}
-      className={clsx("block cursor-zoom-in text-left", className)}
-    >
-      {children}
-    </button>
-  );
-}
 
 /** Lives inside the right-hand column, under the project photo — a plain,
  * page-scrolling block (no sticky rail) since the column itself is already
@@ -61,7 +30,6 @@ export function WorkDesignGuide({
 }) {
   const { locale } = useLocale();
   const [activeId, setActiveId] = useState(guide.panels[0]?.id);
-  const [lightboxItem, setLightboxItem] = useState<LightboxItem | null>(null);
   const panel = guide.panels.find((p) => p.id === activeId) ?? guide.panels[0];
 
   // Click-and-drag horizontal scrolling for the sub-tab bar, for when it
@@ -125,7 +93,7 @@ export function WorkDesignGuide({
   if (!panel) return null;
 
   return (
-    <LightboxContext.Provider value={setLightboxItem}>
+    <LightboxProvider>
       <div className={embedded ? undefined : "mt-10 border-t border-white/15 pt-8 md:mt-12 md:pt-10"}>
         {!embedded && (
           <>
@@ -182,61 +150,7 @@ export function WorkDesignGuide({
           <GuidePanelView key={panel.id} panel={panel} locale={locale} />
         </div>
       </div>
-
-      <Lightbox item={lightboxItem} onClose={() => setLightboxItem(null)} />
-    </LightboxContext.Provider>
-  );
-}
-
-/** Full-size viewer for any Design Guide image — constrained to a max width
- * rather than the viewport height, so a tall full-page capture stays large
- * and readable and simply scrolls, instead of being squeezed down to fit. */
-function Lightbox({ item, onClose }: { item: LightboxItem | null; onClose: () => void }) {
-  useEffect(() => {
-    if (!item) return;
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
-    }
-    document.addEventListener("keydown", onKey);
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = "";
-    };
-  }, [item, onClose]);
-
-  if (!item) return null;
-
-  return (
-    <div
-      className="fixed inset-0 z-[100] overflow-y-auto bg-ink/95 p-4 py-12 md:p-10"
-      onClick={onClose}
-    >
-      <button
-        type="button"
-        onClick={onClose}
-        aria-label="Close"
-        className="fixed right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-paper transition-colors duration-200 hover:bg-white/20 md:right-8 md:top-8"
-      >
-        <CloseIcon />
-      </button>
-
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={item.src}
-        alt={item.alt}
-        className="mx-auto w-full max-w-[1100px] rounded-lg shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
-      />
-    </div>
-  );
-}
-
-function CloseIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-      <path d="M4 4l16 16M20 4 4 20" />
-    </svg>
+    </LightboxProvider>
   );
 }
 
