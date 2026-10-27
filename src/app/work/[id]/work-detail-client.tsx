@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import clsx from "clsx";
 import type { WorkProject } from "@/lib/work-content";
@@ -13,6 +13,7 @@ import { ImageShowcase } from "@/components/work/image-showcase";
 import { Chip, useRevealChildren } from "@/components/cyber/primitives";
 import { MissionCover, missionNumber } from "@/components/cyber/mission-browser";
 import { StoryBlockContent } from "@/components/cyber/story-block";
+import { RecoveryToast } from "@/components/cyber/recovery-toast";
 
 const COPY = {
   back: { ko: "미션 아카이브", en: "Mission archive" },
@@ -30,8 +31,6 @@ const COPY = {
   debrief: { ko: "회고", en: "Debrief" },
   next: { ko: "다음 미션", en: "Next mission" },
   prev: { ko: "이전 미션", en: "Previous" },
-  restored: { ko: "섹터 복구 완료", en: "Sector restored" },
-  restoredSub: { ko: "세계 복구율이 올라갔습니다", en: "World integrity increased" },
   shipped: { ko: "완료", en: "Shipped" },
 };
 
@@ -60,25 +59,6 @@ function Section({
   );
 }
 
-function RestoredToast({ show }: { show: boolean }) {
-  const { locale } = useLocale();
-  return (
-    <div
-      aria-live="polite"
-      className={clsx(
-        "pointer-events-none fixed left-1/2 top-24 z-[60] -translate-x-1/2 transition-all duration-500",
-        show ? "translate-y-0 opacity-100" : "-translate-y-4 opacity-0"
-      )}
-    >
-      {show && (
-        <div className="ko-safe notch border border-neon bg-ink/90 px-6 py-4 text-center font-mono shadow-[0_0_40px_rgba(0,240,255,0.35)] backdrop-blur-md">
-          <div className="text-sm uppercase tracking-[0.3em] text-neon text-glow">✓ {COPY.restored[locale]}</div>
-          <div className="mt-1 text-[11px] tracking-wider text-white/50">{COPY.restoredSub[locale]}</div>
-        </div>
-      )}
-    </div>
-  );
-}
 
 interface WorkDetailClientProps {
   project: WorkProject;
@@ -104,14 +84,11 @@ export function WorkDetailClient({ project, prev, next }: WorkDetailClientProps)
     })();
     markRestored(project.index);
     if (already) return;
-    const show = setTimeout(() => setToast(true), 600);
-    const hide = setTimeout(() => setToast(false), 3200);
-    return () => {
-      clearTimeout(show);
-      clearTimeout(hide);
-    };
+    const show = setTimeout(() => setToast(true), 500);
+    return () => clearTimeout(show);
   }, [project.index]);
 
+  const hideToast = useCallback(() => setToast(false), []);
   const isRestored = restored.includes(project.index);
 
   let n = 0;
@@ -160,7 +137,7 @@ export function WorkDetailClient({ project, prev, next }: WorkDetailClientProps)
   return (
     <>
       <Gnb />
-      <RestoredToast show={toast} />
+      <RecoveryToast run={toast} onDone={hideToast} />
       <main ref={ref} className="min-h-screen pb-24 pt-28 md:pt-36">
         <div className="wrap">
           {/* ---- Hero ---- */}

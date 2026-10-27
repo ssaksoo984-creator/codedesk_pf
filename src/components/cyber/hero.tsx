@@ -1,11 +1,12 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import clsx from "clsx";
 import { useLocale } from "@/components/site-header/locale-context";
 import { VISIBLE_WORK_PROJECTS } from "@/lib/work-content";
 import { GAME_URL } from "@/lib/nav-items";
 import { HeroCanvas } from "./hero-canvas";
+import { MeteorStrike } from "./meteor-strike";
 
 const COPY = {
   briefing: { ko: "미션 브리핑", en: "Mission briefing" },
@@ -31,6 +32,14 @@ export function Hero() {
   const [purged, setPurged] = useState(0);
   const [flash, setFlash] = useState(false);
 
+  const [shake, setShake] = useState(false);
+  const impactRef = useRef<((x: number, y: number) => void) | null>(null);
+  const onImpact = useCallback((x: number, y: number) => impactRef.current?.(x, y), []);
+  const onShake = useCallback(() => {
+    setShake(true);
+    setTimeout(() => setShake(false), 460);
+  }, []);
+
   const onPurge = useCallback(() => {
     setPurged((n) => n + 1);
     setFlash(true);
@@ -39,7 +48,10 @@ export function Hero() {
 
   return (
     <section id="top" className="relative h-[100svh] min-h-[640px] w-full overflow-hidden">
-      <HeroCanvas onPurge={onPurge} />
+      <div className={clsx("absolute inset-0", shake && "hero-shake")}>
+        <HeroCanvas onPurge={onPurge} impactRef={impactRef} />
+      </div>
+      <MeteorStrike onImpact={onImpact} onShake={onShake} />
 
       {/* Readability scrim behind copy */}
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-ink/85 via-ink/30 to-transparent md:via-ink/20" />
@@ -107,7 +119,7 @@ export function Hero() {
           </div>
 
           {/* Operator ID card */}
-          <aside className="brackets notch hidden border border-neon/25 bg-ink/70 p-5 font-mono text-xs backdrop-blur-md lg:block">
+          <aside className="brackets notch hidden self-center border border-neon/25 bg-ink/70 p-5 font-mono text-xs backdrop-blur-md lg:block">
             <div className="flex items-center justify-between text-[10px] tracking-[0.25em] text-white/40">
               <span>ID-CARD</span>
               <span className="text-neon">VERIFIED</span>

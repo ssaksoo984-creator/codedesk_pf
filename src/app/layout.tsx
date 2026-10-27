@@ -14,6 +14,7 @@ import { CyberBackground } from "@/components/cyber/cyber-background";
 import { CyberCursor } from "@/components/cyber/cyber-cursor";
 import { BootScreen } from "@/components/cyber/boot-screen";
 import { IntegrityHud } from "@/components/cyber/integrity-hud";
+import { SysBot } from "@/components/cyber/sys-bot";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -42,6 +43,7 @@ export default function RootLayout({
           {children}
           <IntegrityHud />
           <BackToTop />
+          <SysBot />
           <CyberCursor />
         </LocaleProvider>
         <Analytics />

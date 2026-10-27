@@ -4,6 +4,7 @@ import { useLocale } from "@/components/site-header/locale-context";
 import { MissionBrowser } from "./mission-browser";
 import { SectionHeader, useRevealChildren } from "./primitives";
 import { SectorMap } from "./sector-map";
+import { InfectedGlobe } from "./infected-globe";
 
 const COPY = {
   lead: {
@@ -29,9 +30,10 @@ export function MissionsSection() {
           }
         />
         <div className="mb-14 grid gap-8 lg:grid-cols-[280px_1fr] lg:gap-20">
-          <p data-reveal className="text-[15px] leading-relaxed text-white/60">
-            {COPY.lead[locale]}
-          </p>
+          <div data-reveal className="flex flex-col gap-8">
+            <p className="text-[15px] leading-relaxed text-white/60">{COPY.lead[locale]}</p>
+            <InfectedGlobe />
+          </div>
           <div data-reveal>
             <SectorMap />
           </div>

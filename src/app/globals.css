@@ -333,3 +333,78 @@ html[lang="ko"] .ko-safe,
 html[lang="ko"] .ko-safe * {
   letter-spacing: 0.02em !important;
 }
+
+/* ---- SYS-BOT companion ---- */
+@keyframes bot-float {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-8px) rotate(2deg); }
+}
+.bot-float {
+  animation: bot-float 3.6s ease-in-out infinite;
+}
+@keyframes bot-glitch {
+  0%, 100% { transform: translate(0, 0); }
+  20% { transform: translate(-4px, 1px) skewX(-8deg); }
+  40% { transform: translate(4px, -1px) skewX(6deg); }
+  60% { transform: translate(-2px, 0); }
+  80% { transform: translate(2px, 1px); }
+}
+.bot-glitch {
+  animation: bot-glitch 0.15s steps(2) 4;
+}
+
+/* ---- Meteor strike ---- */
+@keyframes meteor-fall {
+  from { transform: translate(var(--mx0), var(--my0)) scale(0.55); opacity: 0; }
+  12% { opacity: 1; }
+  to { transform: translate(0, 0) scale(1); opacity: 1; }
+}
+.meteor-fall {
+  animation: meteor-fall 1.4s cubic-bezier(0.35, 0, 0.75, 0.6) forwards;
+}
+@keyframes shockwave {
+  from { transform: translate(-50%, -50%) scale(0.1); opacity: 1; }
+  to { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+}
+.shockwave {
+  animation: shockwave 0.9s cubic-bezier(0.1, 0.7, 0.3, 1) forwards;
+}
+@keyframes impact-flash {
+  from { opacity: 0.85; }
+  to { opacity: 0; }
+}
+.impact-flash {
+  animation: impact-flash 0.7s ease-out forwards;
+}
+@keyframes hero-shake {
+  0%, 100% { transform: translate(0, 0); }
+  15% { transform: translate(-7px, 4px); }
+  30% { transform: translate(6px, -5px); }
+  45% { transform: translate(-5px, -3px); }
+  60% { transform: translate(4px, 4px); }
+  80% { transform: translate(-2px, 1px); }
+}
+.hero-shake {
+  animation: hero-shake 0.45s linear;
+}
+
+/* ---- Globe ---- */
+@keyframes globe-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+.globe-bob {
+  animation: globe-bob 6s ease-in-out infinite;
+}
+@keyframes radar {
+  to { transform: rotate(360deg); }
+}
+.radar {
+  animation: radar 4s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bot-float, .bot-glitch, .meteor-fall, .shockwave, .impact-flash, .hero-shake, .globe-bob, .radar {
+    animation: none !important;
+  }
+}

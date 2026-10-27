@@ -17,6 +17,7 @@ interface Spark {
   vx: number;
   vy: number;
   life: number;
+  color: string;
 }
 
 interface Building {
@@ -36,7 +37,15 @@ const ALERT = "255, 51, 85";
  * data rain, and drifting red virus signals. Sweeping the pointer over a
  * virus purges it into a cyan burst and reports it via `onPurge` — the
  * first "save the world" interaction a visitor gets. */
-export function HeroCanvas({ onPurge }: { onPurge?: () => void }) {
+export function HeroCanvas({
+  onPurge,
+  impactRef,
+}: {
+  onPurge?: () => void;
+  /** Filled with a function the meteor strike calls (in % of the canvas)
+   * to blast debris and drop new viruses at the impact point. */
+  impactRef?: React.MutableRefObject<((xPct: number, yPct: number) => void) | null>;
+}) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const purgeRef = useRef(onPurge);
 
@@ -222,12 +231,32 @@ export function HeroCanvas({ onPurge }: { onPurge?: () => void }) {
       ctx!.shadowBlur = 0;
     }
 
-    function burst(x: number, y: number) {
-      for (let i = 0; i < 22; i++) {
+    function burst(x: number, y: number, color = NEON, n = 22, power = 4.5) {
+      for (let i = 0; i < n; i++) {
         const a = Math.random() * Math.PI * 2;
-        const s = rand(1, 4.5);
-        sparks.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: 1 });
+        const s = rand(1, power);
+        sparks.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: 1, color });
       }
+    }
+
+    if (impactRef) {
+      impactRef.current = (xPct, yPct) => {
+        const x = (xPct / 100) * w;
+        const y = (yPct / 100) * h;
+        burst(x, y, MAGENTA, 70, 9);
+        burst(x, y, ALERT, 40, 6);
+        // Infect nearby windows and drop fresh virus signals around the crater.
+        for (const b of buildings) {
+          if (Math.abs(b.x + b.w / 2 - x) < w * 0.12) for (const win of b.windows) if (Math.random() < 0.5) win.infected = true;
+        }
+        const max = w < 700 ? 10 : 18;
+        for (let i = 0; i < 4 && viruses.length < max; i++) {
+          const v = spawnVirus();
+          v.x = x + rand(-60, 60);
+          v.y = Math.min(horizon - 20, y + rand(-80, 10));
+          viruses.push(v);
+        }
+      };
     }
 
     function drawViruses() {
@@ -273,7 +302,7 @@ export function HeroCanvas({ onPurge }: { onPurge?: () => void }) {
         s.vx *= 0.94;
         s.vy *= 0.94;
         s.life -= 0.025;
-        ctx!.fillStyle = `rgba(${NEON},${Math.max(0, s.life)})`;
+        ctx!.fillStyle = `rgba(${s.color},${Math.max(0, s.life)})`;
         ctx!.fillRect(s.x, s.y, 2.5, 2.5);
       }
       sparks = sparks.filter((s) => s.life > 0);
@@ -336,8 +365,9 @@ export function HeroCanvas({ onPurge }: { onPurge?: () => void }) {
       host.removeEventListener("pointermove", onMove);
       host.removeEventListener("pointerdown", onMove);
       host.removeEventListener("pointerleave", onLeave);
+      if (impactRef) impactRef.current = null;
     };
-  }, []);
+  }, [impactRef]);
 
   return <canvas ref={canvasRef} aria-hidden className="absolute inset-0 h-full w-full" />;
 }
