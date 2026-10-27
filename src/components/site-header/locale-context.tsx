@@ -24,6 +24,10 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  useEffect(() => {
+    document.documentElement.lang = locale;
+  }, [locale]);
+
   function toggleLocale() {
     setLocale((prev) => {
       const next: Locale = prev === "ko" ? "en" : "ko";

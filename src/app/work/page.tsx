@@ -1,28 +1,25 @@
 "use client";
 
 import { Gnb } from "@/components/site-header/gnb";
-import { ThemeSection } from "@/components/site-header/theme-section";
 import { SiteFooter } from "@/components/footer/site-footer";
-import { NoScrollSnap } from "@/components/ui/no-scroll-snap";
-import { Logo } from "@/components/logo";
-import { WorkBrowser } from "@/components/work/work-browser";
+import { MissionBrowser } from "@/components/cyber/mission-browser";
+import { SectionHeader, useRevealChildren } from "@/components/cyber/primitives";
+import { SectorMap } from "@/components/cyber/sector-map";
 
 export default function WorkPage() {
+  const ref = useRevealChildren<HTMLElement>();
   return (
     <>
-      <NoScrollSnap />
       <Gnb />
-      <ThemeSection theme="dark">
-        <main className="min-h-screen bg-ink pb-24 pt-[104px] md:pt-[132px]">
-          <div className="wrap">
-            <Logo tone="paper" size="small" className="mb-8 md:mb-10" />
-            <p className="mb-10 font-display text-4xl italic text-paper md:mb-14 md:text-6xl">
-              Work
-            </p>
-            <WorkBrowser />
+      <main ref={ref} className="min-h-screen pb-28 pt-32 md:pt-40">
+        <div className="wrap">
+          <SectionHeader index="02" label="Mission archive" title={<>All <span className="text-neon">sectors</span></>} />
+          <div data-reveal className="mb-14">
+            <SectorMap />
           </div>
-        </main>
-      </ThemeSection>
+          <MissionBrowser />
+        </div>
+      </main>
       <SiteFooter />
     </>
   );

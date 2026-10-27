@@ -4,110 +4,131 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
 import { Logo } from "@/components/logo";
-import { NAV_ITEMS, resolveNavHref } from "@/lib/nav-items";
-import { useGnbTheme } from "./gnb-theme";
+import { GAME_URL, NAV_ITEMS, resolveNavHref } from "@/lib/nav-items";
 import { useLocale } from "./locale-context";
-import { SchemeToggle } from "./scheme-toggle";
 
-function MenuIcon({ open }: { open: boolean }) {
+function useClock() {
+  const [now, setNow] = useState<string>("--:--:--");
+  useEffect(() => {
+    const fmt = () =>
+      new Date().toLocaleTimeString("en-GB", { hour12: false, timeZone: "Asia/Seoul" });
+    const id = setInterval(() => setNow(fmt()), 1000);
+    setTimeout(() => setNow(fmt()), 0);
+    return () => clearInterval(id);
+  }, []);
+  return now;
+}
+
+function LocaleSwitch({ className }: { className?: string }) {
+  const { locale, toggleLocale } = useLocale();
   return (
-    <span className="relative flex h-3.5 w-4.5 flex-col justify-between">
-      <span
-        className={clsx(
-          "h-[1.5px] w-full origin-center bg-current transition-transform duration-300",
-          open && "translate-y-[6px] rotate-45"
-        )}
-      />
-      <span
-        className={clsx(
-          "h-[1.5px] w-full bg-current transition-opacity duration-200",
-          open && "opacity-0"
-        )}
-      />
-      <span
-        className={clsx(
-          "h-[1.5px] w-full origin-center bg-current transition-transform duration-300",
-          open && "-translate-y-[6px] -rotate-45"
-        )}
-      />
-    </span>
+    <button
+      type="button"
+      onClick={toggleLocale}
+      aria-label={locale === "ko" ? "Switch to English" : "한국어로 전환"}
+      className={clsx(
+        "flex h-9 items-center border border-white/15 font-mono text-[11px] tracking-widest transition-colors hover:border-neon",
+        className
+      )}
+    >
+      <span className={clsx("px-2.5", locale === "ko" ? "bg-neon text-ink" : "text-white/50")}>KO</span>
+      <span className={clsx("px-2.5", locale === "en" ? "bg-neon text-ink" : "text-white/50")}>EN</span>
+    </button>
   );
 }
 
+function GameLink({ className, onClick }: { className?: string; onClick?: () => void }) {
+  return (
+    <a
+      href={GAME_URL}
+      target="_blank"
+      rel="noopener noreferrer"
+      onClick={onClick}
+      className={clsx(
+        "group relative inline-flex h-9 items-center gap-2 border border-alert/60 px-3 font-mono text-[11px] tracking-widest text-alert transition-colors hover:bg-alert hover:text-ink",
+        className
+      )}
+    >
+      <span className="relative flex h-2 w-2">
+        <span className="pulse-ring absolute inline-flex h-full w-full rounded-full bg-alert" />
+        <span className="relative inline-flex h-2 w-2 rounded-full bg-alert group-hover:bg-ink" />
+      </span>
+      PLAY GAME
+    </a>
+  );
+}
+
+/** Top HUD bar: logo · numbered nav · Seoul clock · language · game link.
+ * Collapses to a menu panel below md. */
 export function Gnb() {
-  const { theme } = useGnbTheme();
   const { locale } = useLocale();
   const pathname = usePathname();
+  const clock = useClock();
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const panelRef = useRef<HTMLDivElement | null>(null);
-  const triggerRef = useRef<HTMLButtonElement | null>(null);
 
-  const isLight = theme === "light";
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   useEffect(() => {
     if (!open) return;
-
-    function onClick(e: MouseEvent) {
-      const target = e.target as Node;
-      if (
-        panelRef.current?.contains(target) ||
-        triggerRef.current?.contains(target)
-      ) {
-        return;
-      }
-      setOpen(false);
-    }
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") setOpen(false);
-    }
-
-    document.addEventListener("mousedown", onClick);
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
     document.addEventListener("keydown", onKey);
-    document.body.style.overflow = "hidden";
-
-    return () => {
-      document.removeEventListener("mousedown", onClick);
-      document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = "";
-    };
+    return () => document.removeEventListener("keydown", onKey);
   }, [open]);
 
   return (
-    <header className="pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-center px-3 pt-3 md:pt-4">
+    <header className="fixed inset-x-0 top-0 z-50">
       <div
         className={clsx(
-          "pointer-events-auto flex w-full items-center justify-between rounded-2xl px-4 shadow-lg transition-colors duration-500 md:w-[800px] md:px-6",
-          "h-16 md:h-20",
-          isLight ? "bg-charcoal text-paper" : "bg-paper text-charcoal"
+          "border-b transition-colors duration-300",
+          scrolled || open ? "border-neon/20 bg-ink/80 backdrop-blur-md" : "border-transparent bg-transparent"
         )}
       >
-        <Logo tone={isLight ? "paper" : "ink"} size="small" />
+        <div className="wrap flex h-16 items-center justify-between gap-4 md:h-[72px]">
+          <Logo size="small" />
 
-        <div className="flex items-center gap-1">
-          <SchemeToggle
-            className={isLight ? "hover:bg-white/10" : "hover:bg-black/5"}
-          />
+          <nav className="hidden items-center gap-8 md:flex">
+            {NAV_ITEMS.map((item, i) => (
+              <a
+                key={item.href}
+                href={resolveNavHref(item.href, pathname)}
+                className="group flex items-baseline gap-1.5 font-mono text-xs uppercase tracking-[0.2em] text-white/60 transition-colors hover:text-neon"
+              >
+                <span className="text-[10px] text-neon/60">0{i + 1}</span>
+                <span className="relative">
+                  {item.label}
+                  <span className="absolute -bottom-1 left-0 h-px w-0 bg-neon transition-all duration-300 group-hover:w-full" />
+                </span>
+              </a>
+            ))}
+          </nav>
+
+          <div className="hidden items-center gap-3 md:flex">
+            <span className="hidden font-mono text-[11px] tracking-widest text-white/40 lg:inline">
+              SEL {clock}
+            </span>
+            <LocaleSwitch />
+            <GameLink />
+          </div>
 
           <button
-            ref={triggerRef}
             type="button"
             aria-expanded={open}
-            aria-label={
-              locale === "ko"
-                ? open
-                  ? "메뉴 닫기"
-                  : "메뉴 열기"
-                : open
-                  ? "Close menu"
-                  : "Open menu"
-            }
+            aria-label={locale === "ko" ? (open ? "메뉴 닫기" : "메뉴 열기") : open ? "Close menu" : "Open menu"}
             onClick={() => setOpen((v) => !v)}
-            className={clsx(
-              "flex h-10 w-10 items-center justify-center rounded-xl transition-colors duration-300 md:h-11 md:w-11",
-              isLight ? "hover:bg-white/10" : "hover:bg-black/5"
-            )}
+            className="flex h-10 items-center gap-2 border border-neon/40 px-3 font-mono text-[11px] tracking-widest text-neon md:hidden"
           >
-            <MenuIcon open={open} />
+            {open ? "CLOSE" : "MENU"}
+            <span className="flex flex-col gap-[3px]">
+              <span className={clsx("h-px w-4 bg-neon transition-transform", open && "translate-y-[2px] rotate-45")} />
+              <span className={clsx("h-px w-4 bg-neon transition-transform", open && "-translate-y-[2px] -rotate-45")} />
+            </span>
           </button>
         </div>
       </div>
@@ -115,44 +136,26 @@ export function Gnb() {
       <div
         ref={panelRef}
         className={clsx(
-          "absolute right-3 top-[4.75rem] w-[min(90vw,320px)] origin-top-right overflow-hidden rounded-2xl shadow-2xl transition-all duration-300 md:right-[calc(50%-400px+1.5rem)] md:top-24",
-          isLight ? "bg-charcoal text-paper" : "bg-paper text-charcoal",
-          open
-            ? "pointer-events-auto scale-100 opacity-100"
-            : "pointer-events-none scale-95 opacity-0"
+          "absolute inset-x-0 top-16 border-b border-neon/20 bg-ink/95 backdrop-blur-md transition-[clip-path] duration-300 md:hidden",
+          open ? "pointer-events-auto [clip-path:inset(0_0_0_0)]" : "pointer-events-none [clip-path:inset(0_0_100%_0)]"
         )}
       >
-        <nav className="flex flex-col py-2">
+        <nav className="wrap flex flex-col py-4">
           {NAV_ITEMS.map((item, i) => (
             <a
               key={item.href}
               href={resolveNavHref(item.href, pathname)}
               onClick={() => setOpen(false)}
-              className={clsx(
-                "px-6 py-3.5 font-display text-xl italic tracking-tight transition-colors",
-                isLight ? "hover:bg-white/10" : "hover:bg-black/5",
-                i !== 0 && (isLight ? "border-t border-white/10" : "border-t border-black/10")
-              )}
+              className="flex items-baseline gap-3 border-b border-white/10 py-4 font-display text-3xl uppercase tracking-wide text-paper"
             >
+              <span className="font-mono text-xs text-neon">0{i + 1}</span>
               {item.label}
             </a>
           ))}
-          <a
-            href="https://recoveryprotocel.vercel.app/"
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => setOpen(false)}
-            className={clsx(
-              "flex items-center gap-2.5 px-6 py-3.5 font-display text-xl italic tracking-tight text-red-500 transition-colors",
-              isLight ? "hover:bg-red-500/10 border-t border-white/10" : "hover:bg-red-500/10 border-t border-black/10"
-            )}
-          >
-            <span className="relative flex h-2 w-2 shrink-0">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-500 opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500" />
-            </span>
-            PLAY THE GAME
-          </a>
+          <div className="mt-5 flex items-center justify-between gap-3">
+            <LocaleSwitch />
+            <GameLink onClick={() => setOpen(false)} />
+          </div>
         </nav>
       </div>
     </header>

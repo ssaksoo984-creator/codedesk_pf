@@ -1,35 +1,32 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import clsx from "clsx";
-import { useGnbTheme } from "./gnb-theme";
 import { useLocale } from "./locale-context";
 
-/**
- * Fixed bottom-right "TOP" button. Adapts color exactly like the GNB pill
- * (charcoal box on light sections, white box on dark ones) and works
- * automatically under moon mode since it's just another element under the
- * page-wide invert filter.
- */
+/** Fixed bottom-right "TOP" control, shown once the visitor is a screen in. */
 export function BackToTop() {
-  const { theme } = useGnbTheme();
   const { locale } = useLocale();
-  const isLight = theme === "light";
+  const [visible, setVisible] = useState(false);
 
-  function handleClick() {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
+  useEffect(() => {
+    const onScroll = () => setVisible(window.scrollY > window.innerHeight * 0.8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
     <button
       type="button"
-      onClick={handleClick}
+      onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
       aria-label={locale === "ko" ? "맨 위로 이동" : "Back to top"}
       className={clsx(
-        "fixed bottom-5 right-5 z-40 flex h-12 w-12 flex-col items-center justify-center gap-0.5 rounded-xl text-[10px] font-semibold tracking-wide shadow-lg transition-colors duration-500 md:bottom-8 md:right-8 md:h-14 md:w-14 md:text-[11px]",
-        isLight ? "bg-charcoal text-paper" : "bg-paper text-charcoal"
+        "notch-sm fixed bottom-4 right-4 z-40 flex h-12 w-12 flex-col items-center justify-center gap-0.5 border border-neon/40 bg-ink/80 font-mono text-[9px] tracking-widest text-neon backdrop-blur-md transition-all duration-300 hover:bg-neon hover:text-ink md:bottom-8 md:right-8 md:h-14 md:w-14",
+        visible ? "opacity-100" : "pointer-events-none translate-y-3 opacity-0"
       )}
     >
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square">
         <path d="M12 19V5M5 12l7-7 7 7" />
       </svg>
       TOP

@@ -1,4 +1,5 @@
 import { KARTS_IMAGE_SHOWCASE } from "./karts-showcase";
+import { RECENT_PROJECTS } from "./work-projects-recent";
 
 interface Copy {
   ko: string;
@@ -187,11 +188,53 @@ export interface WorkProject {
    * the entry — use VISIBLE_WORK_PROJECTS, not WORK_PROJECTS, anywhere the
    * site actually renders a link a visitor could reach. */
   hidden?: boolean;
+  /** Mission-card / detail hero image when it should differ from `image`. */
+  cover?: string;
+  /** "contain" for transparent artwork (characters, logos) that must not be cropped. */
+  coverFit?: "cover" | "contain";
+  /** CSS background painted behind a contained cover. */
+  coverBg?: string;
+  /** Shown as a NEW badge on the mission card. */
+  isNew?: boolean;
+  /** Free-form timeline label shown in the meta row, e.g. "2025". */
+  year?: string;
+  /** External links besides `url` — prototypes, artifacts, live demos. */
+  links?: { label: Copy; url: string }[];
+  /** Free-form case-study sections for projects not documented in the
+   * Design Guide format (brand work, character work, flows). */
+  story?: StoryBlock[];
+}
+
+export interface StoryImage {
+  src: string;
+  caption?: Copy;
+  /** Transparent artwork renders contained on a tinted panel. */
+  fit?: "cover" | "contain";
+  bg?: string;
+}
+
+export interface StoryBlock {
+  id: string;
+  label: Copy;
+  /** Large lead statement shown above the body. */
+  title?: Copy;
+  body?: Copy[];
+  /** Numbered rows — label + optional note. */
+  items?: { label: Copy; note?: Copy }[];
+  /** Before/after flow as two lanes of steps. */
+  flow?: { before: Copy[]; after: Copy[] };
+  colors?: { hex: string; name: Copy }[];
+  images?: StoryImage[];
+  /** Image grid column count on desktop. */
+  columns?: 1 | 2 | 3 | 4;
+  /** "Coming soon" placeholder — content the designer is still preparing. */
+  pending?: Copy;
 }
 
 // Only real, shipped projects go here — the list grows as more come in, so
 // keep it short rather than padding it out with placeholders.
 export const WORK_PROJECTS: WorkProject[] = [
+  ...RECENT_PROJECTS,
   {
     index: "01",
     title: { ko: "Bloom Soft", en: "Bloom Soft" },
