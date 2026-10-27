@@ -6,6 +6,7 @@ import clsx from "clsx";
 import { useLocale } from "@/components/site-header/locale-context";
 import { VISIBLE_WORK_PROJECTS } from "@/lib/work-content";
 import { useRestored } from "@/lib/mission-progress";
+import { usePastHero } from "@/lib/use-past-hero";
 
 type Mood = "error" | "fixing" | "ok";
 
@@ -62,6 +63,7 @@ export function SysBot() {
   const pathname = usePathname();
   const restored = useRestored();
   const [hidden, setHidden] = useState(false);
+  const pastHero = usePastHero();
   const [text, setText] = useState<{ mood: Mood; msg: string; progress?: number } | null>(null);
   const [glitch, setGlitch] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -168,11 +170,16 @@ export function SysBot() {
     text?.mood === "error" ? "border-alert text-alert" : text?.mood === "fixing" ? "border-acid text-acid" : "border-neon text-neon";
 
   return (
-    <div className="pointer-events-none fixed bottom-20 right-2 z-40 flex items-end gap-1 md:bottom-[100px] md:right-6">
+    <div
+      className={clsx(
+        "pointer-events-none fixed bottom-20 right-2 z-40 flex items-end gap-1 transition-all duration-500 md:bottom-[100px] md:right-6",
+        pastHero ? "opacity-100" : "translate-y-6 opacity-0 [&_*]:!pointer-events-none"
+      )}
+    >
       <div
         aria-live="polite"
         className={clsx(
-          "ko-safe pointer-events-auto relative mb-10 w-[min(64vw,250px)] border bg-ink/90 p-3 font-mono text-[11px] leading-relaxed shadow-[0_0_24px_rgba(0,0,0,0.6)] backdrop-blur-md transition-all duration-300",
+          "ko-safe pointer-events-auto relative mb-8 w-[min(60vw,250px)] border bg-ink/90 p-3 font-mono text-[11px] leading-relaxed shadow-[0_0_24px_rgba(0,0,0,0.6)] backdrop-blur-md transition-all duration-300",
           tone,
           text ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-2 opacity-0"
         )}
@@ -204,7 +211,7 @@ export function SysBot() {
         type="button"
         onClick={skip}
         aria-label="SYS-BOT"
-        className={clsx("bot-float pointer-events-auto relative h-24 w-24 shrink-0 md:h-28 md:w-28", glitch && "bot-glitch")}
+        className={clsx("bot-float pointer-events-auto relative h-16 w-16 shrink-0 md:h-24 md:w-24", glitch && "bot-glitch")}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img

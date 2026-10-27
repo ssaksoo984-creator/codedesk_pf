@@ -115,7 +115,7 @@ export function MeteorStrike({
       {phase !== "idle" && phase !== "fall" && (
         <div
           className={clsx(
-            "ko-safe absolute left-1/2 top-[22%] w-[min(88vw,380px)] -translate-x-1/2 border bg-ink/85 p-4 font-mono text-xs backdrop-blur-md transition-colors md:left-auto md:right-[6%] md:top-[30%] md:translate-x-0",
+            "ko-safe absolute right-[4%] top-[30%] hidden w-[340px] border bg-ink/85 p-4 font-mono text-xs backdrop-blur-md transition-colors lg:block",
             alertTone,
             phase === "impact" && "flicker shadow-[0_0_30px_rgba(255,51,85,0.45)]"
           )}

@@ -28,88 +28,45 @@ export const RECENT_PROJECTS: WorkProject[] = [
     isNew: true,
     title: { ko: "Tale Studio 리뉴얼", en: "Tale Studio Renewal" },
     category: {
-      ko: "AI 영상 제작 서비스 · 캐릭터 & 제작 흐름 리뉴얼",
-      en: "AI video studio — character & production-flow renewal",
+      ko: "AI 영상 제작 서비스 · 아키텍처 · UX 프로세스 · UI 디자인 · 프로토타입",
+      en: "AI video studio — architecture, UX process, UI design & prototype",
     },
-    tags: ["Systems & Tools", "Brand & Identity"],
+    tags: ["Systems & Tools", "Built by Me", "Brand & Identity"],
     stage: { ko: "진행 중", en: "In progress" },
-    skills: ["Character System", "Motion Spec", "UX Flow", "Prototyping", "Dev Handoff"],
+    skills: ["Service Architecture", "User Flow", "Figma Design System", "HTML Prototype", "Dev Handoff", "Character System"],
     client: { ko: "Tale Studio", en: "Tale Studio" },
     roles: [
-      { label: { ko: "캐릭터 리뉴얼", en: "Character renewal" }, value: { ko: "Lumi 상태 17종 설계", en: "17 Lumi states" } },
-      { label: { ko: "제작 흐름 재설계", en: "Flow redesign" }, value: { ko: "플로우 차트 · 동작 프로토타입", en: "Flow chart · working prototype" } },
+      { label: { ko: "아키텍처 · 프로세스", en: "Architecture & process" }, value: { ko: "단계 재정의 · 단계별 플로우 차트", en: "Stage model · per-stage flow charts" } },
+      { label: { ko: "UI 디자인", en: "UI design" }, value: { ko: "Figma — 파운데이션 · 컴포넌트 · 4단계 화면", en: "Figma — foundations, components, 4 stages" } },
+      { label: { ko: "프로토타입", en: "Prototype" }, value: { ko: "플로우와 연동된 단일 HTML 파일", en: "Single-file HTML, wired to the flow" } },
       { label: { ko: "개발 전달", en: "Dev handoff" }, value: { ko: "기존 → 리뉴얼 변경 명세", en: "Before → after change spec" } },
+      { label: { ko: "캐릭터 · 로고", en: "Character & logo" }, value: { ko: "Lumi 상태 17종 · TAil 로고", en: "17 Lumi states · TAil logo" } },
     ],
     description: {
-      ko: "아이디어 한 줄에서 영상까지 만들어 주는 AI 제작 서비스 Tale Studio의 리뉴얼에 참여하고 있습니다. 에이전트 캐릭터 Lumi가 지금 무엇을 하는지 한눈에 읽히도록 상태 17종을 설계했고, 뒤섞여 있던 제작 단계를 Producer → Writer → Artist → Storyboard로 다시 나눠 실제로 눌러 볼 수 있는 프로토타입으로 만들었습니다.",
-      en: "I'm part of the renewal of Tale Studio, an AI service that takes a one-line idea all the way to video. I designed 17 states for its agent character Lumi so users can always read what the AI is doing, and re-split a tangled production pipeline into Producer → Writer → Artist → Storyboard — delivered as a clickable prototype.",
+      ko: "아이디어 한 줄에서 영상까지 만들어 주는 AI 제작 서비스 Tale Studio의 리뉴얼을 처음부터 끝까지 맡았습니다. 뒤섞여 있던 제작 단계를 Producer → Writer → Artist → Storyboard로 다시 나누는 아키텍처를 세우고, 단계마다 정상 · 분기 · 오류 · 롤백 흐름을 플로우 차트로 설계했습니다. 그 위에 Figma로 디자인 시스템과 전 단계 화면을 디자인하고, 플로우와 연동되는 단일 파일 프로토타입과 개발 전달 문서까지 만들었습니다. 에이전트 캐릭터 Lumi의 상태 17종도 함께 설계했습니다.",
+      en: "I led Tale Studio's renewal end to end — an AI service that takes a one-line idea to video. I re-architected a tangled pipeline into Producer → Writer → Artist → Storyboard, designed every stage's happy, branching, error and rollback flows as flow charts, then designed the design system and every screen in Figma, built a single-file prototype wired to those flows, and wrote the dev handoff. I also designed 17 states for the agent character, Lumi.",
     },
     situation: {
-      ko: "기존 제품은 단계가 섞여 있었습니다. Writer 안에서 산문을 쓰다가 그림과 샷까지 다뤘고, AI가 작업하는 동안에도 화면 일부는 그대로 열려 있어 요청이 겹치곤 했습니다. AI가 지금 읽는 중인지, 쓰는 중인지, 멈춘 건지도 화면에서 알기 어려웠습니다.",
-      en: "Stages were tangled: Writer handled prose, then drawings and shots too, and parts of the screen stayed live while the AI was working, so requests collided. It was also hard to tell from the screen whether the AI was reading, writing, or stuck.",
+      ko: "기존 제품은 단계가 섞여 있었습니다. Writer 안에서 산문을 쓰다가 그림과 샷까지 다뤘고, 넘어가는 순간마다 러닝타임 검사 같은 장벽이 있었습니다. AI가 작업하는 동안에도 화면 일부가 열려 있어 요청이 겹쳤고, 어디서 무엇이 바뀌었는지 개발과 기획이 같은 그림을 보기 어려웠습니다.",
+      en: "Stages were tangled: Writer handled prose, then drawings and shots, with gates like a runtime check at every hand-off. Parts of the screen stayed live while the AI worked, so requests collided — and design and engineering struggled to share one picture of what was changing where.",
     },
     task: {
-      ko: "단계를 하는 일의 성격대로 나누고, AI가 일하는 상태를 캐릭터의 움직임만으로 읽히게 만드는 것.",
-      en: "Split the stages by the kind of work they do, and make the AI's state readable from the character's motion alone.",
+      ko: "단계를 하는 일의 성격대로 다시 나누고, 모든 분기와 예외를 먼저 설계한 뒤, 그대로 눌러 보고 개발에 넘길 수 있는 형태로 만드는 것.",
+      en: "Re-split the stages by the work they do, design every branch and exception first, and deliver it in a form you can click through and hand straight to engineering.",
     },
     reflection: {
-      ko: "해피 패스만 그리면 화면은 금방 나옵니다. 하지만 이 서비스의 어려움은 분기와 오류, 되돌아가는 흐름에 있었습니다. 플로우에서 그 구간들을 먼저 설계하고 화면을 그리니, 캐릭터의 상태도 '어느 화면에서, 어떤 크기로, 몇 초 동안'까지 정해서 넘길 수 있었습니다.",
-      en: "Drawing only the happy path gets you screens fast — but this product's difficulty lived in branches, errors, and rollbacks. Designing those in the flow first meant even the character's states could be handed off as 'which screen, what size, for how long.'",
+      ko: "해피 패스만 그리면 화면은 금방 나옵니다. 하지만 이 서비스의 어려움은 분기와 오류, 되돌아가는 흐름에 있었습니다. 아키텍처와 플로우를 먼저 세우고 화면을 그리니, Figma 화면 · 프로토타입 · 개발 명세가 모두 같은 화면 ID로 묶여 한 언어로 이야기할 수 있었습니다.",
+      en: "Drawing only the happy path gets you screens fast — but this product's difficulty lived in branches, errors and rollbacks. Setting the architecture and flows first meant the Figma screens, the prototype and the dev spec all share one set of screen IDs — one language for everyone.",
     },
-    cover: `${TS}/assets/lumi_original.webp`,
-    coverFit: "contain",
-    coverBg: LUMI_BG,
+    cover: "/media/covers/09.webp",
     links: [
-      { label: { ko: "Lumi 상태 17종 보기", en: "Lumi — 17 states" }, url: "https://claude.ai/artifact/LbhbVTNxmxQLcq8WyPzAc1" },
-      { label: { ko: "리뉴얼 프로토타입", en: "Renewal prototype" }, url: "https://claude.ai/artifact/C5xmoMhBQq9Juh3AeTP4Z2" },
+      { label: { ko: "프로토타입 열기", en: "Open prototype" }, url: "/proto/tale-studio.html" },
+      { label: { ko: "Lumi 상태 17종", en: "Lumi — 17 states" }, url: "https://claude.ai/artifact/LbhbVTNxmxQLcq8WyPzAc1" },
     ],
     story: [
       {
-        id: "lumi",
-        label: { ko: "캐릭터 · Lumi 상태 17종", en: "Character — 17 Lumi states" },
-        title: {
-          ko: "원본 일러스트는 그대로, 움직임만으로 상태를 말하게.",
-          en: "Keep the original illustration — let motion alone say the state.",
-        },
-        body: [
-          {
-            ko: "원본 Lumi 일러스트를 유지하면서 몸통 안의 코랄 레드 그라데이션 물결, 꼬리, 눈, 주변 방울만 움직여 17개 상태를 표현했습니다. 상태를 바꿀 때는 0.35초 동안 이어서 전환돼 툭 끊기지 않습니다.",
-            en: "The original Lumi artwork stays intact; only the coral-red gradient wave inside the body, the tail, the eyes, and the surrounding bubbles move to express 17 states. Switching states blends over 0.35s so nothing snaps.",
-          },
-          {
-            ko: "상태는 쓰임에 따라 세 묶음입니다. 모든 단계에서 쓰는 공통 상태 5종, 긴 로딩을 채우는 '만드는 중' 5종, 한 번 재생하고 기본으로 돌아가는 '특별한 순간' 7종.",
-            en: "States fall into three groups by use: 5 common states used everywhere, 5 'making' states that fill long loads, and 7 'moments' that play once and return to idle.",
-          },
-        ],
-        columns: 4,
-        images: LUMI_POSES.map((p) => ({
-          src: `${TS}/keyposes/${p.file}.webp`,
-          fit: "contain" as const,
-          bg: LUMI_BG,
-          caption: { ko: `${p.ko} — ${p.noteKo}`, en: `${p.en} — ${p.noteEn}` },
-        })),
-      },
-      {
-        id: "sizes",
-        label: { ko: "크기별 설계", en: "Designed per size" },
-        items: [
-          {
-            label: { ko: "40px · 채팅 아바타", en: "40px · chat avatar" },
-            note: { ko: "기본 · 듣는 중 · 생각 중 · 완료 · 오류. 작은 크기에서도 눈과 몸짓만으로 구분되도록.", en: "Idle, listening, thinking, complete, error — distinguishable by eyes and posture even this small." },
-          },
-          {
-            label: { ko: "200px · 로딩 · 확인 팝업", en: "200px · loading & confirm" },
-            note: { ko: "읽는 중 · 쓰는 중 · 고치는 중 · 그리는 중 · 연출 중. 몇 초에서 몇 분까지 이어지는 대기를 이야기로 채움.", en: "Reading, writing, editing, drawing, directing — turning waits of seconds to minutes into a small story." },
-          },
-          {
-            label: { ko: "320px · 첫 화면 · 단계 전환", en: "320px · first screen & transitions" },
-            note: { ko: "인사 · 다음 단계로. 화면을 날아 나갔다 반대편에서 들어오며 단계가 바뀐 것을 알림.", en: "Greeting and next-stage — Lumi flies out and back in from the other side to mark a stage change." },
-          },
-        ],
-      },
-      {
         id: "flow",
-        label: { ko: "제작 흐름 재설계", en: "Re-splitting the pipeline" },
+        label: { ko: "아키텍처 · 단계 재정의", en: "Architecture — redefining stages" },
         title: {
           ko: "단계가 하는 일대로: 산문은 Writer, 그림은 Artist, 샷은 Storyboard.",
           en: "Stages by the work they do: prose in Writer, art in Artist, shots in Storyboard.",
@@ -154,16 +111,120 @@ export const RECENT_PROJECTS: WorkProject[] = [
         ],
       },
       {
-        id: "method",
-        label: { ko: "설계 방식", en: "How it was designed" },
+        id: "flowchart",
+        label: { ko: "단계별 프로세스 · 플로우 차트", en: "Per-stage process — flow charts" },
+        title: {
+          ko: "화면보다 흐름을 먼저: 정상 · 분기 · 오류 · 롤백까지.",
+          en: "Flow before screens — happy path, branches, errors and rollbacks.",
+        },
         body: [
           {
-            ko: "해피 패스(정상 흐름)만이 아니라 분기(예/아니오)에 따른 대안 흐름, 오류 시 예외 흐름, 롤백 가능 · 불가 구간까지 플로우 차트에서 먼저 설계하고 화면을 그렸습니다. 프로토타입에서 화면을 고르면 플로우의 해당 노드가 표시되고, 플로우의 노드를 누르면 그 화면으로 이동합니다.",
-            en: "Beyond the happy path, alternate flows on every yes/no branch, exception flows on errors, and where rollback is or isn't possible were all designed in the flow chart before any screen was drawn. Picking a screen in the prototype highlights its node in the flow, and clicking a node jumps to that screen.",
+            ko: "단계마다 해피 패스뿐 아니라 예/아니오 분기에 따른 대안 흐름, 오류 시 예외 흐름, 롤백이 가능한 구간과 불가능한 구간을 플로우 차트로 먼저 설계했습니다. 화면 · 팝업 · 분기 · AI 작업 중 잠금 · 오류 · 새로 생김 · 롤백 · 잠기는 값을 범례로 구분해, 노드 하나만 봐도 그 화면의 성격을 알 수 있게 했습니다.",
+            en: "For every stage I designed not just the happy path but alternate flows on each yes/no branch, exception flows on errors, and where rollback is or isn't possible. A legend separates screens, popups, branches, AI-lock states, errors, new screens, rollbacks and locked values, so any node reads at a glance.",
+          },
+        ],
+        columns: 1,
+        images: [
+          { src: "/media/home_work/talestudio/proto/t_flow.webp", caption: { ko: "Producer 단계 플로우 — 파일 첨부 · 20자 검사 분기 · AI 작업 중 상태", en: "Producer flow — attachment, 20-char check branch, AI-working state" } },
+        ],
+      },
+      {
+        id: "prototype",
+        label: { ko: "단일 파일 프로토타입", en: "Single-file prototype" },
+        title: {
+          ko: "플로우와 화면이 서로를 가리키는 프로토타입.",
+          en: "A prototype where the flow and the screens point at each other.",
+        },
+        body: [
+          {
+            ko: "프로토타입 · 플로우 · 내용 정리 세 탭을 하나의 HTML 파일에 담았습니다. 프로토타입에서 화면을 고르면 옆 플로우 차트의 해당 노드가 빨갛게 표시되고, 플로우의 노드를 누르면 그 화면으로 이동합니다. 1안(화면에서 고르기)과 2안(채팅으로 만들기)을 토글로 비교할 수 있습니다.",
+            en: "Prototype, flow and spec tabs live in one HTML file. Picking a screen lights its node in the flow chart beside it; clicking a node jumps to that screen. Plan A (pick on screen) and Plan B (build by chat) toggle side by side.",
+          },
+        ],
+        columns: 1,
+        images: [
+          { src: "/media/home_work/talestudio/proto/t_proto.webp", caption: { ko: "프로토타입 탭 — 왼쪽 동작하는 화면, 오른쪽 현재 위치가 표시된 플로우", en: "Prototype tab — working screen left, flow with current node right" } },
+        ],
+      },
+      {
+        id: "design",
+        label: { ko: "UI 디자인 · Figma", en: "UI design — Figma" },
+        title: {
+          ko: "파운데이션부터 4단계 화면까지, 하나의 시스템으로.",
+          en: "From foundations to all four stages, one system.",
+        },
+        body: [
+          {
+            ko: "브랜드 그라데이션과 TAil 로고, 단계 아이콘, 사이드바 내비게이션(완료 · 진행 중 · 예정), 모드 토글(화면 · 채팅), 선택 칩 · 옵션 카드, Lumi 채팅 말풍선, 로딩 카드까지 컴포넌트로 만들고, Producer · Writer · Artist · Storyboard의 모든 화면을 플로우의 화면 ID 그대로 디자인했습니다.",
+            en: "Brand gradients and the TAil logo, stage icons, sidebar navigation (done · current · upcoming), a screen/chat mode toggle, choice chips and option cards, Lumi chat bubbles and loading cards became components — and every Producer, Writer, Artist and Storyboard screen was designed under the same screen IDs as the flow.",
+          },
+        ],
+        columns: 2,
+        images: [
+          { src: "/media/home_work/talestudio/figma/p_e1.webp", caption: { ko: "E1 · Producer — 이야기 재료", en: "E1 · Producer — story material" } },
+          { src: "/media/home_work/talestudio/figma/p_eb3.webp", caption: { ko: "EB3 · Producer 2안 — 채팅으로 장르 · 분위기 고르기", en: "EB3 · Producer plan B — genre & mood by chat" } },
+          { src: "/media/home_work/talestudio/figma/w_w1.webp", caption: { ko: "W1 · Writer — 산문 작업공간", en: "W1 · Writer — prose workspace" } },
+          { src: "/media/home_work/talestudio/figma/a_a5.webp", caption: { ko: "A5 · Artist — 인물 · 배경 결과 (버전 기록)", en: "A5 · Artist — cast & sets with versions" } },
+          { src: "/media/home_work/talestudio/figma/a_a7.webp", caption: { ko: "A7 · Artist — 상세 팝업", en: "A7 · Artist — detail popup" } },
+          { src: "/media/home_work/talestudio/figma/s_s1.webp", caption: { ko: "S1 · Storyboard — 러프 스토리보드", en: "S1 · Storyboard — rough board" } },
+          { src: "/media/home_work/talestudio/figma/s_s2.webp", caption: { ko: "S2 · Storyboard — 샷 고치기 (조명 추가)", en: "S2 · Storyboard — shot editing with lighting" } },
+          { src: "/media/home_work/talestudio/figma/c_nav.webp", caption: { ko: "컴포넌트 — 단계 내비게이션 · 모드 토글", en: "Components — stage navigation & mode toggle" } },
+        ],
+      },
+      {
+        id: "handoff",
+        label: { ko: "개발 전달", en: "Dev handoff" },
+        body: [
+          {
+            ko: "기능마다 기존 → 리뉴얼과 처리(보존 · 바뀜 · 이동 · 신규 · 기능 분리 · 삭제), 개발에 닿는 곳을 화면 ID와 함께 표로 정리했습니다. 명세의 화면 ID를 누르면 프로토타입의 해당 화면이 열리고, 프로토타입에서 화면을 고르면 그 화면의 변경 내용이 설명 아래 붙습니다.",
+            en: "Every feature is tabled as before → after with its disposition (kept, changed, moved, new, split, removed) and where it touches the code, keyed by screen ID. Clicking an ID opens that prototype screen; picking a screen in the prototype pins its changes under the description.",
+          },
+        ],
+        columns: 1,
+        images: [
+          { src: "/media/home_work/talestudio/proto/t_spec.webp", caption: { ko: "내용 정리 탭 — 흐름 비교와 기능 위치", en: "Spec tab — flow comparison and feature map" } },
+        ],
+      },
+      {
+        id: "lumi",
+        label: { ko: "캐릭터 · Lumi 17종", en: "Character — Lumi, 17 states" },
+        title: {
+          ko: "원본 일러스트는 그대로, 움직임만으로 상태를 말하게.",
+          en: "Keep the original illustration — let motion alone say the state.",
+        },
+        body: [
+          {
+            ko: "원본 Lumi 일러스트를 유지하면서 몸통 안의 코랄 레드 그라데이션 물결, 꼬리, 눈, 주변 방울만 움직여 17개 상태를 표현했습니다. 상태를 바꿀 때는 0.35초 동안 이어서 전환돼 툭 끊기지 않습니다.",
+            en: "The original Lumi artwork stays intact; only the coral-red gradient wave inside the body, the tail, the eyes, and the surrounding bubbles move to express 17 states. Switching states blends over 0.35s so nothing snaps.",
           },
           {
-            ko: "개발 전달 문서에는 기능마다 기존 → 리뉴얼과 처리(보존 · 바뀜 · 이동 · 신규 · 기능 분리 · 삭제), 개발에 닿는 곳을 화면 ID와 함께 정리해, 명세에서 바로 해당 프로토타입 화면을 열 수 있게 했습니다.",
-            en: "The dev handoff lists every feature as before → after with its disposition (kept, changed, moved, new, split, removed) and where it touches the code, keyed by screen ID so any row opens its prototype screen.",
+            ko: "상태는 쓰임에 따라 세 묶음입니다. 모든 단계에서 쓰는 공통 상태 5종, 긴 로딩을 채우는 '만드는 중' 5종, 한 번 재생하고 기본으로 돌아가는 '특별한 순간' 7종.",
+            en: "States fall into three groups by use: 5 common states used everywhere, 5 'making' states that fill long loads, and 7 'moments' that play once and return to idle.",
+          },
+        ],
+        columns: 4,
+        images: LUMI_POSES.map((p) => ({
+          src: `${TS}/keyposes/${p.file}.webp`,
+          fit: "contain" as const,
+          bg: LUMI_BG,
+          caption: { ko: `${p.ko} — ${p.noteKo}`, en: `${p.en} — ${p.noteEn}` },
+        })),
+      },
+      {
+        id: "sizes",
+        label: { ko: "캐릭터 크기별 설계", en: "Character, per size" },
+        items: [
+          {
+            label: { ko: "40px · 채팅 아바타", en: "40px · chat avatar" },
+            note: { ko: "기본 · 듣는 중 · 생각 중 · 완료 · 오류. 작은 크기에서도 눈과 몸짓만으로 구분되도록.", en: "Idle, listening, thinking, complete, error — distinguishable by eyes and posture even this small." },
+          },
+          {
+            label: { ko: "200px · 로딩 · 확인 팝업", en: "200px · loading & confirm" },
+            note: { ko: "읽는 중 · 쓰는 중 · 고치는 중 · 그리는 중 · 연출 중. 몇 초에서 몇 분까지 이어지는 대기를 이야기로 채움.", en: "Reading, writing, editing, drawing, directing — turning waits of seconds to minutes into a small story." },
+          },
+          {
+            label: { ko: "320px · 첫 화면 · 단계 전환", en: "320px · first screen & transitions" },
+            note: { ko: "인사 · 다음 단계로. 화면을 날아 나갔다 반대편에서 들어오며 단계가 바뀐 것을 알림.", en: "Greeting and next-stage — Lumi flies out and back in from the other side to mark a stage change." },
           },
         ],
       },
@@ -172,10 +233,10 @@ export const RECENT_PROJECTS: WorkProject[] = [
   {
     index: "10",
     isNew: true,
-    title: { ko: "NAIL 로고 디자인", en: "NAIL Logo Design" },
+    title: { ko: "NAIL 로고 · AI 검색 챗봇", en: "NAIL Logo & AI Search Chatbot" },
     category: {
-      ko: "국회 인공지능 도서관 BI · AI 챗봇 적용",
-      en: "National Assembly AI Library identity — AI chatbot",
+      ko: "국회 인공지능 도서관 BI · 의미기반 검색 챗봇 적용",
+      en: "National Assembly AI Library identity — applied to a semantic-search chatbot",
     },
     tags: ["Brand & Identity", "Public"],
     stage: { ko: "제안", en: "Proposal" },
@@ -183,11 +244,11 @@ export const RECENT_PROJECTS: WorkProject[] = [
     client: { ko: "국회 인공지능 도서관", en: "National Assembly AI Library" },
     roles: [
       { label: { ko: "로고 디자인", en: "Logo design" }, value: { ko: "TYPE-1 · TYPE-2 두 안", en: "Two directions — TYPE-1 · TYPE-2" } },
-      { label: { ko: "적용 시안", en: "Application" }, value: { ko: "AI 챗봇 화면", en: "AI chatbot screens" } },
+      { label: { ko: "적용 시안", en: "Application" }, value: { ko: "AI 의미기반 검색 챗봇 UI · 프로토타입", en: "AI semantic-search chatbot UI & prototype" } },
     ],
     description: {
-      ko: "국회 인공지능 도서관(National Assembly AI Library)의 로고를 두 방향으로 제안했습니다. 공공기관의 신뢰감을 단단한 직선으로 담은 TYPE-1, 2025 타이포그래피 트렌드인 스크래치(절단) 기법과 그라데이션으로 AI의 유연함을 담은 TYPE-2. 두 안 모두 '책'과 'AI의 별'이라는 같은 상징에서 출발합니다.",
-      en: "Two logo directions for the National Assembly AI Library (NAIL). TYPE-1 carries public-sector trust in solid straight strokes; TYPE-2 uses 2025's scratch (cut) typography trend and a gradient for AI's flexibility. Both start from the same symbols: the book, and the AI star.",
+      ko: "국회 인공지능 도서관(National Assembly AI Library)의 로고를 두 방향으로 제안했습니다. 공공기관의 신뢰감을 단단한 직선으로 담은 TYPE-1, 2025 타이포그래피 트렌드인 스크래치(절단) 기법과 그라데이션으로 AI의 유연함을 담은 TYPE-2. 두 안 모두 '책'과 'AI의 별'이라는 같은 상징에서 출발합니다. TYPE-1 로고는 국회전자도서관 AI 의미기반 검색 챗봇 화면에 적용해 동작하는 프로토타입으로 만들었습니다.",
+      en: "Two logo directions for the National Assembly AI Library (NAIL). TYPE-1 carries public-sector trust in solid straight strokes; TYPE-2 uses 2025's scratch (cut) typography trend and a gradient for AI's flexibility. Both start from the same symbols: the book, and the AI star. TYPE-1 was then applied to the library's AI semantic-search chatbot, built as a working prototype.",
     },
     situation: {
       ko: "인공지능 도서관의 얼굴은 도서관이 가진 무게감과, '누구나 물어볼 수 있는 AI'라는 새로운 성격을 함께 담아야 했습니다.",
@@ -197,7 +258,8 @@ export const RECENT_PROJECTS: WorkProject[] = [
       ko: "책 · 북마크 · 별이라는 도서관과 AI의 상징을, 공공기관의 신뢰와 친근함 사이 두 방향으로 풀어내는 것.",
       en: "Express the library and AI symbols — book, bookmark, star — in two directions between public trust and approachability.",
     },
-    cover: `${NAIL}/nail_cover.webp`,
+    cover: "/media/covers/10.webp",
+    links: [{ label: { ko: "챗봇 프로토타입 열기", en: "Open chatbot prototype" }, url: "/proto/nail-search.html" }],
     story: [
       {
         id: "type1",
@@ -255,11 +317,42 @@ export const RECENT_PROJECTS: WorkProject[] = [
       },
       {
         id: "chatbot",
-        label: { ko: "적용 시안 · AI 챗봇", en: "Applied — AI chatbot" },
-        pending: {
-          ko: "로고를 실제 AI 챗봇 화면에 적용한 시안과 챗봇 창 디자인을 준비 중입니다. 곧 이 자리에 공개됩니다.",
-          en: "Screens applying the logo to the AI chatbot, and the chat window design itself, are being prepared — they'll land here soon.",
+        label: { ko: "적용 · AI 의미기반 검색 챗봇", en: "Applied — AI semantic-search chatbot" },
+        title: {
+          ko: "키워드 대신 문장으로 묻고, 근거와 함께 답을 받는 도서관.",
+          en: "A library you ask in sentences — and that answers with its sources.",
         },
+        body: [
+          {
+            ko: "TYPE-1 로고를 국회전자도서관 AI 의미기반 검색 화면에 적용했습니다. 로고 팔레트(네이비 · 로열 · 스카이)는 아껴 쓰고, 화면의 주인공은 질문과 답이 되도록 넓은 여백과 차분한 회색 위계를 잡았습니다.",
+            en: "The TYPE-1 mark is applied to the National Assembly e-library's AI semantic search. The logo palette (navy, royal, sky) is used sparingly so the question and the answer stay the heroes, set on generous space and a quiet grey hierarchy.",
+          },
+        ],
+        items: [
+          {
+            label: { ko: "추천 질문으로 시작", en: "Start from suggested questions" },
+            note: { ko: "빈 검색창 앞에서 막막하지 않도록, 문장형 질문 예시 카드와 '질문 잘하는 법' 팁을 첫 화면에 둡니다.", en: "Sentence-style example cards and a 'how to ask' tip sit on the first screen so a blank box never stalls anyone." },
+          },
+          {
+            label: { ko: "근거가 붙은 요약 답변", en: "Answers with numbered sources" },
+            note: { ko: "요약의 각 문단에 번호를 달아, 누르면 그 근거가 된 원문 자료로 바로 이어집니다. AI 답변의 신뢰를 원문으로 확인하게 했습니다.", en: "Each paragraph of the summary carries numbers that open the source documents behind it — trust is checked against the originals." },
+          },
+          {
+            label: { ko: "관련 자료 · 이어서 묻기", en: "Related material & follow-ups" },
+            note: { ko: "답변 아래 자료 유형(연구보고서 · 학술논문 · 단행본) 카드와 이어서 물어볼 질문을 붙여 탐색이 끊기지 않게 했습니다.", en: "Typed source cards (reports, papers, books) and follow-up prompts under each answer keep exploration going." },
+          },
+          {
+            label: { ko: "이용자별 자료 범위 안내", en: "Scope by user type" },
+            note: { ko: "이용 가이드에서 일반 이용자와 국회 직원이 검색할 수 있는 자료 범위를 구분해 보여 줍니다.", en: "The guide separates what the public and Assembly staff can each search." },
+          },
+        ],
+        columns: 2,
+        images: [
+          { src: "/media/home_work/nail/chatbot/n_home.webp", caption: { ko: "첫 화면 — 문장으로 묻는 검색창과 추천 질문", en: "Home — sentence search and suggested questions" } },
+          { src: "/media/home_work/nail/chatbot/n_answer.webp", caption: { ko: "답변 — 번호로 근거가 연결된 요약 · 관련 자료", en: "Answer — summary with numbered sources, related items" } },
+          { src: "/media/home_work/nail/chatbot/n_guide.webp", caption: { ko: "이용 가이드 — 시스템 소개 · 자료 유형 · 이용 방법", en: "Guide — about, source types, how to use" } },
+          { src: "/media/home_work/nail/chatbot/n_mobile.webp", caption: { ko: "모바일", en: "Mobile" }, fit: "contain", bg: "#eef3fc" },
+        ],
       },
     ],
   },
@@ -267,22 +360,81 @@ export const RECENT_PROJECTS: WorkProject[] = [
     index: "11",
     isNew: true,
     title: { ko: "1AM VAPE", en: "1AM VAPE" },
-    category: { ko: "전자담배 온라인 쇼핑몰", en: "Vape e-commerce store" },
-    tags: ["Business"],
-    skills: ["E-commerce"],
+    category: { ko: "캐나다 전자담배 도매 브랜드 · B2B 리테일러 사이트", en: "Canadian vape wholesale brand — B2B retailer site" },
+    tags: ["Business", "Built by Me"],
+    skills: ["Brand Website", "B2B Commerce", "Motion & Interaction", "Responsive", "Compliance UX"],
+    client: { ko: "1AM (VANSKAI TRADING LTD.)", en: "1AM (VANSKAI TRADING LTD.)" },
+    roles: [{ label: { ko: "사이트 디자인 · 구축", en: "Site design & build" }, value: { ko: "브랜드 사이트 · 리테일러 주문 흐름", en: "Brand site & retailer ordering flow" } }],
     url: "https://1amvape.com/",
+    cover: "/media/covers/11.webp",
     description: {
-      ko: "전자담배 브랜드 1AM VAPE의 온라인 쇼핑몰 작업입니다. 실제 운영 중인 사이트에서 결과물을 확인할 수 있습니다.",
-      en: "Online store work for the vape brand 1AM VAPE. The live store is linked below.",
+      ko: "캐나다의 라이선스 리테일러에게만 판매하는 전자담배 도매 브랜드 1AM의 사이트입니다. 소비자에게 직접 팔지 않는 B2B 구조라, '예쁜 쇼핑몰'보다 '믿고 입점할 수 있는 브랜드'로 보이는 것이 목표였습니다. 15가지 맛의 컬러를 그대로 브랜드 비주얼로 쓰고, 연령 인증 · 보건 경고 · 리테일러 가입과 주문 흐름까지 규제 안에서 설계했습니다.",
+      en: "The site for 1AM, a vape wholesale brand that sells only to licensed Canadian retailers. Being B2B — never selling to consumers — the goal was to read as a brand retailers can trust, not just a pretty store. The 15 flavour colours became the visual identity, and age gating, health warnings, retailer sign-up and ordering were all designed within the regulations.",
+    },
+    situation: {
+      ko: "전자담배는 광고와 판매 방식이 엄격하게 규제되는 상품입니다. 19세 미만 접근을 막아야 하고, 모든 화면에 보건 경고가 보여야 하며, 일반 소비자가 아니라 라이선스를 가진 리테일러만 주문할 수 있어야 했습니다.",
+      en: "Vapes are tightly regulated in how they're shown and sold: under-19s must be kept out, a health warning must be on every screen, and only licensed retailers — not consumers — may order.",
+    },
+    task: {
+      ko: "규제를 지키면서도 리테일러가 '이 브랜드를 들이고 싶다'고 느끼게 만들고, 가입 → 승인 → 주문까지 막힘없이 안내하는 것.",
+      en: "Stay compliant while making retailers want to carry the brand — and guide them smoothly from application to approval to ordering.",
     },
     story: [
       {
-        id: "screens",
-        label: { ko: "화면", en: "Screens" },
-        pending: {
-          ko: "메인 · 상품 목록 · 상세 · 장바구니 화면 캡처와 작업 과정을 정리하고 있습니다. 그동안 라이브 사이트에서 먼저 확인해 주세요.",
-          en: "Captures of the home, listing, product, and cart screens — and the process behind them — are being written up. Meanwhile, the live store is one click away.",
-        },
+        id: "identity",
+        label: { ko: "비주얼 · 15가지 맛의 컬러", en: "Visual — 15 flavour colours" },
+        title: { ko: "제품의 컬러가 곧 브랜드.", en: "The product's colours are the brand." },
+        body: [
+          {
+            ko: "크리스털처럼 투명한 바디 안에 맛마다 다른 그라데이션 코어가 보이는 제품 특징을 그대로 사이트의 언어로 옮겼습니다. 첫 화면은 15가지 맛이 무지개처럼 펼쳐지고, 라인업 섹션은 제품마다 고유한 그라데이션 배경으로 바뀝니다.",
+            en: "The product's clear crystal body with a gradient core per flavour became the site's language: the hero fans out all 15 flavours like a rainbow, and each lineup section switches to that product's own gradient.",
+          },
+        ],
+        columns: 2,
+        images: [
+          { src: "/media/home_work/1am/hero.webp", caption: { ko: "히어로 — STOCKED FOR retail, 15가지 맛 라인업", en: "Hero — Stocked for retail, all 15 flavours" } },
+          { src: "/media/home_work/1am/about.webp", caption: { ko: "BUILT FOR licensed retailers — B2B 브랜드임을 먼저 밝힘", en: "Built for licensed retailers — B2B stated up front" } },
+          { src: "/media/home_work/1am/slim.webp", caption: { ko: "라인업 01 · SLIM HYBRID — 판매 중", en: "Lineup 01 · Slim Hybrid — available" } },
+          { src: "/media/home_work/1am/lineup.webp", caption: { ko: "라인업 02 · 20ML MAX — 출시 예정, 알림 신청", en: "Lineup 02 · 20ml Max — coming soon, get notified" } },
+          { src: "/media/home_work/1am/features.webp", caption: { ko: "SLIM OUTSIDE. Loud inside. — 제품 특징 콜아웃", en: "Slim outside, loud inside — feature callouts" } },
+          { src: "/media/home_work/1am/stock.webp", caption: { ko: "STOCK 1AM — 리테일러 가입 유도", en: "Stock 1AM — retailer sign-up CTA" } },
+        ],
+      },
+      {
+        id: "compliance",
+        label: { ko: "규제 안에서의 UX", en: "UX within regulation" },
+        items: [
+          { label: { ko: "19+ 연령 확인", en: "19+ age gate" }, note: { ko: "진입 시 연령 확인을 먼저 거치게 하고, 확인 전에는 콘텐츠가 보이지 않습니다.", en: "Age confirmation comes first; nothing shows until it's passed." } },
+          { label: { ko: "모든 화면 상단 보건 경고", en: "Health warning on every screen" }, note: { ko: "Health Canada 니코틴 경고 문구를 고정 바로 두어 어떤 페이지에서도 사라지지 않게 했습니다.", en: "Health Canada's nicotine warning is a fixed bar that never leaves any page." } },
+          { label: { ko: "소비자 직판 없음을 명시", en: "No direct-to-consumer, stated clearly" }, note: { ko: "히어로 · 소개 · 푸터에서 반복해 '라이선스 리테일러 전용'임을 알리고, 결제 수단(Interac e-Transfer · CAD)과 라이선스 번호를 푸터에 표기했습니다.", en: "Hero, about and footer repeat 'licensed retailers only'; payment (Interac e-Transfer, CAD) and the licence number sit in the footer." } },
+        ],
+      },
+      {
+        id: "retailer",
+        label: { ko: "리테일러 여정", en: "Retailer journey" },
+        body: [
+          {
+            ko: "Become a Retailer → 심사(영업일 1~2일) → 승인 메일 → 로그인 후 주문까지, 리테일러가 밟는 단계를 How to Order와 FAQ에서 순서대로 안내하고, 가입 폼은 사업자 정보 중심으로 짧게 구성했습니다.",
+            en: "Become a retailer → review (1–2 business days) → approval email → log in and order: How to Order and the FAQ walk retailers through each step in order, and the application form stays short and business-focused.",
+          },
+        ],
+        columns: 3,
+        images: [
+          { src: "/media/home_work/1am/page_order.webp", caption: { ko: "How to Order", en: "How to Order" } },
+          { src: "/media/home_work/1am/page_retailer.webp", caption: { ko: "Become a Retailer — 가입 신청", en: "Become a Retailer — application" } },
+          { src: "/media/home_work/1am/page_faq.webp", caption: { ko: "FAQ", en: "FAQ" } },
+        ],
+      },
+      {
+        id: "mobile",
+        label: { ko: "반응형", en: "Responsive" },
+        columns: 4,
+        images: [
+          { src: "/media/home_work/1am/m_home.webp", caption: { ko: "모바일 — 메인", en: "Mobile — home" } },
+          { src: "/media/home_work/1am/m_slim.webp", caption: { ko: "모바일 — 제품", en: "Mobile — product" } },
+          { src: "/media/home_work/1am/page_slim.webp", caption: { ko: "데스크톱 — 제품 상세 (맛 슬라이더)", en: "Desktop — product with flavour slider" } },
+          { src: "/media/home_work/1am/page_about.webp", caption: { ko: "데스크톱 — About", en: "Desktop — About" } },
+        ],
       },
     ],
   },

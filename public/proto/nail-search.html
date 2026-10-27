@@ -1,0 +1,647 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NAIL 의미기반 검색</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{
+  /* logo palette, used sparingly */
+  --navy:#1F398D; --royal:#0046E2; --sky:#2179F9;
+  /* UI roles */
+  --primary:#1F398D; --primary-hover:#192F78;
+  --accent:#2B5FD9;
+  --tint:#EEF3FC; --tint-2:#E1E9F9;
+  --ink:#141A2E; --ink-2:#3A4259; --ink-3:#6A7189; --ink-4:#A0A6B8;
+  --line:#E6E9F0; --line-2:#D9DEE8;
+  --surface:#FFFFFF; --bg:#F6F8FC;
+  --ok:#1F9D6B; --no:#D9534F;
+  --r-lg:16px; --r-md:12px; --r-sm:8px;
+  --sideW:232px; --sideMini:64px; --gap:12px;
+  --shadow:0 1px 2px rgba(20,26,46,.04),0 2px 8px -2px rgba(20,26,46,.06);
+  --shadow-hover:0 2px 4px rgba(20,26,46,.04),0 10px 24px -8px rgba(31,57,141,.16);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Pretendard Variable",Pretendard,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased;word-break:keep-all;letter-spacing:-.01em}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0;letter-spacing:inherit}
+svg{flex:none}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+::selection{background:rgba(43,95,217,.16)}
+
+/* very soft backdrop */
+.aurora{position:fixed;inset:0;z-index:-1;pointer-events:none;background:
+  radial-gradient(800px 420px at 85% -5%,rgba(33,121,249,.07),transparent 70%),
+  radial-gradient(700px 420px at 10% 105%,rgba(31,57,141,.05),transparent 70%),var(--bg)}
+.aurora i{display:none}
+
+/* ---------- layout ---------- */
+.app{display:flex;min-height:100vh}
+.side{position:fixed;top:var(--gap);bottom:var(--gap);left:var(--gap);width:var(--sideW);background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);display:flex;flex-direction:column;z-index:30;transition:width .22s ease, transform .22s ease;overflow:hidden}
+.main{flex:1;margin-left:calc(var(--sideW) + var(--gap));min-width:0;display:flex;flex-direction:column;min-height:100vh;transition:margin .22s ease}
+.app.collapsed .side{width:var(--sideMini)}
+.app.collapsed .main{margin-left:calc(var(--sideMini) + var(--gap))}
+
+.side-head{height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 10px 0 18px}
+.logo{display:block;line-height:0}
+.logo-full{width:112px;height:auto;display:block}
+.logo-mark{width:26px;height:26px;display:none}
+.icon-btn{width:32px;height:32px;border-radius:var(--r-sm);display:grid;place-items:center;color:var(--ink-3);transition:background .15s,color .15s}
+.icon-btn svg{width:18px;height:18px}
+.icon-btn:hover{background:var(--tint);color:var(--ink)}
+.side-nav{padding:4px 10px 10px}
+.nav-item{display:flex;align-items:center;gap:10px;height:38px;padding:0 12px;border-radius:10px;color:var(--ink-2);font-size:14px;white-space:nowrap;transition:background .15s,color .15s}
+.nav-item svg{width:18px;height:18px}
+.nav-item:hover{background:var(--tint);color:var(--ink)}
+.nav-item.primary{width:100%;background:var(--primary);color:#fff;font-weight:600}
+.nav-item.primary:hover{background:var(--primary-hover)}
+.side-label{font-size:11.5px;font-weight:600;color:var(--ink-4);padding:12px 22px 4px}
+.history{flex:1;overflow:auto;padding:0 10px 10px}
+.hist{display:block;width:100%;text-align:left;padding:8px 12px;border-radius:var(--r-sm);font-size:13.5px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:background .15s,color .15s}
+.hist:hover{background:var(--tint);color:var(--ink)}
+.hist.active{background:var(--tint);color:var(--navy);font-weight:600}
+.side-foot{padding:10px;border-top:1px solid var(--line)}
+.app.collapsed .txt,.app.collapsed .side-label,.app.collapsed .history,.app.collapsed .logo-full{display:none}
+.app.collapsed .logo-mark{display:block}
+.app.collapsed .side-head{height:auto;padding:16px 0 8px;flex-direction:column;gap:10px}
+.app.collapsed .nav-item{justify-content:center;padding:0}
+
+/* ---------- topbar ---------- */
+.top{position:sticky;top:0;z-index:10;height:64px;display:flex;align-items:center;gap:12px;padding:var(--gap) 28px 0;background:linear-gradient(var(--bg) 70%,rgba(246,248,252,0))}
+.top h1{margin:0;font-size:15px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.top h1:empty{display:none}
+.top .menu-btn{display:none}
+
+/* ---------- home ---------- */
+.home{flex:1;display:flex;flex-direction:column;align-items:center;padding:24px 28px 12px}
+.eyebrow{display:inline-flex;align-items:center;gap:6px;margin-top:56px;padding:4px 10px 4px 6px;border-radius:999px;background:var(--tint);font-size:12px;font-weight:600;color:var(--navy)}
+.eyebrow .spark{width:18px;height:18px;border-radius:50%;background:var(--surface);display:grid;place-items:center;color:var(--sky)}
+.hero{font-size:36px;line-height:1.25;font-weight:700;letter-spacing:-.03em;margin:14px 0 8px;text-align:center}
+.grad-text{color:var(--navy)}
+.sub{margin:0 0 28px;color:var(--ink-3);font-size:15px;text-align:center}
+.wrap{width:100%;max-width:1040px}
+.wrap-narrow{width:100%;max-width:720px}
+
+.search{position:relative;display:flex;align-items:center;background:var(--surface);border:1px solid var(--line-2);border-radius:var(--r-lg);box-shadow:var(--shadow);transition:border-color .15s, box-shadow .15s}
+.search:focus-within{border-color:var(--accent);box-shadow:0 0 0 4px rgba(43,95,217,.10)}
+.search textarea{flex:1;border:0;outline:0;resize:none;font:inherit;font-size:15px;line-height:1.5;padding:17px 0 17px 20px;background:transparent;color:var(--ink);max-height:160px}
+.search textarea::placeholder{color:var(--ink-4)}
+.search .go{width:38px;height:38px;margin:0 9px;border-radius:10px;display:grid;place-items:center;color:var(--ink-4);background:var(--tint);transition:background .15s,color .15s}
+.search .go svg{width:18px;height:18px}
+.search.has-text .go{background:var(--primary);color:#fff}
+.search.has-text .go:hover{background:var(--primary-hover)}
+.search.compact textarea{font-size:14px;padding:14px 0 14px 18px}
+.search.compact .go{width:34px;height:34px;margin:0 7px}
+.hint{font-size:12px;color:var(--ink-4);margin-top:10px;text-align:center}
+.hint kbd{font-family:inherit;font-size:10.5px;background:var(--surface);border:1px solid var(--line-2);border-radius:4px;padding:0 5px;color:var(--ink-3)}
+
+.sec-title{font-size:17px;font-weight:700;letter-spacing:-.02em;margin:0}
+.sec-row{display:flex;align-items:center;justify-content:space-between;margin:56px 0 14px}
+.link-btn{display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:500;color:var(--ink-3);padding:6px 10px;border-radius:var(--r-sm);transition:all .15s}
+.link-btn:hover{color:var(--accent);background:var(--tint)}
+
+.q-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.q-card{position:relative;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:16px;min-height:116px;display:flex;flex-direction:column;gap:12px;font-size:14px;line-height:1.55;color:var(--ink-2);transition:border-color .15s, box-shadow .15s, transform .15s}
+.q-card:hover{border-color:var(--tint-2);box-shadow:var(--shadow-hover);transform:translateY(-2px);color:var(--ink)}
+.q-ic{width:28px;height:28px;border-radius:var(--r-sm);display:grid;place-items:center;color:var(--sky);background:var(--tint)}
+.q-ic svg{width:14px;height:14px}
+.q-card .arrow{position:absolute;right:14px;top:18px;width:16px;height:16px;color:var(--accent);opacity:0;transition:opacity .15s}
+.q-card:hover .arrow{opacity:1}
+
+.guide{margin-top:14px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:24px;display:none}
+.guide.open{display:block;animation:fade .25s ease}
+.guide h3{display:flex;align-items:center;gap:6px;font-size:15px;margin:0 0 12px}
+.g-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.g-card{background:var(--bg);border-radius:var(--r-md);padding:16px 18px}
+.g-card h4{display:flex;align-items:center;gap:8px;font-size:14px;margin:0 0 8px}
+.num{width:20px;height:20px;border-radius:6px;background:var(--tint-2);color:var(--navy);font-size:11.5px;font-weight:700;display:grid;place-items:center;flex:none}
+.ex{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--ink-2);padding:2px 0 2px 28px}
+.ex svg{width:15px;height:15px}
+.ex button{text-align:left}
+.ex button:hover{color:var(--accent);text-decoration:underline;text-underline-offset:3px}
+.tips{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.tips > div{padding:14px 16px;background:var(--bg);border-radius:var(--r-md)}
+.tips h4{font-size:14px!important;gap:8px!important}
+.tips .ex{padding-left:0!important}
+.tips .num{width:20px;height:20px}
+
+.disclaimer{display:flex;align-items:center;justify-content:center;gap:5px;font-size:12px;color:var(--ink-4);padding:12px 0 14px;margin:0}
+.disclaimer svg{width:13px;height:13px}
+.disclaimer svg circle:first-child{fill:var(--ink-4)}
+
+/* ---------- chat ---------- */
+.chat{flex:1;display:none;flex-direction:column}
+.app.in-chat .home{display:none}
+.app.in-chat .chat{display:flex}
+.thread{flex:1;padding:8px 28px 20px;display:flex;flex-direction:column;align-items:center;gap:44px}
+.turn{width:100%;max-width:880px}
+.user-q{display:flex;justify-content:flex-end;margin:0 0 14px}
+.user-q span:last-child{max-width:70%;background:var(--tint);color:var(--ink);font-size:14.5px;font-weight:500;padding:10px 16px;border-radius:16px 16px 4px 16px}
+.user-q .badge{display:none}
+.turn:first-child .user-q{display:none}
+
+.ai-head{display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:13px}
+.ai-av{width:24px;height:24px;border-radius:7px;background:var(--tint);display:grid;place-items:center;color:var(--sky)}
+.ai-av svg{width:12px;height:12px}
+.ai-head b{color:var(--ink);font-weight:600}
+.ai-meta{color:var(--ink-4);font-size:12px}
+.ai-meta::before{content:"·";margin-right:6px}
+
+.progress{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px 24px;position:relative;overflow:hidden}
+.progress::before{content:"";position:absolute;left:0;top:0;height:2px;width:30%;background:var(--sky);opacity:.6;animation:bar 1.4s ease-in-out infinite}
+@keyframes bar{0%{left:-30%}100%{left:100%}}
+.step{display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--ink-4);padding:4px 0;transition:color .2s}
+.step .dot{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--line-2);display:grid;place-items:center}
+.step.run{color:var(--ink)}
+.step.run .dot{border-color:var(--accent);border-top-color:transparent;animation:spin .8s linear infinite}
+.step.done{color:var(--ink-3)}
+.step.done .dot{border-color:var(--ok);background:var(--ok)}
+.step.done .dot::after{content:"";width:6px;height:3px;border:1.5px solid #fff;border-top:0;border-right:0;transform:rotate(-45deg) translate(1px,-1px)}
+
+.answer{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:24px 28px 28px;font-size:15px;line-height:1.8;color:var(--ink-2);animation:fade .25s ease}
+.answer h2{font-size:18px;font-weight:700;letter-spacing:-.02em;color:var(--ink);margin:0 0 6px}
+.answer .lead{margin:0;color:var(--ink)}
+.answer hr{border:0;height:1px;background:var(--line);margin:22px 0}
+.answer h3{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700;color:var(--ink);margin:20px 0 4px}
+.answer h3:first-of-type{margin-top:0}
+.answer p{margin:0}
+.secs p{padding-left:28px}
+.cite{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;margin-left:4px;border-radius:5px;background:var(--tint);color:var(--accent);font-size:11px;font-weight:600;vertical-align:2px;line-height:1;transition:background .15s,color .15s}
+.cite:hover,.cite[aria-expanded=true]{background:var(--accent);color:#fff}
+.caret::after{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--sky);margin-left:5px;vertical-align:middle;animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.25}}
+
+.pop{position:absolute;z-index:40;width:360px;max-width:calc(100vw - 32px);background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:0 12px 32px -8px rgba(20,26,46,.18);padding:6px;animation:fade .15s ease}
+.pop a{display:flex;gap:10px;padding:10px;border-radius:var(--r-sm);color:inherit;text-decoration:none}
+.pop a:hover{background:var(--tint)}
+.pop .n{flex:none;width:18px;height:18px;border-radius:5px;background:var(--tint);color:var(--accent);font-size:10.5px;font-weight:600;display:grid;place-items:center;margin-top:1px}
+.pop b{display:block;font-size:13px;font-weight:600;color:var(--ink);line-height:1.45}
+.pop small{font-size:12px;color:var(--ink-3)}
+
+.block{margin-top:32px}
+.block-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.block-head h4{font-size:15px;font-weight:700;letter-spacing:-.02em;margin:0;display:flex;align-items:center;gap:6px}
+.block-head h4 .cnt{font-size:12px;font-weight:600;color:var(--ink-3)}
+.docs{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.doc{text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:14px;display:flex;flex-direction:column;gap:8px;min-height:120px;transition:border-color .15s, box-shadow .15s}
+.doc:hover{border-color:var(--tint-2);box-shadow:var(--shadow-hover)}
+.doc:hover .t{color:var(--accent)}
+.doc.flash{border-color:var(--accent);box-shadow:0 0 0 3px rgba(43,95,217,.14)}
+.doc .type{align-self:flex-start;font-size:11px;font-weight:600;border-radius:4px;padding:1px 6px;color:var(--accent);background:var(--tint)}
+.doc .type[data-k="학위논문"]{color:#6B4FBB;background:#F2EEFB}
+.doc .type[data-k="학술논문"]{color:#227A84;background:#E8F5F6}
+.doc .type[data-k="연구보고서"]{color:var(--ink-2);background:#EEF0F4}
+.doc .t{font-size:13.5px;font-weight:600;color:var(--ink);line-height:1.5;flex:1;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;transition:color .15s}
+.doc .m{font-size:12px;color:var(--ink-4)}
+.docs .doc.more{display:none}
+.docs.expanded .doc.more{display:flex;animation:fade .25s ease}
+
+.sugg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sugg button{display:flex;align-items:center;gap:10px;text-align:left;font-size:13.5px;color:var(--ink-2);padding:10px 12px;border-radius:var(--r-md);background:var(--surface);border:1px solid var(--line);transition:border-color .15s,color .15s,background .15s}
+.sugg button .qi{color:var(--ink-4);width:16px;height:16px}
+.sugg button:hover{color:var(--accent);border-color:var(--tint-2);background:var(--tint)}
+.sugg button:hover .qi{color:var(--accent)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{height:30px;padding:0 12px;border-radius:999px;background:var(--surface);border:1px solid var(--line);font-size:13px;color:var(--ink-3);transition:all .15s}
+.chip:hover{background:var(--tint);border-color:var(--tint-2);color:var(--accent)}
+.actions{display:flex;justify-content:flex-end;gap:2px;margin-top:20px}
+.act{width:32px;height:32px;border-radius:var(--r-sm);display:grid;place-items:center;color:var(--ink-4);transition:all .15s}
+.act svg{width:16px;height:16px}
+.act:hover{background:var(--surface);color:var(--ink-2)}
+.act.on{background:var(--tint);color:var(--accent)}
+
+.composer{position:sticky;bottom:0;padding:20px 28px 0;background:linear-gradient(to top,var(--bg) 60%,rgba(246,248,252,0));display:flex;flex-direction:column;align-items:center}
+.composer .search{width:100%;max-width:880px}
+
+/* ---------- modal ---------- */
+.modal{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;background:rgba(20,26,46,.35);padding:24px}
+.modal.open{display:flex;animation:fade .2s ease}
+.dialog{width:100%;max-width:960px;max-height:calc(100vh - 48px);background:var(--surface);border-radius:var(--r-lg);overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 64px -16px rgba(20,26,46,.35)}
+.dialog-head{height:54px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 12px 0 24px;border-bottom:1px solid var(--line);color:var(--ink);font-size:15px;font-weight:700}
+.dialog-body{overflow:auto;padding:28px 32px 36px}
+.m-sec + .m-sec{margin-top:32px}
+.m-sec h3{display:flex;align-items:center;gap:8px;font-size:15px;margin:0 0 14px}
+.sq{width:4px;height:14px;border-radius:2px;background:var(--navy)}
+.sq::before,.sq::after{display:none}
+.m-intro{text-align:center;font-size:15px;font-weight:600;color:var(--navy);margin:0 0 14px;padding:14px;border-radius:var(--r-md);background:var(--tint)}
+.m-sec p{margin:0;color:var(--ink-2);line-height:1.8;font-size:14px}
+.users{display:grid;grid-template-columns:140px 1fr;gap:12px 24px;align-items:center}
+.u-tag{height:56px;border-radius:var(--r-md);background:var(--tint);color:var(--navy);font-size:14px;font-weight:700;display:grid;place-items:center}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.s-card{background:var(--bg);border-radius:var(--r-md);padding:18px}
+.s-card header{background:none!important;color:var(--ink);font-weight:700;font-size:14.5px;margin:12px 0 6px}
+.s-card .ic{width:36px;height:36px;border-radius:10px;background:var(--surface);color:var(--accent);display:grid;place-items:center;border:1px solid var(--line)}
+.s-card .ic svg{width:18px;height:18px}
+.s-card ul{margin:0;padding:0;list-style:none}
+.s-card li{position:relative;padding-left:12px;color:var(--ink-2);line-height:1.65;font-size:13.5px}
+.s-card li + li{margin-top:6px}
+.s-card li::before{content:"";position:absolute;left:0;top:9px;width:4px;height:4px;border-radius:50%;background:var(--ink-4)}
+.s-card .eg{font-size:12.5px;color:var(--ink-3);margin-top:8px!important}
+
+.toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,16px);opacity:0;background:var(--ink);color:#fff;font-size:13px;padding:9px 16px;border-radius:999px;transition:all .2s;z-index:60;pointer-events:none}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.scrim{display:none}
+
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ---------- responsive ---------- */
+@media (max-width:1100px){ .q-grid,.docs{grid-template-columns:repeat(2,1fr)} }
+@media (max-width:900px){
+  .side{transform:translateX(calc(-100% - 24px));width:var(--sideW)!important}
+  .app.drawer .side{transform:none;box-shadow:0 16px 48px rgba(20,26,46,.2)}
+  .app.drawer .scrim{display:block;position:fixed;inset:0;background:rgba(20,26,46,.25);z-index:25}
+  .main,.app.collapsed .main{margin-left:0}
+  .app.collapsed .txt,.app.collapsed .side-label{display:revert}
+  .app.collapsed .history,.app.collapsed .logo-full{display:block}
+  .app.collapsed .logo-mark{display:none}
+  .app.collapsed .side-head{height:64px;padding:0 10px 0 18px;flex-direction:row;justify-content:space-between}
+  .app.collapsed .nav-item{justify-content:flex-start;padding:0 12px}
+  .top{padding:8px 16px 0;height:56px}
+  .top .menu-btn{display:grid}
+  .home{padding:8px 16px}
+  .eyebrow{margin-top:24px}
+  .hero{font-size:26px}
+  .sub{font-size:14px;margin-bottom:20px}
+  .hint{display:none}
+  .sec-row{margin-top:36px}
+  .g-grid,.tips,.sugg,.users,.steps{grid-template-columns:1fr}
+  .guide{padding:16px}
+  .thread{padding:8px 16px}
+  .answer{padding:20px 18px}
+  .secs p{padding-left:0}
+  .user-q span:last-child{max-width:88%}
+  .composer{padding:16px 16px 0}
+  .dialog-body{padding:22px 18px}
+}
+@media (max-width:560px){
+  .q-grid,.docs{grid-template-columns:1fr}
+  .q-card{min-height:auto}
+}
+</style>
+</head>
+<body>
+<div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+<div class="app" id="app">
+  <aside class="side" id="side" aria-label="사이드바">
+    <div class="side-head">
+      <a class="logo" href="#" data-act="home" aria-label="NAIL 홈"><svg class="logo-full" viewBox="0 0 281.36 116.49" role="img" aria-label="NAIL National Assembly AI Library"><g><g><path fill="#1f398d" d="M13.68,112.28h-2.39l-7.08-10.22h-.13v10.22H1.39v-14.96H3.81l7.06,10.23h.13v-10.23h2.68v14.96Z"/><path fill="#1f398d" d="M22.43,107.35c-.14,0-.35,.03-.62,.05-.51,.02-.98,.05-1.4,.08-.65,.05-1.15,.22-1.51,.49-.36,.27-.54,.64-.54,1.13,0,.32,.08,.59,.25,.81s.39,.39,.67,.5c.28,.11,.61,.17,.98,.16,.52,0,.98-.1,1.38-.31,.4-.21,.71-.49,.92-.84,.22-.36,.33-.74,.33-1.16l-.02-3.59c0-.37-.08-.68-.23-.95-.15-.27-.38-.46-.69-.59s-.68-.2-1.12-.2c-.57,0-1.04,.12-1.4,.36-.36,.24-.59,.56-.69,.97h-2.56c.07-.64,.3-1.21,.7-1.72,.4-.51,.94-.9,1.63-1.19,.69-.29,1.48-.43,2.39-.43,.8,0,1.54,.12,2.23,.36,.69,.24,1.25,.65,1.69,1.23s.66,1.33,.67,2.26v7.51h-2.52v-1.55h-.08c-.27,.52-.68,.95-1.24,1.28-.55,.33-1.24,.5-2.07,.5-.72,0-1.37-.13-1.93-.39-.57-.26-1.01-.64-1.34-1.15-.33-.51-.49-1.12-.49-1.84,0-1.16,.39-2,1.17-2.51,.78-.52,1.78-.82,3.02-.9,.33-.02,.7-.04,1.1-.07,.4-.02,.79-.04,1.17-.06,.24,0,.49-.01,.73-.02l.02,1.74c-.26,.02-.46,.04-.6,.05Z"/><path fill="#1f398d" d="M33.57,103.08h-6.43v-2.03h6.43v2.03Zm-2.2-4.71v10.54c0,.34,.05,.6,.16,.79s.24,.32,.42,.4c.18,.08,.39,.11,.64,.11,.1,0,.23,0,.38,0s.29-.01,.44-.02l.33-.03v2.16c-.44,.08-.94,.11-1.49,.11-.67,0-1.28-.12-1.81-.35-.53-.23-.95-.58-1.25-1.03-.3-.46-.45-1.03-.45-1.72v-10.97h2.63Z"/><path fill="#1f398d" d="M36.16,99.25c-.23-.13-.41-.3-.55-.52-.14-.21-.21-.45-.21-.71s.07-.5,.21-.72c.14-.22,.32-.39,.55-.52,.23-.12,.49-.18,.76-.18s.53,.06,.76,.18c.23,.12,.42,.3,.56,.52,.14,.22,.21,.46,.21,.72s-.07,.5-.21,.71c-.14,.21-.33,.39-.56,.52-.23,.13-.49,.2-.75,.2-.28,0-.54-.07-.77-.2Zm-.54,1.8h2.62v11.22h-2.62v-11.22Z"/><path fill="#1f398d" d="M42.83,111.77c-.81-.48-1.44-1.16-1.88-2.03-.44-.87-.66-1.88-.66-3.03s.22-2.16,.66-3.04c.44-.88,1.07-1.55,1.88-2.04,.81-.48,1.76-.72,2.84-.72s2.03,.24,2.84,.72c.81,.48,1.44,1.16,1.87,2.04,.43,.87,.65,1.89,.65,3.04s-.22,2.16-.65,3.03-1.06,1.55-1.87,2.03c-.81,.48-1.76,.72-2.84,.72s-2.03-.24-2.84-.72Zm4.33-1.86c.41-.32,.71-.77,.91-1.32,.2-.56,.3-1.19,.3-1.89s-.1-1.33-.3-1.89c-.2-.56-.5-1-.91-1.33-.41-.33-.9-.49-1.47-.49s-1.1,.16-1.51,.49-.72,.77-.93,1.33c-.2,.56-.31,1.19-.31,1.89,0,.7,.11,1.33,.31,1.89,.2,.56,.51,1,.93,1.32,.41,.32,.92,.49,1.51,.49s1.06-.16,1.47-.49Z"/><path fill="#1f398d" d="M55.74,112.28h-2.62v-11.22h2.51v1.9h.12c.27-.64,.69-1.14,1.26-1.5,.57-.36,1.27-.54,2.09-.54s1.46,.16,2.03,.49c.58,.33,1.02,.81,1.33,1.45s.47,1.4,.47,2.28v7.15h-2.62v-6.75c0-.5-.09-.92-.26-1.28-.17-.36-.42-.63-.75-.83-.33-.19-.72-.29-1.18-.29s-.88,.1-1.24,.3c-.36,.2-.64,.49-.84,.88-.2,.39-.3,.85-.3,1.38v6.58Z"/><path fill="#1f398d" d="M71.55,107.35c-.14,0-.35,.03-.63,.05-.51,.02-.98,.05-1.39,.08-.65,.05-1.15,.22-1.51,.49-.36,.27-.54,.64-.54,1.13,0,.32,.08,.59,.25,.81s.39,.39,.67,.5c.28,.11,.61,.17,.98,.16,.52,0,.98-.1,1.37-.31,.4-.21,.71-.49,.93-.84,.22-.36,.33-.74,.33-1.16l-.02-3.59c0-.37-.08-.68-.23-.95-.15-.27-.38-.46-.69-.59-.31-.13-.68-.2-1.12-.2-.57,0-1.04,.12-1.39,.36-.36,.24-.59,.56-.69,.97h-2.56c.07-.64,.3-1.21,.7-1.72,.4-.51,.94-.9,1.63-1.19s1.48-.43,2.39-.43c.8,0,1.54,.12,2.23,.36,.69,.24,1.25,.65,1.69,1.23,.44,.58,.66,1.33,.67,2.26v7.51h-2.52v-1.55h-.08c-.27,.52-.68,.95-1.24,1.28s-1.24,.5-2.07,.5c-.72,0-1.37-.13-1.93-.39-.56-.26-1.01-.64-1.34-1.15-.33-.51-.49-1.12-.49-1.84,0-1.16,.39-2,1.17-2.51,.78-.52,1.78-.82,3.02-.9,.33-.02,.7-.04,1.1-.07,.4-.02,.79-.04,1.17-.06,.24,0,.49-.01,.73-.02l.02,1.74c-.26,.02-.46,.04-.6,.05Z"/><path fill="#1f398d" d="M79.74,112.28h-2.62v-14.96h2.62v14.96Z"/><path fill="#1f398d" d="M86.44,112.28l5.27-14.96h3.32l5.27,14.96h-2.87l-4-11.9h-.12l-4,11.9h-2.86Zm10.86-5.87v2.16h-7.89v-2.16h7.89Z"/><path fill="#1f398d" d="M107.53,103.24c-.34-.24-.79-.37-1.34-.38-.37,0-.71,.06-1,.17-.3,.11-.53,.27-.7,.48-.17,.2-.25,.43-.25,.69,0,.3,.13,.55,.38,.76,.25,.21,.66,.38,1.22,.51l1.91,.41c1.05,.23,1.84,.59,2.36,1.1,.52,.5,.78,1.15,.79,1.94,0,.7-.21,1.32-.59,1.86s-.95,.96-1.67,1.26c-.72,.3-1.56,.45-2.52,.45s-1.76-.13-2.45-.4c-.69-.27-1.24-.66-1.64-1.17-.4-.51-.65-1.12-.74-1.84h2.68c.08,.47,.31,.83,.67,1.07,.36,.24,.85,.35,1.47,.35,.42,0,.79-.04,1.11-.16,.32-.11,.56-.27,.73-.46s.25-.44,.25-.72c0-.32-.13-.59-.39-.81-.26-.21-.67-.38-1.23-.51l-1.81-.37c-1.03-.21-1.82-.59-2.36-1.12s-.81-1.2-.81-2c0-.69,.19-1.29,.56-1.81,.37-.52,.91-.92,1.59-1.2,.68-.28,1.48-.42,2.39-.42s1.64,.14,2.3,.41c.66,.27,1.17,.66,1.55,1.16,.37,.5,.59,1.09,.66,1.77h-2.49c-.09-.43-.31-.76-.65-1.01Z"/><path fill="#1f398d" d="M118.64,103.24c-.34-.24-.79-.37-1.34-.38-.37,0-.71,.06-1,.17-.3,.11-.53,.27-.7,.48s-.25,.43-.25,.69c0,.3,.13,.55,.38,.76,.26,.21,.66,.38,1.22,.51l1.91,.41c1.05,.23,1.84,.59,2.36,1.1,.52,.5,.78,1.15,.79,1.94,0,.7-.2,1.32-.59,1.86-.39,.54-.94,.96-1.67,1.26-.72,.3-1.56,.45-2.52,.45s-1.76-.13-2.45-.4c-.69-.27-1.24-.66-1.64-1.17-.4-.51-.65-1.12-.74-1.84h2.68c.08,.47,.3,.83,.67,1.07,.36,.24,.85,.35,1.47,.35,.42,0,.79-.04,1.11-.16,.32-.11,.57-.27,.73-.46,.17-.2,.25-.44,.25-.72,0-.32-.13-.59-.39-.81-.26-.21-.67-.38-1.23-.51l-1.81-.37c-1.03-.21-1.82-.59-2.36-1.12s-.81-1.2-.81-2c0-.69,.19-1.29,.56-1.81s.91-.92,1.59-1.2c.69-.28,1.48-.42,2.39-.42s1.64,.14,2.3,.41,1.17,.66,1.55,1.16,.59,1.09,.66,1.77h-2.49c-.09-.43-.31-.76-.65-1.01Z"/><path fill="#1f398d" d="M126.11,111.79c-.82-.47-1.45-1.14-1.89-2-.44-.87-.66-1.88-.66-3.05s.22-2.17,.67-3.05c.44-.89,1.07-1.57,1.86-2.05,.8-.48,1.73-.72,2.79-.72,.95,0,1.81,.2,2.58,.61,.77,.41,1.39,1.03,1.85,1.88,.46,.85,.69,1.9,.69,3.16v.83h-9.19v-1.79h6.67c0-.5-.12-.96-.33-1.36-.21-.4-.51-.72-.9-.94-.39-.23-.84-.34-1.34-.34-.54,0-1.01,.13-1.43,.38-.41,.25-.74,.6-.97,1.03s-.35,.9-.36,1.41v1.53c0,.65,.12,1.22,.36,1.68,.24,.47,.58,.83,1.01,1.08s.93,.38,1.51,.38c.37,0,.71-.05,1.01-.16,.3-.1,.55-.24,.76-.41s.37-.37,.49-.6h2.58c-.16,.65-.46,1.21-.89,1.7-.44,.49-1,.86-1.67,1.12-.68,.26-1.45,.39-2.31,.39-1.12,0-2.08-.23-2.9-.7Z"/><path fill="#1f398d" d="M136.05,101.05h2.51v1.9h.12c.24-.64,.63-1.14,1.17-1.5,.54-.36,1.18-.54,1.93-.54,.5,0,.95,.08,1.35,.24,.41,.16,.75,.4,1.03,.7,.28,.31,.5,.67,.64,1.1h.11c.17-.41,.41-.77,.73-1.09,.32-.31,.71-.55,1.16-.71,.45-.17,.95-.25,1.48-.25,.69,0,1.3,.15,1.83,.44,.53,.29,.94,.73,1.23,1.31,.29,.58,.44,1.28,.44,2.1v7.52h-2.64v-7.13c0-.67-.18-1.17-.53-1.51-.35-.34-.82-.51-1.4-.51-.42,0-.78,.09-1.09,.27-.3,.18-.53,.43-.7,.75-.16,.32-.25,.69-.25,1.11v7.02h-2.57v-7.24c0-.38-.08-.71-.23-1.01-.15-.29-.37-.52-.66-.67-.29-.15-.61-.23-.99-.23s-.74,.1-1.05,.29-.56,.47-.75,.82-.28,.76-.28,1.21v6.83h-2.62v-11.22Z"/><path fill="#1f398d" d="M154.45,97.31h2.62v5.59h.11s.03-.05,.04-.08c.01-.03,.03-.05,.04-.08,.19-.34,.4-.63,.66-.89,.25-.26,.58-.48,.99-.66s.9-.27,1.48-.27c.87,0,1.66,.22,2.37,.67,.7,.44,1.26,1.1,1.66,1.98,.41,.88,.61,1.91,.61,3.12s-.2,2.24-.6,3.12c-.4,.87-.95,1.54-1.66,1.99s-1.5,.69-2.38,.69c-.58,0-1.08-.09-1.49-.28-.42-.19-.75-.42-1.01-.68-.26-.27-.48-.57-.66-.9,0-.02-.02-.04-.03-.05,0-.01-.02-.03-.03-.05h-.17v1.77h-2.57v-14.96Zm2.89,11.26c.21,.55,.51,.98,.91,1.28,.4,.31,.87,.46,1.43,.46s1.05-.16,1.45-.47c.4-.31,.71-.74,.91-1.29,.21-.55,.31-1.18,.31-1.9s-.1-1.33-.3-1.87c-.2-.54-.5-.97-.91-1.27-.41-.3-.9-.45-1.47-.45s-1.04,.15-1.44,.44-.69,.71-.9,1.25c-.21,.54-.31,1.17-.31,1.9s.11,1.37,.31,1.92Z"/><path fill="#1f398d" d="M169.76,112.28h-2.62v-14.96h2.62v14.96Z"/><path fill="#1f398d" d="M172.51,116.44v-2.12c.19,.01,.57,.03,1.12,.04,.26,0,.48-.03,.66-.08,.18-.04,.35-.16,.51-.34,.16-.18,.31-.46,.44-.84l.24-.6-4.07-11.46h2.79l2.59,8.47h.12l2.59-8.47h2.81l-4.51,12.58c-.33,.94-.81,1.65-1.45,2.13-.64,.48-1.47,.73-2.49,.73-.68-.01-1.14-.03-1.36-.05Z"/><path fill="#1f398d" d="M188.14,112.28l5.27-14.96h3.32l5.27,14.96h-2.87l-4-11.9h-.12l-4,11.9h-2.86Zm10.86-5.87v2.16h-7.89v-2.16h7.89Z"/><path fill="#1f398d" d="M206.49,112.28h-2.69v-14.96h2.69v14.96Z"/><path fill="#1f398d" d="M214.32,97.31h2.69v12.7h6.61v2.26h-9.3v-14.96Z"/><path fill="#1f398d" d="M226.21,99.25c-.23-.13-.41-.3-.55-.52-.14-.21-.21-.45-.21-.71s.07-.5,.21-.72c.14-.22,.32-.39,.55-.52s.48-.18,.76-.18,.53,.06,.76,.18,.42,.3,.56,.52c.14,.22,.21,.46,.21,.72s-.07,.5-.21,.71-.33,.39-.56,.52-.49,.2-.75,.2c-.28,0-.54-.07-.77-.2Zm-.54,1.8h2.62v11.22h-2.62v-11.22Z"/><path fill="#1f398d" d="M230.95,97.31h2.62v5.59h.11s.03-.05,.04-.08c.01-.03,.03-.05,.04-.08,.19-.34,.4-.63,.66-.89,.25-.26,.58-.48,.99-.66s.9-.27,1.48-.27c.87,0,1.66,.22,2.37,.67,.7,.44,1.26,1.1,1.66,1.98,.41,.88,.61,1.91,.61,3.12s-.2,2.24-.6,3.12-.95,1.54-1.66,1.99-1.5,.69-2.38,.69c-.58,0-1.08-.09-1.49-.28s-.75-.42-1.01-.68c-.25-.27-.47-.57-.66-.9,0-.02-.01-.04-.03-.05,0-.01-.02-.03-.03-.05h-.17v1.77h-2.57v-14.96Zm2.89,11.26c.21,.55,.51,.98,.91,1.28s.87,.46,1.43,.46,1.05-.16,1.45-.47c.4-.31,.71-.74,.91-1.29,.21-.55,.31-1.18,.31-1.9s-.1-1.33-.3-1.87c-.2-.54-.5-.97-.91-1.27-.41-.3-.9-.45-1.47-.45s-1.04,.15-1.44,.44-.69,.71-.9,1.25-.31,1.17-.31,1.9,.1,1.37,.31,1.92Z"/><path fill="#1f398d" d="M243.62,101.05h2.54v1.87h.12c.19-.64,.54-1.14,1.04-1.5s1.07-.54,1.72-.54c.48,0,.8,.03,.96,.07v2.43c-.14-.05-.33-.09-.56-.11-.23-.03-.45-.04-.67-.04-.48,0-.92,.1-1.3,.31-.38,.21-.68,.5-.9,.87s-.33,.79-.33,1.26v6.6h-2.62v-11.22Z"/><path fill="#1f398d" d="M257.47,107.35c-.14,0-.35,.03-.62,.05-.51,.02-.98,.05-1.4,.08-.65,.05-1.15,.22-1.51,.49-.36,.27-.54,.64-.54,1.13,0,.32,.08,.59,.25,.81s.39,.39,.67,.5c.28,.11,.61,.17,.98,.16,.52,0,.98-.1,1.38-.31,.4-.21,.71-.49,.92-.84,.22-.36,.33-.74,.33-1.16l-.02-3.59c0-.37-.08-.68-.23-.95s-.38-.46-.69-.59-.68-.2-1.12-.2c-.57,0-1.04,.12-1.39,.36-.36,.24-.59,.56-.69,.97h-2.56c.07-.64,.3-1.21,.7-1.72,.4-.51,.94-.9,1.63-1.19s1.48-.43,2.39-.43c.8,0,1.54,.12,2.23,.36,.69,.24,1.25,.65,1.69,1.23s.66,1.33,.67,2.26v7.51h-2.52v-1.55h-.08c-.27,.52-.68,.95-1.24,1.28s-1.24,.5-2.07,.5c-.72,0-1.37-.13-1.93-.39-.56-.26-1.01-.64-1.34-1.15-.33-.51-.49-1.12-.49-1.84,0-1.16,.39-2,1.17-2.51,.78-.52,1.78-.82,3.02-.9,.33-.02,.7-.04,1.1-.07,.4-.02,.79-.04,1.17-.06,.24,0,.49-.01,.73-.02l.02,1.74c-.26,.02-.46,.04-.6,.05Z"/><path fill="#1f398d" d="M263.03,101.05h2.54v1.87h.12c.19-.64,.54-1.14,1.04-1.5s1.07-.54,1.72-.54c.48,0,.8,.03,.96,.07v2.43c-.14-.05-.33-.09-.56-.11-.23-.03-.45-.04-.67-.04-.48,0-.92,.1-1.3,.31-.38,.21-.68,.5-.9,.87s-.33,.79-.33,1.26v6.6h-2.62v-11.22Z"/><path fill="#1f398d" d="M271.56,116.44v-2.12c.19,.01,.57,.03,1.12,.04,.26,0,.48-.03,.66-.08s.35-.16,.51-.34c.16-.18,.31-.46,.44-.84l.24-.6-4.07-11.46h2.79l2.59,8.47h.12l2.59-8.47h2.81l-4.51,12.58c-.33,.94-.81,1.65-1.45,2.13-.64,.48-1.46,.73-2.49,.73-.68-.01-1.14-.03-1.36-.05Z"/></g></g><g><g><polygon fill="#2179f9" points="212.19 0 185.87 0 185.87 79.91 199.03 72.25 212.19 79.91 212.19 0"/><path fill="#1f398d" d="M78.98,79.91V0h-26.4V36.96L26.33,0H0V79.91m26.01,0V42.95l26.25,36.96"/><polygon fill="#1f398d" points="252.31 52.58 252.31 0 225.99 0 225.99 79.42 225.99 79.42 225.99 79.91 278.64 79.91 278.64 52.58 252.31 52.58"/><path fill="#0046e2" d="M92.78,79.91h34.36l-1.16-2.31c-1.72-3.42-4.49-6.2-7.92-7.91l-12.85-6.43,.68-.34h-13.12v16.99Z"/><path fill="#0046e2" d="M158.95,62.91l.68,.34-12.85,6.43c-3.42,1.72-6.2,4.49-7.92,7.91l-1.16,2.31h34.36v-16.99h-13.12Z"/><path fill="#2179f9" d="M172.07,54.19h0v-.1h-.07L132.42,0l-39.58,54.09h-.07v.09h0s0,.01,0,.01v8.72h13.12l12.17-6.09c3.42-1.72,6.2-4.49,7.92-7.91l6.44-12.84,6.44,12.84c1.72,3.42,4.49,6.2,7.92,7.91l12.17,6.09h13.12v-8.72Z"/></g></g></svg><svg class="logo-mark" viewBox="90 -2 84 84" aria-hidden="true"><path fill="#0046e2" d="M92.78,79.91h34.36l-1.16-2.31c-1.72-3.42-4.49-6.2-7.92-7.91l-12.85-6.43,.68-.34h-13.12v16.99Z"/><path fill="#0046e2" d="M158.95,62.91l.68,.34-12.85,6.43c-3.42,1.72-6.2,4.49-7.92,7.91l-1.16,2.31h34.36v-16.99h-13.12Z"/><path fill="#2179f9" d="M172.07,54.19h0v-.1h-.07L132.42,0l-39.58,54.09h-.07v.09h0s0,.01,0,.01v8.72h13.12l12.17-6.09c3.42-1.72,6.2-4.49,7.92-7.91l6.44-12.84,6.44,12.84c1.72,3.42,4.49,6.2,7.92,7.91l12.17,6.09h13.12v-8.72Z"/></svg></a>
+      <button class="icon-btn" id="toggleSide" aria-label="사이드바 접기" title="사이드바 접기 (Ctrl+B)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16"/></svg>
+      </button>
+    </div>
+    <nav class="side-nav">
+      <button class="nav-item primary" data-act="home" title="새로운 검색">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 11v6M9 14h6"/></svg>
+        <span class="txt">새로운 검색</span>
+      </button>
+    </nav>
+    <div class="side-label">최근 검색 기록</div>
+    <div class="history" id="history"></div>
+    <div class="side-foot">
+      <button class="nav-item" data-act="help" title="도움말" style="width:100%">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5v.4"/><circle cx="12" cy="17" r=".6" fill="currentColor"/></svg>
+        <span class="txt">이용 가이드</span>
+      </button>
+    </div>
+  </aside>
+  <div class="scrim" data-act="closeDrawer"></div>
+
+  <main class="main">
+    <header class="top" id="top">
+      <button class="icon-btn menu-btn" data-act="openDrawer" aria-label="메뉴 열기">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+      <h1 id="title"></h1>
+    </header>
+
+    <!-- HOME -->
+    <section class="home" id="home">
+      <span class="eyebrow"><span class="spark"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c.6 6 4 9.4 10 10-6 .6-9.4 4-10 10-.6-6-4-9.4-10-10 6-.6 9.4-4 10-10z"/></svg></span>국회전자도서관 AI 의미기반 검색</span>
+      <h2 class="hero">무엇을 <span class="grad-text">찾아 드릴까요?</span></h2>
+      <p class="sub">키워드 대신 문장으로 물어보세요. 근거 자료와 함께 답해 드려요.</p>
+      <div class="wrap-narrow">
+        <form class="search" data-form>
+          <textarea rows="1" placeholder="궁금한 내용을 문장으로 입력해 주세요." aria-label="검색어"></textarea>
+          <button class="go" type="submit" aria-label="검색">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7.5"/><path d="m20.5 20.5-4-4"/></svg>
+          </button>
+        </form>
+        <p class="hint"><kbd>Enter</kbd> 검색 · <kbd>Shift</kbd>+<kbd>Enter</kbd> 줄바꿈 · <kbd>/</kbd> 검색창으로 이동</p>
+      </div>
+
+      <div class="wrap">
+        <div class="sec-row">
+          <h3 class="sec-title">추천 질문</h3>
+          <button class="link-btn" id="guideToggle" aria-expanded="false">
+            💡 질문 잘하는 법
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+        </div>
+        <div class="q-grid" id="qGrid"></div>
+
+        <div class="guide" id="guide">
+          <h3>💡 효과적인 자료 검색을 위한 질문 가이드</h3>
+          <div class="g-grid" id="gGrid"></div>
+          <h3 style="margin-top:36px">💡 검색 결과를 넓히는 팁</h3>
+          <div class="tips" id="tips"></div>
+        </div>
+      </div>
+      <div style="flex:1"></div>
+      <p class="disclaimer"><svg width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#6B7280"/><path d="M12 7v6" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="16.5" r="1.3" fill="#fff"/></svg>AI 답변에는 오류가 있을 수 있습니다. 중요한 내용은 원문 자료로 꼭 확인해 주세요.</p>
+    </section>
+
+    <!-- CHAT -->
+    <section class="chat" id="chat">
+      <div class="thread" id="thread"></div>
+      <div class="composer">
+        <form class="search compact" data-form>
+          <textarea rows="1" placeholder="이어서 질문하거나 새로운 내용을 검색해 보세요." aria-label="추가 질문"></textarea>
+          <button class="go" type="submit" aria-label="검색">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7.5"/><path d="m20.5 20.5-4-4"/></svg>
+          </button>
+        </form>
+        <p class="disclaimer"><svg width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#6B7280"/><path d="M12 7v6" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="16.5" r="1.3" fill="#fff"/></svg>AI 답변에는 오류가 있을 수 있습니다. 중요한 내용은 원문 자료로 꼭 확인해 주세요.</p>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- HELP MODAL -->
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div class="dialog">
+    <div class="dialog-head"><span id="mTitle">이용 가이드</span>
+      <button class="icon-btn" data-act="closeHelp" aria-label="닫기"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </div>
+    <div class="dialog-body">
+      <section class="m-sec">
+        <h3><span class="sq"></span>시스템 소개</h3>
+        <p class="m-intro">✨ 국회전자도서관, 이제 당신의 질문을 <b>‘이해하고’ ‘답합니다’</b> ✨</p>
+        <p>키워드만 맞추던 검색에서 벗어나, 질문의 <b>의미</b>와 <b>맥락</b>을 파악해 가장 적합한 자료를 찾아 드립니다. 전문 사서와 대화하듯 문장으로 물어보세요. 방대한 문헌 속에서 핵심을 짚어 요약하고, 근거가 된 원문 자료까지 함께 보여 드립니다.</p>
+      </section>
+      <section class="m-sec">
+        <h3><span class="sq"></span>제공 자료 유형</h3>
+        <div class="users">
+          <div class="u-tag">일반 이용자</div>
+          <p>사회 현안 및 법안, 연구 보고서 등 공공정책 관련 자료 원문을 제공합니다. 정부 부처 보고서, 국회 발간 자료 등 국민 대상 핵심 정보를 의미기반으로 검색할 수 있습니다.</p>
+          <div class="u-tag">국회 직원</div>
+          <p>의정 활동 및 업무 지원을 위해 국회전자도서관의 모든 자료(법률, 의안, 회의록, 국내외 학술 논문, 전문 보고서, 통계 자료 등)를 의미기반으로 검색할 수 있습니다.</p>
+        </div>
+      </section>
+      <section class="m-sec">
+        <h3><span class="sq"></span>이용 방법</h3>
+        <div class="steps">
+          <div class="s-card"><span class="ic"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m13.5 6.5 4 4"/></svg></span>
+            <header style="background:#2896EF">① 질문 입력</header>
+            <ul><li>찾고 싶은 내용을 자연어 문장으로 입력합니다.</li></ul>
+            <p class="eg">예) “최근 환경 규제에 대한 국회 논의 동향”, “청년 일자리 문제 해결을 위한 최신 정책 보고서”</p>
+          </div>
+          <div class="s-card"><span class="ic"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5M8 11h6M11 8v6"/></svg></span>
+            <header style="background:var(--blue-500)">② 의미기반 검색</header>
+            <ul><li>AI가 질문의 의미와 의도를 분석해 관련성 높은 자료를 찾습니다.</li><li>키워드가 일치하지 않아도 맥락이 연결된 자료까지 탐색합니다.</li></ul>
+          </div>
+          <div class="s-card"><span class="ic"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h11l5 5v9a1 1 0 0 1-1 1H4z"/><path d="M8 12h8M8 16h5"/></svg></span>
+            <header style="background:var(--navy-800)">③ 답변·자료 확인</header>
+            <ul><li>요약 답변의 각 문단에 붙은 <b>번호</b>를 누르면 근거 자료를 볼 수 있습니다.</li><li>추천 질문과 키워드로 주제를 넓혀 이어서 탐색하세요.</li></ul>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+/* ---------------- mock data (프로토타입용 예시) ---------------- */
+const DOCS = {
+  d1:{type:'단행본', t:'입법과정론 : 우리가 알아야 할 국회 이야기', a:'임재주, 서덕교', y:'2025'},
+  d2:{type:'단행본', t:'한국입법과정론 = Legislative process', a:'임종훈', y:'2021'},
+  d3:{type:'학위논문', t:'입법과정의 이론과 실제 : 법적 쟁점과 실제 사례를 중심으로', a:'오성희', y:'2016'},
+  d4:{type:'단행본', t:'입법학 입문', a:'박영도', y:'2014'},
+  d5:{type:'단행본', t:'좋은 정부의제도와 과정 : 이론적 탐색과 한국사례', a:'이현우, 노대명', y:'2019'},
+  d6:{type:'연구보고서', t:'국회 입법지원 기능 강화를 위한 데이터 기반 입법영향분석 연구', a:'국회입법조사처', y:'2023'},
+  d7:{type:'학술논문', t:'상임위원회 중심주의와 법안 심사의 실효성', a:'김민정', y:'2022'},
+  d8:{type:'연구보고서', t:'공공기관의 재무건전성 제고를 위한 입법 및 정책과제', a:'김재원', y:'2017'},
+};
+const ANSWERS = {
+  '국회 입법에 대해서 자세히 설명해줘': {
+    summary:'국회 입법 과정은 법률안 발의, 상임위원회 심사, 본회의 의결, 정부 이송, 공포의 단계를 거칩니다. 법률안은 국회의원 또는 정부가 발의하며, 소관 상임위원회에서 심도 있는 검토를 받습니다. 이후 본회의에서 재적 의원 과반수 출석과 출석 의원 과반수 찬성으로 의결되면 정부로 이송되고, 정부가 이를 공포함으로써 법률로서 효력이 발생합니다. 이러한 과정은 권력 분립 원칙에 따라 입법부와 행정부가 서로 견제하고 균형을 이루는 중요한 장치입니다.',
+    sections:[
+      {h:'입법 과정의 단계별 이해', p:'입법 과정은 발의, 심사, 의결, 공포라는 일련의 단계를 거치며, 각 단계는 정치·경제·사회적 맥락과 깊이 연결되어 있습니다. 입법 과정을 깊이 이해하면 법률의 제정 배경과 내용, 그 효과를 정확하게 파악할 수 있습니다.', c:['d1','d5']},
+      {h:'입법 과정 연구 분야의 주요 논점', p:'입법 과정, 법사위 활동 등 다양한 학문 분야에서 입법 현상을 분석하고 있습니다. 주요 논점으로는 입법 과정에서의 시민 참여, 법의 집행력, 정치적 투명성 확보, 기술 발전과 입법 시스템의 상호작용 등이 있습니다.', c:['d2','d3','d7']},
+      {h:'향후 연구와 개발 방향', p:'입법 연구는 데이터 기반 분석, 인공지능, 사회과학적 모델링을 통해 예측과 평가를 수행하는 방향으로 발전하고 있습니다. 입법 데이터를 수집·분석해 법률안의 통과 가능성을 예측하거나 사회적 영향을 시뮬레이션하는 연구는 정책 결정에 중요한 정보를 제공합니다.', c:['d6']},
+      {h:'데이터 획득 안내', p:'국회 입법 과정 관련 데이터는 국회 의안정보시스템, 국회 회의록, 정부 부처의 정책 자료 등에서 확인할 수 있습니다.', c:['d4','d1']},
+    ],
+    docs:['d1','d2','d3','d4','d5','d6','d7','d8'],
+    sugg:['법률안은 누가 발의할 수 있는지 설명해줘','상임위원회 심사의 핵심 역할을 설명한 도서를 찾아줘','법제사법위원회는 왜 중요한지 알려줘','본회의에서 법안은 어떻게 의결되는지 알 수 있는 자료를 찾아줘'],
+    kw:['입법과정','법률안','국회','발의/심사/의결/공포','상임위원회/본회의','정부','권력분립','입법'],
+  }
+};
+function genericAnswer(q){
+  const stop=/^(어떤|것이|있을까|있어|싶어|찾고|알려줘|찾아줘|설명해줘|자세히|대해서|대한|관련된|관련|중|좀|수|있는|자료|어떻게|무엇인가요|되었을까)$/;
+  const kw=[...new Set(q.replace(/[?？.!,]/g,' ').split(/\s+/).map(w=>w.replace(/(에서는|에서|에게|으로|에는|에|은|는|이|가|을|를|의|와|과|로|도)$/,'')).filter(w=>w.length>1&&!stop.test(w)))].slice(0,5);
+  return {
+    summary:'질문하신 내용과 관련된 국회전자도서관 소장 자료를 의미기반으로 분석해 핵심 내용을 정리했습니다. 관련 논의는 주로 국회 상임위원회 회의록, 국회입법조사처 보고서, 국내 학술 논문을 중심으로 이루어져 왔으며, 최근에는 제도 개선 방향과 해외 사례 비교에 대한 연구가 늘고 있습니다.',
+    sections:[
+      {h:'주요 쟁점', p:'이 주제에 대해서는 제도의 실효성, 이해관계자 간 형평성, 재정 부담 등이 주요 쟁점으로 다뤄지고 있습니다.', c:['d6','d7']},
+      {h:'국회 논의 동향', p:'관련 법률안은 소관 상임위원회에서 심사되었으며, 공청회와 전문위원 검토보고서를 통해 다양한 의견이 제시되었습니다.', c:['d1','d3']},
+      {h:'참고할 만한 자료', p:'개념과 배경을 먼저 파악하려면 단행본을, 최신 쟁점을 확인하려면 연구보고서와 학술논문을 추천합니다.', c:['d2','d4']},
+    ],
+    docs:['d6','d7','d1','d3','d2','d4','d5','d8'],
+    sugg:['이 내용과 관련된 해외 입법 사례도 알려줘','관련된 최근 국회 공청회 자료를 찾아줘','이 주제의 통계 자료가 있으면 보여줘','찬성과 반대 논거를 나눠서 정리해줘'],
+    kw: kw.concat(['입법동향','정책보고서']),
+  };
+}
+const HOME_Q = [
+  '외국 입법례 중 한국 국회가 참고한 사례는 어떤 것이 있을까?',
+  '공청회에서 제기된 주요 의견은 실제 입법 과정에 어떻게 반영되었을까?',
+  '2023년에 발표된 청년 주거 지원 정책 보고서를 찾고 싶어',
+  'AI 서비스 개발과 관련된 해외 입법 동향에 대한 연구 자료 있어?',
+];
+const GUIDE = [
+  ['질문에 맥락을 담아 주세요','탄소중립 정책 추진의 주요 쟁점은 무엇인가요?','탄소중립 정책'],
+  ['구체적인 대상과 자료 유형을 넣어 주세요','도서관 등 공공기관의 데이터 보호 정책 변화에 관한 보고서','데이터 보호'],
+  ['알고 싶은 ‘의도’를 문장에 담아 주세요','AI 윤리에 대한 국내외 기준의 차이점을 알고 싶어요','AI 윤리'],
+  ['단어보다 문장으로 물어보세요','국회에서 논의된 인공지능 관련 법안을 알려줘','인공지능 법안'],
+];
+const TIPS = [
+  ['한 단계 더 깊게','관련 법안의 변화 추이는 어떻게 되나요?'],
+  ['다른 관점으로','국회에서 논의된 주요 쟁점은?'],
+  ['연결 질문으로 확장','이 내용과 관련된 국회 토론회 자료는?'],
+];
+let history = [
+  '국회 입법 과정 단계별 흐름도 알려줘','2023년에 발표된 청년 주거 지원 정책 보고서를 찾고 싶어','상임위원회별로 가장 많이 다룬 법안 주제는?','한 법률이 발의에서 공포까지 걸리는 기간은?','역대 대통령이 행사한 거부권 사례를 정리해줘',
+];
+
+/* ---------------- helpers ---------------- */
+const $ = s => document.querySelector(s);
+const app = $('#app');
+const esc = s => s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const Q_ICON = '<svg class="qi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5v6a4 4 0 0 0 4 4h10"/><path d="m15 11 4 4-4 4"/></svg>';
+const SPARK = (n)=>'<svg width="'+n+'" height="'+n+'" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c.6 6 4 9.4 10 10-6 .6-9.4 4-10 10-.6-6-4-9.4-10-10 6-.6 9.4-4 10-10z"/></svg>';
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),1800); }
+
+/* ---------------- render static ---------------- */
+$('#qGrid').innerHTML = HOME_Q.map(q=>`<button class="q-card" data-q="${esc(q)}"><span class="q-ic">${SPARK(18)}</span><svg class="arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 17 17 7M8 7h9v9"/></svg><span>${esc(q)}</span></button>`).join('');
+const OK = '<svg width="22" height="22" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="var(--ok)"/><path d="m7 12.5 3.2 3L17 9" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const NO = '<svg width="22" height="22" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="var(--no)"/><path d="m8.5 8.5 7 7m0-7-7 7" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>';
+$('#gGrid').innerHTML = GUIDE.map((g,i)=>`<div class="g-card"><h4><span class="num">${i+1}</span>${g[0]}</h4>
+  <div class="ex">${OK}<button data-q="${esc(g[1])}" title="이 질문으로 검색">${g[1]}</button></div>
+  <div class="ex" style="color:var(--ink-3)">${NO}<span>${g[2]}</span></div></div>`).join('');
+$('#tips').innerHTML = TIPS.map((t,i)=>`<div><h4 style="display:flex;gap:10px;align-items:center;margin:0 0 10px;font-size:16px"><span class="num">${i+1}</span>${t[0]}</h4><div class="ex" style="padding-left:34px">${OK}<span>${t[1]}</span></div></div>`).join('');
+
+function renderHistory(active){
+  $('#history').innerHTML = history.map(h=>`<button class="hist${h===active?' active':''}" data-q="${esc(h)}" title="${esc(h)}">${esc(h)}</button>`).join('');
+}
+renderHistory();
+
+/* ---------------- views ---------------- */
+let busy = false;
+function goHome(){
+  app.classList.remove('in-chat'); $('#thread').innerHTML=''; $('#title').textContent='';
+  $('#top').classList.remove('bordered'); renderHistory(); closeDrawer();
+  const ta = $('#home textarea'); ta.value=''; syncForm(ta); ta.focus();
+  window.scrollTo(0,0);
+}
+async function ask(q, {fresh=false}={}){
+  q = q.trim(); if(!q || busy) return;
+  busy = true; closeDrawer(); closePop();
+  if(fresh || !app.classList.contains('in-chat')){ $('#thread').innerHTML=''; $('#title').textContent=q; }
+  app.classList.add('in-chat'); $('#top').classList.add('bordered');
+  history = [q, ...history.filter(h=>h!==q)].slice(0,12); renderHistory($('#title').textContent);
+
+  const turn = document.createElement('article'); turn.className='turn';
+  turn.innerHTML = `<h3 class="user-q"><span class="badge">추가 질문</span><span>${esc(q)}</span></h3>
+    <div class="progress" aria-live="polite">
+      <div class="step"><span class="dot"></span>질문의 의미와 의도를 분석하고 있어요</div>
+      <div class="step"><span class="dot"></span>국회전자도서관 자료를 의미기반으로 검색하고 있어요</div>
+      <div class="step"><span class="dot"></span>찾은 자료를 바탕으로 답변을 정리하고 있어요</div>
+    </div>`;
+  $('#thread').appendChild(turn);
+  turn.scrollIntoView({behavior:'smooth', block:'start'});
+  const steps = turn.querySelectorAll('.step');
+  for(const s of steps){ s.classList.add('run'); await sleep(650); s.classList.replace('run','done'); }
+  await sleep(150);
+
+  const A = ANSWERS[q] || genericAnswer(q);
+  turn.querySelector('.progress').outerHTML = `<div class="answer"><div class="ai-head"><span class="ai-av">${SPARK(16)}</span><b>NAIL AI</b><span class="ai-meta">자료 ${A.docs.length}건 분석</span></div><h2>상세 요약</h2><p class="lead"></p><hr><div class="secs"></div></div>`;
+  const ans = turn.querySelector('.answer');
+  await typeInto(ans.querySelector('.lead'), A.summary);
+  const secs = ans.querySelector('.secs');
+  for(const [i,s] of A.sections.entries()){
+    const h = document.createElement('h3'); h.innerHTML = `<span class="num">${i+1}</span>${esc(s.h)}`; secs.appendChild(h);
+    const p = document.createElement('p'); secs.appendChild(p);
+    await typeInto(p, s.p);
+    s.c.forEach(id=>{
+      const n = A.docs.indexOf(id)+1;
+      p.insertAdjacentHTML('beforeend', `<button class="cite" data-cite="${id}" aria-expanded="false" title="근거 자료 보기">${n}</button>`);
+    });
+  }
+  const docsHtml = A.docs.map((id,i)=>{const d=DOCS[id];return `<button class="doc${i>=4?' more':''}" data-doc="${id}"><span class="type" data-k="${d.type}">${d.type}</span><span class="t">${esc(d.t)}</span><span class="m">${esc(d.a)} · ${d.y}</span></button>`}).join('');
+  ans.insertAdjacentHTML('afterend', `
+    <div class="block">
+      <div class="block-head"><h4>관련자료 <span class="cnt">${A.docs.length}</span></h4>
+        ${A.docs.length>4?`<button class="link-btn" data-act="expand" aria-expanded="false"><span>전체 펼치기</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></button>`:''}
+      </div>
+      <div class="docs">${docsHtml}</div>
+    </div>
+    <div class="block"><div class="block-head"><h4>이어서 물어보기</h4></div>
+      <div class="sugg">${A.sugg.map(s=>`<button data-q="${esc(s)}">${Q_ICON}<span>${esc(s)}</span></button>`).join('')}</div></div>
+    <div class="block"><div class="block-head"><h4>추천 키워드</h4></div>
+      <div class="chips">${A.kw.map(k=>`<button class="chip" data-q="${esc(k)} 관련 자료를 찾아줘">#${esc(k)}</button>`).join('')}</div></div>
+    <div class="actions">
+      <button class="act" data-act="copy" title="답변 복사" aria-label="답변 복사"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg></button>
+      <button class="act" data-act="like" title="도움이 됐어요" aria-label="도움이 됐어요" aria-pressed="false"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M7 10v10H4V10zM7 10l4-7c1.5 0 2.5 1 2.5 2.5L13 9h6a2 2 0 0 1 2 2.3l-1.2 7A2 2 0 0 1 17.8 20H7"/></svg></button>
+      <button class="act" data-act="dislike" title="아쉬워요" aria-label="아쉬워요" aria-pressed="false"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" style="transform:scaleY(-1)"><path d="M7 10v10H4V10zM7 10l4-7c1.5 0 2.5 1 2.5 2.5L13 9h6a2 2 0 0 1 2 2.3l-1.2 7A2 2 0 0 1 17.8 20H7"/></svg></button>
+      <button class="act" data-act="retry" data-q="${esc(q)}" title="다시 답변 받기" aria-label="다시 답변 받기"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg></button>
+    </div>`);
+  busy = false;
+  $('.composer textarea').focus({preventScroll:true});
+}
+async function typeInto(el, text){
+  el.classList.add('caret');
+  const step = Math.max(2, Math.round(text.length/45));
+  for(let i=0;i<=text.length;i+=step){ el.textContent = text.slice(0,i); await sleep(16); }
+  el.textContent = text; el.classList.remove('caret');
+}
+
+/* ---------------- citation popover ---------------- */
+let popEl=null, popBtn=null;
+function closePop(){ if(popEl){popEl.remove();popEl=null;} if(popBtn){popBtn.setAttribute('aria-expanded','false');popBtn=null;} }
+function openPop(btn){
+  closePop();
+  const ids = [...btn.parentElement.querySelectorAll('.cite')].map(b=>b.dataset.cite);
+  popEl = document.createElement('div'); popEl.className='pop'; popEl.setAttribute('role','dialog');
+  popEl.innerHTML = ids.map(id=>{const d=DOCS[id]; const n=btn.closest('.turn').querySelector(`.doc[data-doc="${id}"]`)?[...btn.closest('.turn').querySelectorAll('.doc')].findIndex(x=>x.dataset.doc===id)+1:'';
+    return `<a href="#" data-goto="${id}" class="${id===btn.dataset.cite?'cur':''}"><span class="n">${n}</span><span><b>${esc(d.t)}</b><small>${d.type} · ${esc(d.a)} · ${d.y}</small></span></a>`}).join('');
+  document.body.appendChild(popEl);
+  const r = btn.getBoundingClientRect();
+  let left = r.left + window.scrollX; const w = popEl.offsetWidth;
+  left = Math.min(left, window.scrollX + document.documentElement.clientWidth - w - 16);
+  popEl.style.left = Math.max(16,left)+'px';
+  popEl.style.top = (r.bottom + window.scrollY + 8)+'px';
+  btn.setAttribute('aria-expanded','true'); popBtn = btn;
+}
+
+/* ---------------- events ---------------- */
+function syncForm(ta){ ta.style.height='auto'; ta.style.height=Math.min(ta.scrollHeight,180)+'px'; ta.closest('.search').classList.toggle('has-text', !!ta.value.trim()); }
+document.querySelectorAll('[data-form]').forEach(f=>{
+  const ta = f.querySelector('textarea');
+  ta.addEventListener('input',()=>syncForm(ta));
+  ta.addEventListener('keydown',e=>{ if(e.key==='Enter' && !e.shiftKey && !e.isComposing){ e.preventDefault(); f.requestSubmit(); } });
+  f.addEventListener('submit',e=>{ e.preventDefault(); const v=ta.value; if(!v.trim()||busy) return; ta.value=''; syncForm(ta); ask(v,{fresh:f.closest('#home')!==null}); });
+});
+
+function closeDrawer(){ app.classList.remove('drawer'); }
+document.addEventListener('click', e=>{
+  const cite = e.target.closest('.cite');
+  if(cite){ e.preventDefault(); popBtn===cite ? closePop() : openPop(cite); return; }
+  const go = e.target.closest('[data-goto]');
+  if(go){ e.preventDefault(); const turn = popBtn.closest('.turn'); closePop();
+    const card = turn.querySelector(`.doc[data-doc="${go.dataset.goto}"]`);
+    if(card.classList.contains('more')) turn.querySelector('[data-act=expand]')?.click();
+    card.scrollIntoView({behavior:'smooth',block:'center'}); card.classList.add('flash'); setTimeout(()=>card.classList.remove('flash'),1600); return; }
+  if(popEl && !e.target.closest('.pop')) closePop();
+
+  const qb = e.target.closest('[data-q]');
+  const act = e.target.closest('[data-act]')?.dataset.act;
+  if(act==='retry'){ ask(qb.dataset.q); return; }
+  if(qb){ const fromHome = !!e.target.closest('#home,.side'); ask(qb.dataset.q,{fresh:fromHome}); return; }
+  const doc = e.target.closest('.doc'); if(doc){ toast('원문 상세 화면으로 이동합니다 (프로토타입)'); return; }
+
+  switch(act){
+    case 'home': e.preventDefault(); goHome(); break;
+    case 'help': openHelp(); break;
+    case 'closeHelp': closeHelp(); break;
+    case 'openDrawer': app.classList.add('drawer'); break;
+    case 'closeDrawer': closeDrawer(); break;
+    case 'expand': { const b=e.target.closest('[data-act]'); const g=b.closest('.block').querySelector('.docs'); const on=g.classList.toggle('expanded');
+      b.setAttribute('aria-expanded',on); b.querySelector('span').textContent= on?'접기':'전체 펼치기'; b.querySelector('svg').style.transform=on?'rotate(180deg)':''; break; }
+    case 'like': case 'dislike': { const b=e.target.closest('.act'); const wrap=b.parentElement; const on=!b.classList.contains('on');
+      wrap.querySelectorAll('[data-act=like],[data-act=dislike]').forEach(x=>{x.classList.remove('on');x.setAttribute('aria-pressed','false')});
+      if(on){b.classList.add('on');b.setAttribute('aria-pressed','true');toast(act==='like'?'의견 감사합니다!':'더 나은 답변을 위해 참고할게요');} break; }
+    case 'copy': { const t=e.target.closest('.turn').querySelector('.answer').innerText; navigator.clipboard?.writeText(t).then(()=>toast('답변을 복사했어요'),()=>toast('복사할 수 없어요')); break; }
+  }
+});
+$('#toggleSide').addEventListener('click',()=>{ if(matchMedia('(max-width:900px)').matches){ closeDrawer(); return; } const c=app.classList.toggle('collapsed'); $('#toggleSide').setAttribute('aria-label', c?'사이드바 펼치기':'사이드바 접기'); try{localStorage.setItem('nail-side',c?'1':'0')}catch(_){} });
+try{ if(localStorage.getItem('nail-side')==='1') app.classList.add('collapsed'); }catch(_){}
+
+$('#guideToggle').addEventListener('click',e=>{ const g=$('#guide'); const on=g.classList.toggle('open'); e.currentTarget.setAttribute('aria-expanded',on); e.currentTarget.querySelector('svg').style.transform=on?'rotate(180deg)':''; if(on) g.scrollIntoView({behavior:'smooth',block:'nearest'}); });
+
+let lastFocus=null;
+function openHelp(){ lastFocus=document.activeElement; $('#modal').classList.add('open'); $('#modal [data-act=closeHelp]').focus(); closeDrawer(); }
+function closeHelp(){ $('#modal').classList.remove('open'); lastFocus?.focus(); }
+$('#modal').addEventListener('click',e=>{ if(e.target.id==='modal') closeHelp(); });
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){ if($('#modal').classList.contains('open')) closeHelp(); else if(popEl) closePop(); else closeDrawer(); }
+  if(e.key==='/' && !/TEXTAREA|INPUT/.test(document.activeElement.tagName)){ e.preventDefault(); (app.classList.contains('in-chat')?$('.composer textarea'):$('#home textarea')).focus(); }
+  if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='b'){ e.preventDefault(); $('#toggleSide').click(); }
+});
+window.addEventListener('scroll',()=>{ if(!app.classList.contains('in-chat')) $('#top').classList.toggle('bordered', scrollY>8); },{passive:true});
+window.addEventListener('resize',closePop);
+</script>
+</body>
+</html>

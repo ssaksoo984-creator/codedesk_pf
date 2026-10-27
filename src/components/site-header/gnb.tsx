@@ -93,7 +93,7 @@ export function Gnb() {
         <div className="wrap flex h-16 items-center justify-between gap-4 md:h-[72px]">
           <Logo size="small" />
 
-          <nav className="hidden items-center gap-8 md:flex">
+          <nav className="hidden items-center gap-8 lg:flex">
             {NAV_ITEMS.map((item, i) => (
               <a
                 key={item.href}
@@ -109,8 +109,8 @@ export function Gnb() {
             ))}
           </nav>
 
-          <div className="hidden items-center gap-3 md:flex">
-            <span className="hidden font-mono text-[11px] tracking-widest text-white/40 lg:inline">
+          <div className="hidden items-center gap-3 lg:flex">
+            <span className="hidden font-mono text-[11px] tracking-widest text-white/40 xl:inline">
               SEL {clock}
             </span>
             <LocaleSwitch />
@@ -122,7 +122,7 @@ export function Gnb() {
             aria-expanded={open}
             aria-label={locale === "ko" ? (open ? "메뉴 닫기" : "메뉴 열기") : open ? "Close menu" : "Open menu"}
             onClick={() => setOpen((v) => !v)}
-            className="flex h-10 items-center gap-2 border border-neon/40 px-3 font-mono text-[11px] tracking-widest text-neon md:hidden"
+            className="flex h-10 items-center gap-2 border border-neon/40 px-3 font-mono text-[11px] tracking-widest text-neon lg:hidden"
           >
             {open ? "CLOSE" : "MENU"}
             <span className="flex flex-col gap-[3px]">
@@ -136,7 +136,7 @@ export function Gnb() {
       <div
         ref={panelRef}
         className={clsx(
-          "absolute inset-x-0 top-16 border-b border-neon/20 bg-ink/95 backdrop-blur-md transition-[clip-path] duration-300 md:hidden",
+          "absolute inset-x-0 top-16 border-b border-neon/20 bg-ink/95 backdrop-blur-md transition-[clip-path] duration-300 md:top-[72px] lg:hidden",
           open ? "pointer-events-auto [clip-path:inset(0_0_0_0)]" : "pointer-events-none [clip-path:inset(0_0_100%_0)]"
         )}
       >

@@ -5,6 +5,7 @@ import clsx from "clsx";
 import { VISIBLE_WORK_PROJECTS } from "@/lib/work-content";
 import { useRestored } from "@/lib/mission-progress";
 import { useLocale } from "@/components/site-header/locale-context";
+import { usePastHero } from "@/lib/use-past-hero";
 
 const COPY = {
   label: { ko: "세계 복구율", en: "World integrity" },
@@ -21,6 +22,7 @@ export function IntegrityHud() {
   const count = VISIBLE_WORK_PROJECTS.filter((p) => restored.includes(p.index)).length;
   const pct = Math.round((count / total) * 100);
   const saved = count === total;
+  const show = usePastHero();
 
   return (
     <Link
@@ -28,7 +30,8 @@ export function IntegrityHud() {
       aria-label={`${COPY.label[locale]} ${pct}%`}
       className={clsx(
         "ko-safe notch-sm group fixed bottom-4 left-4 z-40 w-[150px] border bg-ink/80 px-3 py-2.5 font-mono backdrop-blur-md transition-colors md:bottom-8 md:left-8 md:w-[200px]",
-        saved ? "border-acid/60" : "border-neon/30 hover:border-neon"
+        saved ? "border-acid/60" : "border-neon/30 hover:border-neon",
+        show ? "opacity-100" : "pointer-events-none translate-y-3 opacity-0"
       )}
     >
       <div className="flex items-center justify-between text-[9px] uppercase tracking-[0.2em] text-white/50 md:text-[10px]">
