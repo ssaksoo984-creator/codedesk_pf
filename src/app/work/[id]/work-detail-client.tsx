@@ -132,7 +132,7 @@ export function WorkDetailClient({ project, prev, next }: WorkDetailClientProps)
         wide={Boolean(block.images)}
         after={
           block.workbench ? (
-            <TaleWorkbench startTab={block.workbench} />
+            <TaleWorkbench key={locale} startTab={block.workbench} />
           ) : (
             block.embed && <LiveEmbed {...block.embed} />
           )
