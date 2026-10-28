@@ -229,6 +229,12 @@ export interface StoryBlock {
   columns?: 1 | 2 | 3 | 4;
   /** "Coming soon" placeholder — content the designer is still preparing. */
   pending?: Copy;
+  /** A live, interactive page (prototype, flow chart) framed inline. */
+  embed?: { src: string; label: Copy; height?: number };
+  /** A playable film with sound and controls. */
+  video?: { src: string; poster?: string; caption?: Copy };
+  /** Built-in interactive widgets that need code, not data. */
+  widget?: "lumi-loading";
 }
 
 // Only real, shipped projects go here — the list grows as more come in, so

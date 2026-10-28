@@ -58,7 +58,7 @@ export const RECENT_PROJECTS: WorkProject[] = [
       ko: "해피 패스만 그리면 화면은 금방 나옵니다. 하지만 이 서비스의 어려움은 분기와 오류, 되돌아가는 흐름에 있었습니다. 아키텍처와 플로우를 먼저 세우고 화면을 그리니, Figma 화면 · 프로토타입 · 개발 명세가 모두 같은 화면 ID로 묶여 한 언어로 이야기할 수 있었습니다.",
       en: "Drawing only the happy path gets you screens fast — but this product's difficulty lived in branches, errors and rollbacks. Setting the architecture and flows first meant the Figma screens, the prototype and the dev spec all share one set of screen IDs — one language for everyone.",
     },
-    cover: "/media/covers/09.webp",
+    cover: "/media/covers/09.webp?v=2",
     links: [
       { label: { ko: "프로토타입 열기", en: "Open prototype" }, url: "/proto/tale-studio.html" },
       { label: { ko: "Lumi 상태 17종", en: "Lumi — 17 states" }, url: "https://claude.ai/artifact/LbhbVTNxmxQLcq8WyPzAc1" },
@@ -111,6 +111,21 @@ export const RECENT_PROJECTS: WorkProject[] = [
         ],
       },
       {
+        id: "loading",
+        label: { ko: "AI가 일하는 시간 · Lumi 로딩", en: "While the AI works — Lumi loading" },
+        title: {
+          ko: "기다림을 캐릭터의 이야기로: 읽고, 쓰고, 그리고, 연출하는 Lumi.",
+          en: "Turning waits into a character's story — Lumi reads, writes, draws and directs.",
+        },
+        body: [
+          {
+            ko: "AI가 일하는 동안에는 화면 전체가 잠기기 때문에, 그 몇 초에서 몇 분을 사용자가 '멈췄다'고 느끼지 않게 만드는 것이 중요했습니다. 단계마다 Lumi가 그 일을 직접 하는 모습으로 보여 주고, 진행률과 지금 하는 일을 체크리스트로 함께 띄웠습니다. 아래는 실제 Lumi 렌더러로 다시 만든 로딩 화면입니다.",
+            en: "The whole screen locks while the AI works, so the real job was making those seconds-to-minutes never feel frozen. Each stage shows Lumi doing that very work, alongside progress and a live checklist. Below are the loading screens rebuilt with the actual Lumi renderer.",
+          },
+        ],
+        widget: "lumi-loading",
+      },
+      {
         id: "flowchart",
         label: { ko: "단계별 프로세스 · 플로우 차트", en: "Per-stage process — flow charts" },
         title: {
@@ -123,10 +138,7 @@ export const RECENT_PROJECTS: WorkProject[] = [
             en: "For every stage I designed not just the happy path but alternate flows on each yes/no branch, exception flows on errors, and where rollback is or isn't possible. A legend separates screens, popups, branches, AI-lock states, errors, new screens, rollbacks and locked values, so any node reads at a glance.",
           },
         ],
-        columns: 1,
-        images: [
-          { src: "/media/home_work/talestudio/proto/t_flow.webp", caption: { ko: "Producer 단계 플로우 — 파일 첨부 · 20자 검사 분기 · AI 작업 중 상태", en: "Producer flow — attachment, 20-char check branch, AI-working state" } },
-        ],
+        embed: { src: "/proto/tale-studio.html?tab=flow&embed=1", label: { ko: "플로우 차트", en: "Flow chart" }, height: 820 },
       },
       {
         id: "prototype",
@@ -141,10 +153,7 @@ export const RECENT_PROJECTS: WorkProject[] = [
             en: "Prototype, flow and spec tabs live in one HTML file. Picking a screen lights its node in the flow chart beside it; clicking a node jumps to that screen. Plan A (pick on screen) and Plan B (build by chat) toggle side by side.",
           },
         ],
-        columns: 1,
-        images: [
-          { src: "/media/home_work/talestudio/proto/t_proto.webp", caption: { ko: "프로토타입 탭 — 왼쪽 동작하는 화면, 오른쪽 현재 위치가 표시된 플로우", en: "Prototype tab — working screen left, flow with current node right" } },
-        ],
+        embed: { src: "/proto/tale-studio.html?tab=proto&embed=1", label: { ko: "프로토타입", en: "Prototype" }, height: 860 },
       },
       {
         id: "design",
@@ -180,10 +189,7 @@ export const RECENT_PROJECTS: WorkProject[] = [
             en: "Every feature is tabled as before → after with its disposition (kept, changed, moved, new, split, removed) and where it touches the code, keyed by screen ID. Clicking an ID opens that prototype screen; picking a screen in the prototype pins its changes under the description.",
           },
         ],
-        columns: 1,
-        images: [
-          { src: "/media/home_work/talestudio/proto/t_spec.webp", caption: { ko: "내용 정리 탭 — 흐름 비교와 기능 위치", en: "Spec tab — flow comparison and feature map" } },
-        ],
+        embed: { src: "/proto/tale-studio.html?tab=spec&embed=1", label: { ko: "개발 전달 명세", en: "Dev handoff spec" }, height: 760 },
       },
       {
         id: "lumi",
@@ -346,6 +352,7 @@ export const RECENT_PROJECTS: WorkProject[] = [
             note: { ko: "이용 가이드에서 일반 이용자와 국회 직원이 검색할 수 있는 자료 범위를 구분해 보여 줍니다.", en: "The guide separates what the public and Assembly staff can each search." },
           },
         ],
+        embed: { src: "/proto/nail-search.html", label: { ko: "NAIL AI 검색", en: "NAIL AI search" }, height: 780 },
         columns: 2,
         images: [
           { src: "/media/home_work/nail/chatbot/n_home.webp", caption: { ko: "첫 화면 — 문장으로 묻는 검색창과 추천 질문", en: "Home — sentence search and suggested questions" } },
@@ -361,15 +368,19 @@ export const RECENT_PROJECTS: WorkProject[] = [
     isNew: true,
     title: { ko: "1AM VAPE", en: "1AM VAPE" },
     category: { ko: "캐나다 전자담배 도매 브랜드 · B2B 리테일러 사이트", en: "Canadian vape wholesale brand — B2B retailer site" },
-    tags: ["Business", "Built by Me"],
-    skills: ["Brand Website", "B2B Commerce", "Motion & Interaction", "Responsive", "Compliance UX"],
+    tags: ["Business", "Built by Me", "Brand & Identity"],
+    skills: ["Brand Website", "AI Brand Film", "B2B Commerce", "Motion & Interaction", "Responsive", "Compliance UX"],
     client: { ko: "1AM (VANSKAI TRADING LTD.)", en: "1AM (VANSKAI TRADING LTD.)" },
-    roles: [{ label: { ko: "사이트 디자인 · 구축", en: "Site design & build" }, value: { ko: "브랜드 사이트 · 리테일러 주문 흐름", en: "Brand site & retailer ordering flow" } }],
+    roles: [
+      { label: { ko: "사이트 디자인 · 구축", en: "Site design & build" }, value: { ko: "브랜드 사이트 · 리테일러 주문 흐름", en: "Brand site & retailer ordering flow" } },
+      { label: { ko: "브랜드 영상", en: "Brand film" }, value: { ko: "기획 · AI 영상 제작 · 편집", en: "Concept, AI generation & edit" } },
+    ],
+    video: "/media/home_work/1am/brand-film-loop.mp4",
     url: "https://1amvape.com/",
     cover: "/media/covers/11.webp",
     description: {
-      ko: "캐나다의 라이선스 리테일러에게만 판매하는 전자담배 도매 브랜드 1AM의 사이트입니다. 소비자에게 직접 팔지 않는 B2B 구조라, '예쁜 쇼핑몰'보다 '믿고 입점할 수 있는 브랜드'로 보이는 것이 목표였습니다. 15가지 맛의 컬러를 그대로 브랜드 비주얼로 쓰고, 연령 인증 · 보건 경고 · 리테일러 가입과 주문 흐름까지 규제 안에서 설계했습니다.",
-      en: "The site for 1AM, a vape wholesale brand that sells only to licensed Canadian retailers. Being B2B — never selling to consumers — the goal was to read as a brand retailers can trust, not just a pretty store. The 15 flavour colours became the visual identity, and age gating, health warnings, retailer sign-up and ordering were all designed within the regulations.",
+      ko: "캐나다의 라이선스 리테일러에게만 판매하는 전자담배 도매 브랜드 1AM의 사이트입니다. 소비자에게 직접 팔지 않는 B2B 구조라, '예쁜 쇼핑몰'보다 '믿고 입점할 수 있는 브랜드'로 보이는 것이 목표였습니다. 메인을 여는 브랜드 영상은 직접 기획하고 AI로 제작했고, 15가지 맛의 컬러를 그대로 브랜드 비주얼로 쓰고, 연령 인증 · 보건 경고 · 리테일러 가입과 주문 흐름까지 규제 안에서 설계했습니다.",
+      en: "The site for 1AM, a vape wholesale brand that sells only to licensed Canadian retailers. Being B2B — never selling to consumers — the goal was to read as a brand retailers can trust, not just a pretty store. The brand film that opens the home page was concepted and produced with AI by me, the 15 flavour colours became the visual identity, and age gating, health warnings, retailer sign-up and ordering were all designed within the regulations.",
     },
     situation: {
       ko: "전자담배는 광고와 판매 방식이 엄격하게 규제되는 상품입니다. 19세 미만 접근을 막아야 하고, 모든 화면에 보건 경고가 보여야 하며, 일반 소비자가 아니라 라이선스를 가진 리테일러만 주문할 수 있어야 했습니다.",
@@ -380,6 +391,25 @@ export const RECENT_PROJECTS: WorkProject[] = [
       en: "Stay compliant while making retailers want to carry the brand — and guide them smoothly from application to approval to ordering.",
     },
     story: [
+      {
+        id: "film",
+        label: { ko: "브랜드 영상 · 기획 & AI 제작", en: "Brand film — concept & AI production" },
+        title: {
+          ko: "사이트의 첫 3초를 영상 한 편으로.",
+          en: "The site's first three seconds, as one film.",
+        },
+        body: [
+          {
+            ko: "메인 히어로에서 재생되는 22초 브랜드 영상을 직접 기획하고 AI 영상 생성으로 제작했습니다. 크리스털 바디 클로즈업으로 제품의 질감을 먼저 보여 주고, 15가지 맛이 한 줄로 늘어선 라인업 → 핑크 구름 속으로 들어가는 전환 → 구름 위를 떠다니는 제품 → 맛별 컬러가 흩어진 플랫레이로 이어지는 흐름입니다.",
+            en: "I concepted the 22-second brand film that plays in the home hero and produced it with AI video generation. It opens on a close-up of the crystal body for texture, then the 15-flavour lineup in a row → a dive into pink clouds → products floating above them → a flat-lay scattered with every flavour colour.",
+          },
+          {
+            ko: "영상의 핑크 · 라벤더 톤과 무지갯빛 제품 컬러가 그대로 사이트 전체의 그라데이션 팔레트가 되도록, 영상과 화면 디자인을 하나의 비주얼 시스템으로 맞췄습니다.",
+            en: "The film's pink-lavender tone and rainbow product colours were carried straight into the site's gradient palette, so film and interface read as one visual system.",
+          },
+        ],
+        video: { src: "/media/home_work/1am/brand-film.mp4", poster: "/media/home_work/1am/brand-film-poster.webp", caption: { ko: "1AM 브랜드 영상 (22초) — 기획 · AI 제작 · 편집", en: "1AM brand film (22s) — concept, AI generation, edit" } },
+      },
       {
         id: "identity",
         label: { ko: "비주얼 · 15가지 맛의 컬러", en: "Visual — 15 flavour colours" },

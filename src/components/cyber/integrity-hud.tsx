@@ -29,13 +29,14 @@ export function IntegrityHud() {
       href="/#missions"
       aria-label={`${COPY.label[locale]} ${pct}%`}
       className={clsx(
-        "ko-safe notch-sm group fixed bottom-4 left-4 z-40 w-[150px] border bg-ink/80 px-3 py-2.5 font-mono backdrop-blur-md transition-colors md:bottom-8 md:left-8 md:w-[200px]",
+        "ko-safe notch-sm group fixed bottom-3 left-3 z-40 w-[104px] border bg-ink/85 px-2.5 py-2 font-mono backdrop-blur-md transition-all md:bottom-8 md:left-8 md:w-[200px] md:px-3 md:py-2.5",
         saved ? "border-acid/60" : "border-neon/30 hover:border-neon",
         show ? "opacity-100" : "pointer-events-none translate-y-3 opacity-0"
       )}
     >
       <div className="flex items-center justify-between text-[9px] uppercase tracking-[0.2em] text-white/50 md:text-[10px]">
-        <span>{saved ? COPY.saved[locale] : COPY.label[locale]}</span>
+        <span className="hidden md:inline">{saved ? COPY.saved[locale] : COPY.label[locale]}</span>
+        <span className="md:hidden">{saved ? "✦ SAVED" : "WORLD"}</span>
         <span className={saved ? "text-acid" : "text-neon"}>{pct}%</span>
       </div>
       <div className="mt-2 flex gap-[2px]">

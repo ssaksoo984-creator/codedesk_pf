@@ -15,6 +15,7 @@ import { CyberCursor } from "@/components/cyber/cyber-cursor";
 import { BootScreen } from "@/components/cyber/boot-screen";
 import { IntegrityHud } from "@/components/cyber/integrity-hud";
 import { SysBot } from "@/components/cyber/sys-bot";
+import { WorldSaved } from "@/components/cyber/world-saved";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -35,7 +36,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko" className={`${pretendard.variable} h-full antialiased`} suppressHydrationWarning>
+    <html lang="en" className={`${pretendard.variable} h-full antialiased`} suppressHydrationWarning>
+      <head>
+        {/* Runs before paint: skip the boot overlay for anyone who already booted this session. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{if(sessionStorage.getItem('rp-booted')||matchMedia('(prefers-reduced-motion: reduce)').matches){document.documentElement.dataset.booted='1'}}catch(e){}",
+          }}
+        />
+      </head>
       <body className="min-h-full flex flex-col">
         <LocaleProvider>
           <CyberBackground />
@@ -44,6 +54,7 @@ export default function RootLayout({
           <IntegrityHud />
           <BackToTop />
           <SysBot />
+          <WorldSaved />
           <CyberCursor />
         </LocaleProvider>
         <Analytics />

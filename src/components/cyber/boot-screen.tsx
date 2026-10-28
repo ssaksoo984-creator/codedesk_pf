@@ -78,11 +78,6 @@ export function BootScreen() {
 
   return (
     <>
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `try{if(sessionStorage.getItem('${KEY}')||matchMedia('(prefers-reduced-motion: reduce)').matches){document.documentElement.dataset.booted='1'}}catch(e){}`,
-        }}
-      />
       <div
         role="status"
         aria-label="Loading"

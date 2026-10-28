@@ -22,7 +22,7 @@ export function BackToTop() {
       onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
       aria-label={locale === "ko" ? "맨 위로 이동" : "Back to top"}
       className={clsx(
-        "notch-sm fixed bottom-4 right-4 z-40 flex h-12 w-12 flex-col items-center justify-center gap-0.5 border border-neon/40 bg-ink/80 font-mono text-[9px] tracking-widest text-neon backdrop-blur-md transition-all duration-300 hover:bg-neon hover:text-ink md:bottom-8 md:right-8 md:h-14 md:w-14",
+        "notch-sm fixed bottom-3 right-3 z-40 flex h-11 w-11 flex-col items-center justify-center gap-0.5 border border-neon/40 bg-ink/80 font-mono text-[9px] tracking-widest text-neon backdrop-blur-md transition-all duration-300 hover:bg-neon hover:text-ink md:bottom-8 md:right-8 md:h-14 md:w-14",
         visible ? "opacity-100" : "pointer-events-none translate-y-3 opacity-0"
       )}
     >

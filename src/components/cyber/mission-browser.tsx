@@ -72,6 +72,29 @@ function MissionCard({ project, featured }: { project: WorkProject; featured?: b
           project={project}
           className="rgb-hover h-full w-full transition-transform duration-700 ease-out group-hover:scale-[1.04]"
         />
+        {project.video && (
+          <video
+            src={project.video}
+            muted
+            loop
+            playsInline
+            preload="none"
+            aria-hidden
+            className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+            ref={(el) => {
+              const card = el?.closest("a");
+              if (!el || !card || card.dataset.videoBound) return;
+              card.dataset.videoBound = "1";
+              card.addEventListener("mouseenter", () => el.play().catch(() => {}));
+              card.addEventListener("mouseleave", () => el.pause());
+            }}
+          />
+        )}
+        {project.video && (
+          <span className="ko-safe pointer-events-none absolute bottom-3 left-3 border border-white/20 bg-ink/70 px-2 py-1 font-mono text-[10px] uppercase tracking-widest text-white/70 transition-opacity group-hover:opacity-0">
+            ▶ Film
+          </span>
+        )}
         <div className="scanlines pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-ink/60 to-transparent" />
         <div className="absolute left-3 top-3 flex gap-2">

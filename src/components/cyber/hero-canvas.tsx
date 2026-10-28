@@ -40,12 +40,19 @@ const ALERT = "255, 51, 85";
 export function HeroCanvas({
   onPurge,
   impactRef,
+  saved,
 }: {
   onPurge?: () => void;
   /** Filled with a function the meteor strike calls (in % of the canvas)
    * to blast debris and drop new viruses at the impact point. */
   impactRef?: React.MutableRefObject<((xPct: number, yPct: number) => void) | null>;
+  /** Every sector restored: no more viruses, the whole skyline lights up cyan. */
+  saved?: boolean;
 }) {
+  const savedRef = useRef(saved);
+  useEffect(() => {
+    savedRef.current = saved;
+  }, [saved]);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const purgeRef = useRef(onPurge);
 
@@ -178,7 +185,7 @@ export function HeroCanvas({
         ctx!.lineWidth = 1;
         ctx!.strokeRect(bx + 0.5, by + 0.5, b.w - 1, b.h);
         for (const win of b.windows) {
-          if (win.infected) {
+          if (win.infected && !savedRef.current) {
             const on = Math.sin(t * 6 + win.x * 3 + win.y) > -0.2;
             ctx!.fillStyle = on ? `rgba(${ALERT},0.85)` : `rgba(${ALERT},0.2)`;
           } else {
@@ -260,6 +267,7 @@ export function HeroCanvas({
     }
 
     function drawViruses() {
+      if (savedRef.current) viruses.length = 0;
       for (let i = 0; i < viruses.length; i++) {
         const v = viruses[i];
         if (!reduce) {

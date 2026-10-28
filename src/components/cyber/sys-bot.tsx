@@ -53,6 +53,7 @@ const COPY = {
 };
 
 const STEP_MS = 2600;
+const small = () => typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches;
 const PAUSE_MS = 7000;
 
 /** Floating repair-robot companion. Loops through little "error → fixing →
@@ -109,12 +110,14 @@ export function SysBot() {
         s.step = -1;
         timer.current = setTimeout(() => {
           setText(null);
-          timer.current = setTimeout(advance, PAUSE_MS);
+          // On phones the bot only talks when tapped — no endless bubbles over the content.
+          if (!small()) timer.current = setTimeout(advance, PAUSE_MS);
         }, STEP_MS + 600);
       }
     }
 
     advanceRef.current = advance;
+    if (small()) return;
     setTimeout(() => setText({ mood: "ok", msg: COPY.hello[stateRef.current.locale] }), 0);
     timer.current = setTimeout(advance, reduce ? STEP_MS * 2 : 3200);
     return () => {
@@ -158,7 +161,7 @@ export function SysBot() {
         type="button"
         onClick={() => toggleHidden(false)}
         aria-label={COPY.show[locale]}
-        className="fixed bottom-20 right-4 z-40 flex h-12 w-12 items-center justify-center border border-neon/40 bg-ink/80 backdrop-blur-md transition-colors hover:border-neon md:bottom-[104px] md:right-8 md:h-14 md:w-14"
+        className="fixed bottom-16 right-3 z-40 flex h-11 w-11 items-center justify-center border border-neon/40 bg-ink/80 backdrop-blur-md transition-colors hover:border-neon md:bottom-[104px] md:right-8 md:h-14 md:w-14"
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/media/fx/bot.webp" alt="" className="h-9 w-9 object-contain" />
@@ -172,7 +175,7 @@ export function SysBot() {
   return (
     <div
       className={clsx(
-        "pointer-events-none fixed bottom-20 right-2 z-40 flex items-end gap-1 transition-all duration-500 md:bottom-[100px] md:right-6",
+        "pointer-events-none fixed bottom-16 right-1 z-40 flex items-end gap-1 transition-all duration-500 md:bottom-[100px] md:right-6",
         pastHero ? "opacity-100" : "translate-y-6 opacity-0 [&_*]:!pointer-events-none"
       )}
     >
@@ -211,7 +214,7 @@ export function SysBot() {
         type="button"
         onClick={skip}
         aria-label="SYS-BOT"
-        className={clsx("bot-float pointer-events-auto relative h-16 w-16 shrink-0 md:h-24 md:w-24", glitch && "bot-glitch")}
+        className={clsx("bot-float pointer-events-auto relative h-12 w-12 shrink-0 md:h-24 md:w-24", glitch && "bot-glitch")}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img

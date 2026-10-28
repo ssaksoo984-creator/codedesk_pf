@@ -900,11 +900,11 @@ body[data-tt="spec"] .dev { margin-top: 0 }
 body[data-tt="flow"] .dv-toproto { display: inline-block }
 body[data-tt="proto"] .dv-in:not(:has(.dv-in-r)) { display: none }
 </style>
-</head>
+<script>try{if(new URLSearchParams(location.search).get('embed')){document.documentElement.classList.add('embed')}}catch(e){}</script><style>html.embed #pageTop{display:none}html.embed .wrap{padding-top:8px}</style></head>
 <body>
 
 <div class="wrap">
-  <div class="top">
+  <div class="top" id="pageTop">
     <div>
       <h1>Tale Studio 리뉴얼 프로토타입</h1>
       <p>Producer(아이디어) → Writer(산문) → Artist → Storyboard(가칭)까지 실제로 눌러 볼 수 있어요. 프로토타입 탭에서는 옆의 플로우 차트를 열고 닫으며 같이 봐요. 지금 화면이 있는 단계가 차트에 열리고, 그 노드가 빨갛게 표시돼요. 플로우 탭은 차트만 크게, 내용 정리 탭에는 기존에서 바뀌는 것을 화면 ID별로 정리했어요.</p>
@@ -5545,6 +5545,7 @@ window.FLOW = {
   var top = document.querySelector('.wrap > .top'); if (top) top.insertAdjacentElement('afterend', nav);
   var tab = 'proto';
   try { var saved = localStorage.getItem('tale-tab'); if (saved && /^(flow|proto|spec)$/.test(saved)) tab = saved; } catch (e) {}
+  try { var qt = new URLSearchParams(location.search).get('tab'); if (qt && /^(flow|proto|spec)$/.test(qt)) tab = qt; } catch (e) {}
   function setTab(t, keepScroll) {
     tab = t; document.body.setAttribute('data-tt', t);
     nav.querySelectorAll('[data-tt]').forEach(function (b) { b.setAttribute('aria-selected', String(b.dataset.tt === t)); b.tabIndex = b.dataset.tt === t ? 0 : -1; });

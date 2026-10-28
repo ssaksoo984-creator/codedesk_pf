@@ -408,3 +408,23 @@ html[lang="ko"] .ko-safe * {
     animation: none !important;
   }
 }
+
+/* ---- World saved ---- */
+@keyframes saved-flash {
+  from { opacity: 0.55; }
+  to { opacity: 0; }
+}
+.saved-flash {
+  animation: saved-flash 0.9s ease-out forwards;
+}
+@keyframes saved-in {
+  from { opacity: 0; transform: scale(0.92); filter: blur(6px); }
+  to { opacity: 1; transform: none; filter: none; }
+}
+.saved-in {
+  animation: saved-in 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .saved-flash, .saved-in { animation: none !important; }
+  .saved-flash { opacity: 0; }
+}

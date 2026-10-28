@@ -24,7 +24,7 @@ export function InfectedGlobe() {
           src="/media/fx/globe.webp"
           alt=""
           className="h-full w-full object-contain transition-[filter] duration-700"
-          style={{ filter: `hue-rotate(${k * 170}deg) saturate(${1 + k * 0.3}) drop-shadow(0 0 24px rgba(${saved ? "0,240,255" : "255,51,85"},0.35))` }}
+          style={{ filter: `hue-rotate(${k * 185}deg) saturate(${1 + k * 0.3}) drop-shadow(0 0 24px rgba(${saved ? "0,240,255" : "255,51,85"},0.35))` }}
         />
         <div className="radar pointer-events-none absolute inset-[12%] rounded-full bg-[conic-gradient(from_0deg,transparent_0deg,transparent_300deg,rgba(0,240,255,0.35)_360deg)] mix-blend-screen" />
       </div>

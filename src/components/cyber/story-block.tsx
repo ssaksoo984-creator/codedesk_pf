@@ -4,6 +4,8 @@ import clsx from "clsx";
 import type { StoryBlock as StoryBlockData } from "@/lib/work-content";
 import { useLocale } from "@/components/site-header/locale-context";
 import { LightboxProvider, Zoomable } from "@/components/work/lightbox";
+import { LumiLoadingScenes } from "./lumi-loading-scenes";
+import { LiveEmbed } from "./live-embed";
 
 const COLS: Record<number, string> = {
   1: "grid-cols-1",
@@ -37,6 +39,21 @@ export function StoryBlockContent({ block }: { block: StoryBlockData }) {
             </p>
           ))}
         </div>
+      )}
+
+      {block.widget === "lumi-loading" && <LumiLoadingScenes />}
+
+      {block.embed && <LiveEmbed {...block.embed} />}
+
+      {block.video && (
+        <figure>
+          <div className="brackets relative overflow-hidden border border-white/10 bg-black">
+            <video src={block.video.src} poster={block.video.poster} controls playsInline preload="metadata" className="block w-full" />
+          </div>
+          {block.video.caption && (
+            <figcaption className="mt-2 font-mono text-[11px] leading-snug text-white/45">{block.video.caption[locale]}</figcaption>
+          )}
+        </figure>
       )}
 
       {block.flow && (

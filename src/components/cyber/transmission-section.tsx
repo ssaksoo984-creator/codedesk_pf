@@ -6,6 +6,7 @@ import { ContactActions } from "@/components/work/contact-actions";
 import { VISIBLE_WORK_PROJECTS } from "@/lib/work-content";
 import { resetRestored, useRestored } from "@/lib/mission-progress";
 import { SectionHeader, useRevealChildren } from "./primitives";
+import { REPLAY_EVENT } from "./world-saved";
 
 const COPY = {
   lead: {
@@ -21,7 +22,8 @@ const COPY = {
     en: "All sectors restored — thanks for saving the world. Only one thing left: say hi.",
   },
   continue: { ko: "다음 미션으로", en: "Next mission" },
-  replay: { ko: "처음부터 다시", en: "Replay" },
+  replay: { ko: "처음부터 다시", en: "Start over" },
+  celebrate: { ko: "축하 다시 보기", en: "Replay finale" },
 };
 
 export function TransmissionSection() {
@@ -44,8 +46,8 @@ export function TransmissionSection() {
           }
         />
 
-        <div className="grid gap-12 lg:grid-cols-[1fr_380px] lg:gap-20">
-          <div data-reveal>
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-12 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-20">
+          <div data-reveal className="min-w-0">
             <p className="mb-10 max-w-xl text-[15px] leading-relaxed text-white/60 md:text-lg">{COPY.lead[locale]}</p>
             <ContactActions />
           </div>
@@ -82,13 +84,22 @@ export function TransmissionSection() {
                   {COPY.continue[locale]} ▶
                 </Link>
               ) : (
-                <button
-                  type="button"
-                  onClick={resetRestored}
-                  className="flex-1 border border-acid/60 px-4 py-3 uppercase tracking-[0.2em] text-acid transition-colors hover:bg-acid hover:text-ink"
-                >
-                  {COPY.replay[locale]} ↺
-                </button>
+                <>
+                  <button
+                    type="button"
+                    onClick={() => window.dispatchEvent(new Event(REPLAY_EVENT))}
+                    className="flex-1 bg-acid px-4 py-3 uppercase tracking-[0.2em] text-ink transition-colors hover:bg-paper"
+                  >
+                    ✦ {COPY.celebrate[locale]}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={resetRestored}
+                    className="border border-acid/60 px-4 py-3 uppercase tracking-[0.2em] text-acid transition-colors hover:bg-acid hover:text-ink"
+                  >
+                    ↺ {COPY.replay[locale]}
+                  </button>
+                </>
               )}
             </div>
           </div>

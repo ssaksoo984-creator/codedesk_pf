@@ -31,8 +31,8 @@ function LocaleSwitch({ className }: { className?: string }) {
         className
       )}
     >
-      <span className={clsx("px-2.5", locale === "ko" ? "bg-neon text-ink" : "text-white/50")}>KO</span>
       <span className={clsx("px-2.5", locale === "en" ? "bg-neon text-ink" : "text-white/50")}>EN</span>
+      <span className={clsx("px-2.5", locale === "ko" ? "bg-neon text-ink" : "text-white/50")}>KO</span>
     </button>
   );
 }
