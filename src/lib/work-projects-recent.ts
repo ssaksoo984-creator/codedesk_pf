@@ -1,7 +1,6 @@
 import type { WorkProject } from "./work-content";
 
 const TS = "/media/home_work/talestudio";
-const NAIL = "/media/home_work/nail";
 
 const LUMI_POSES: { file: string; ko: string; en: string; noteKo: string; noteEn: string }[] = [
   { file: "idle_0", ko: "기본", en: "Idle", noteKo: "채팅 아바타 · 평소", noteEn: "Chat avatar, at rest" },
@@ -269,56 +268,62 @@ export const RECENT_PROJECTS: WorkProject[] = [
     story: [
       {
         id: "type1",
-        label: { ko: "TYPE-1 · 신뢰의 직선", en: "TYPE-1 · Straight lines of trust" },
+        label: { ko: "디자인 1 · TYPE-1", en: "Design 1 · TYPE-1" },
         title: {
           ko: "펼쳐진 책의 그림자 위로 떠오르는 별.",
           en: "A star rising over the shadow of an opened book.",
         },
-        body: [
+        widget: "nail-type1",
+        notes: [
           {
-            ko: "직선적이고 두꺼운 형태로 지식과 정보의 무게감, 공공기관으로서의 신뢰감을 전달하면서도, 단순하고 안정적인 구조로 국민 누구나 쉽게 다가갈 수 있는 친근한 인상을 만들었습니다.",
-            en: "Thick, straight forms carry the weight of knowledge and the trust of a public institution, while a simple, stable structure keeps it approachable for every citizen.",
+            heading: { ko: "컨셉", en: "Concept" },
+            text: {
+              ko: "직선적이고 두꺼운 형태를 통해 지식과 정보의 무게감, 공공기관으로서의 신뢰감을 전달하면서도, 단순하고 안정적인 구조로 국민 누구나 쉽게 접근할 수 있는 친근한 인공지능 도서관의 이미지를 표현했습니다. 전반적인 형태는 책, 북마크, 별 등의 상징을 담아내며, 미래지향적이면서도 따뜻한 인상을 주는 디자인을 지향합니다.",
+              en: "Thick, straight forms carry the weight of knowledge and information and the trust of a public institution, while a simple, stable structure presents a friendly AI library that every citizen can approach easily. The overall form holds the symbols of the book, the bookmark and the star — aiming for a design that feels forward-looking yet warm.",
+            },
           },
           {
-            ko: "'A'는 책이 펼쳐지며 생기는 그림자와 그 위에 떠오른 별로 AI가 제공하는 통찰과 미래지향성을, 'I'는 북마크처럼 표현해 정보를 기억하고 저장하는 도서관의 핵심 기능을 상징합니다.",
-            en: "The 'A' is the shadow of an opening book with a star floating above it — the insight AI brings. The 'I' is a bookmark: remembering and storing information, the library's core job.",
+            heading: { ko: "로고 의미", en: "What the mark means" },
+            text: {
+              ko: "‘A’는 책이 펼쳐지며 생기는 그림자와 그 위에 떠오른 별 형태를 통해, 인공지능(AI)이 제공하는 통찰과 미래지향성을 상징합니다. ‘I’는 북마크처럼 표현되어, 정보를 기억하고 저장하는 기능을 상징하며 도서관의 핵심 기능을 시각적으로 보여줍니다. 전체적으로는 정제된 정보, 국민을 위한 개방성, 미래 기술의 신뢰성을 동시에 담은 디자인입니다.",
+              en: "The ‘A’ — the shadow cast as a book opens, with a star rising above it — stands for the insight and forward-looking vision AI brings. The ‘I’ is drawn as a bookmark, standing for remembering and storing information: the library's core function, made visible. Altogether it holds refined information, openness for the public, and the trustworthiness of future technology.",
+            },
           },
-        ],
-        columns: 1,
-        images: [
-          { src: `${NAIL}/nail_type1.jpg`, caption: { ko: "TYPE-1 — 그리드 · 아웃라인 · 컬러 · 의미 설명", en: "TYPE-1 — grid, outline, color, rationale" }, fit: "contain", bg: "#ffffff" },
         ],
         colors: [
           { hex: "#1F398D", name: { ko: "네이비 · 신뢰", en: "Navy · trust" } },
-          { hex: "#2178F9", name: { ko: "블루 · 지식", en: "Blue · knowledge" } },
+          { hex: "#2179F9", name: { ko: "블루 · 지식", en: "Blue · knowledge" } },
           { hex: "#0046E2", name: { ko: "딥 블루 · 그림자", en: "Deep blue · shadow" } },
         ],
       },
       {
         id: "type2",
-        label: { ko: "TYPE-2 · 유연한 지식 공간", en: "TYPE-2 · A flexible knowledge space" },
+        label: { ko: "디자인 2 · TYPE-2", en: "Design 2 · TYPE-2" },
         title: {
           ko: "세워진 책들 사이에 'AI'를 놓다.",
           en: "Setting 'AI' between books standing on a shelf.",
         },
-        body: [
+        widget: "nail-type2",
+        notes: [
           {
-            ko: "2025년 로고 트렌드인 스크래치(절단) 타이포그래피를 활용해 '책'의 형태와 AI의 미래지향적 이미지를 결합했습니다. 곡선형 구조는 세워진 책을 연상시키고, 그라데이션은 방대한 지식과 데이터의 흐름을 시각화합니다.",
-            en: "Built on 2025's scratch (cut) typography trend, combining the shape of books with AI's forward-looking image. Curved strokes read as books standing upright; the gradient visualizes vast knowledge and data in motion.",
+            heading: { ko: "컨셉", en: "Concept" },
+            text: {
+              ko: "2025년 로고 디자인 트렌드인 ‘스크래치(절단) 타이포그래피’를 활용해, ‘책’의 형태와 인공지능(AI)의 미래지향적 이미지를 결합한 디자인입니다. 곡선형 구조는 세워진 책을 연상시키며, 전체적으로 소문자 중심의 유연한 형태 안에 ‘AI’를 시각적으로 강조하여 기술성과 친근함을 동시에 표현했습니다. 그라데이션은 방대한 지식과 데이터를 시각화하며, 도서관의 정보 흐름을 현대적으로 해석합니다.",
+              en: "Built on 2025's logo trend of ‘scratch (cut) typography’, the design combines the shape of a book with the forward-looking image of AI. Curved strokes recall books standing upright, and ‘AI’ is emphasised inside a flexible, lowercase-led form to express both technology and approachability. The gradient visualises vast knowledge and data — a modern reading of the library's flow of information.",
+            },
           },
           {
-            ko: "'n'과 'l'은 소문자로 부드럽게 처리해 누구나 다가가기 쉬운 지식 공간을, 그 사이 'AI'는 핵심 가치를 강조합니다. 상단의 별은 AI가 이끄는 미래와 창의적 인사이트를 뜻합니다.",
-            en: "Lowercase 'n' and 'l' soften the mark into a space anyone can enter, with 'AI' set between them as the core value. The star above stands for an AI-led future and creative insight.",
+            heading: { ko: "로고 의미", en: "What the mark means" },
+            text: {
+              ko: "‘n’과 ‘l’은 소문자 형태로 처리되어 부드럽고 누구나 접근하기 쉬운 지식 공간을 상징하며, 이 소문자 사이에 ‘AI’를 배치함으로써 인공지능이라는 핵심 가치를 시각적으로 강조하였습니다. 상단의 별 형태는 AI가 이끄는 미래, 그리고 창의적 인사이트를 상징합니다. 전반적으로 이 로고는 누구나 자유롭게 이용할 수 있는 개방형 지식 플랫폼이자, 기술과 정보가 유기적으로 연결되는 지식 생태계를 표현합니다.",
+              en: "The lowercase ‘n’ and ‘l’ stand for a soft knowledge space anyone can enter, and placing ‘AI’ between them puts the core value — artificial intelligence — front and centre. The star at the top stands for an AI-led future and creative insight. Altogether the mark expresses an open knowledge platform anyone can use freely: an ecosystem where technology and information connect organically.",
+            },
           },
-        ],
-        columns: 1,
-        images: [
-          { src: `${NAIL}/nail_type2.jpg`, caption: { ko: "TYPE-2 — 그리드 · 아웃라인 · 컬러 · 의미 설명", en: "TYPE-2 — grid, outline, color, rationale" }, fit: "contain", bg: "#ffffff" },
         ],
         colors: [
-          { hex: "#3362F6", name: { ko: "코발트", en: "Cobalt" } },
-          { hex: "#9282EF", name: { ko: "라벤더", en: "Lavender" } },
-          { hex: "#24B4F3", name: { ko: "스카이", en: "Sky" } },
+          { hex: "#24B4F4", name: { ko: "스카이", en: "Sky" } },
+          { hex: "#305ADA", name: { ko: "코발트", en: "Cobalt" } },
+          { hex: "#9282F0", name: { ko: "라벤더", en: "Lavender" } },
         ],
       },
       {

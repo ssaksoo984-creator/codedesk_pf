@@ -6,6 +6,7 @@ import { useLocale } from "@/components/site-header/locale-context";
 import { LightboxProvider, Zoomable } from "@/components/work/lightbox";
 import { LumiLoadingScenes } from "./lumi-loading-scenes";
 import { LiveEmbed } from "./live-embed";
+import { NailLogoSheet } from "./nail-logo-sheet";
 
 const COLS: Record<number, string> = {
   1: "grid-cols-1",
@@ -22,7 +23,7 @@ const COPY = {
 
 /** Renders one free-form case-study section's content (the section label
  * itself is drawn by the detail page's sticky left column). */
-export function StoryBlockContent({ block }: { block: StoryBlockData }) {
+export function StoryBlockContent({ block, skipEmbed }: { block: StoryBlockData; skipEmbed?: boolean }) {
   const { locale } = useLocale();
 
   return (
@@ -42,8 +43,21 @@ export function StoryBlockContent({ block }: { block: StoryBlockData }) {
       )}
 
       {block.widget === "lumi-loading" && <LumiLoadingScenes />}
+      {block.widget === "nail-type1" && <NailLogoSheet type={1} />}
+      {block.widget === "nail-type2" && <NailLogoSheet type={2} />}
 
-      {block.embed && <LiveEmbed {...block.embed} />}
+      {block.notes && (
+        <div className="grid gap-8 md:grid-cols-2 md:gap-10">
+          {block.notes.map((n, i) => (
+            <div key={i} className="border-l-2 border-neon/60 pl-5">
+              <h3 className="ko-safe font-mono text-[11px] uppercase tracking-[0.3em] text-neon">{n.heading[locale]}</h3>
+              <p className="mt-3 text-[15px] leading-[1.85] text-white/70">{n.text[locale]}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {block.embed && !skipEmbed && <LiveEmbed {...block.embed} />}
 
       {block.video && (
         <figure>

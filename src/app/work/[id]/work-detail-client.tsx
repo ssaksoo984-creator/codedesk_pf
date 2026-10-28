@@ -13,6 +13,7 @@ import { ImageShowcase } from "@/components/work/image-showcase";
 import { Chip, useRevealChildren } from "@/components/cyber/primitives";
 import { MissionCover, missionNumber } from "@/components/cyber/mission-browser";
 import { StoryBlockContent } from "@/components/cyber/story-block";
+import { LiveEmbed } from "@/components/cyber/live-embed";
 import { RecoveryToast } from "@/components/cyber/recovery-toast";
 
 const COPY = {
@@ -40,11 +41,14 @@ function Section({
   label,
   children,
   wide,
+  after,
 }: {
   n: number;
   label: string;
   children: React.ReactNode;
   wide?: boolean;
+  /** Full-width row under the label + content columns (live embeds need the room). */
+  after?: React.ReactNode;
 }) {
   return (
     <section data-reveal className="grid gap-6 border-t border-white/10 py-14 md:py-20 lg:grid-cols-[minmax(220px,3fr)_9fr] lg:gap-16">
@@ -55,6 +59,7 @@ function Section({
         <h2 className="ko-safe mt-2 font-display text-2xl font-semibold uppercase tracking-wide text-paper md:text-3xl">{label}</h2>
       </div>
       <div className={clsx("min-w-0", !wide && "max-w-4xl")}>{children}</div>
+      {after && <div className="min-w-0 lg:col-span-2">{after}</div>}
     </section>
   );
 }
@@ -119,8 +124,14 @@ export function WorkDetailClient({ project, prev, next }: WorkDetailClientProps)
   }
   for (const block of project.story ?? []) {
     sections.push(
-      <Section key={block.id} n={++n} label={block.label[locale]} wide={Boolean(block.images)}>
-        <StoryBlockContent block={block} />
+      <Section
+        key={block.id}
+        n={++n}
+        label={block.label[locale]}
+        wide={Boolean(block.images)}
+        after={block.embed && <LiveEmbed {...block.embed} />}
+      >
+        <StoryBlockContent block={block} skipEmbed />
       </Section>
     );
   }

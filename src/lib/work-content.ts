@@ -234,7 +234,9 @@ export interface StoryBlock {
   /** A playable film with sound and controls. */
   video?: { src: string; poster?: string; caption?: Copy };
   /** Built-in interactive widgets that need code, not data. */
-  widget?: "lumi-loading";
+  widget?: "lumi-loading" | "nail-type1" | "nail-type2";
+  /** Short headed paragraphs, e.g. "Concept" / "What the mark means". */
+  notes?: { heading: Copy; text: Copy }[];
 }
 
 // Only real, shipped projects go here — the list grows as more come in, so
