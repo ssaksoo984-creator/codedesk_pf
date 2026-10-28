@@ -7,6 +7,7 @@ import { VISIBLE_WORK_PROJECTS } from "@/lib/work-content";
 import { resetRestored, useRestored } from "@/lib/mission-progress";
 import { SectionHeader, useRevealChildren } from "./primitives";
 import { REPLAY_EVENT } from "./world-saved";
+import { RestoredWorldCanvas } from "./restored-world-canvas";
 
 const COPY = {
   lead: {
@@ -133,20 +134,12 @@ export function TransmissionSection() {
   const next = remaining[0];
 
   return (
-    <section ref={ref} id="contact" className="relative scroll-mt-20 overflow-hidden pb-[46vw] pt-24 md:pt-28 lg:pb-[30vw]">
+    <section ref={ref} id="contact" className="relative scroll-mt-20 overflow-hidden pb-[500px] pt-24 md:pb-[560px] md:pt-28">
       {/* The restored world — the city from the hero, after the rescue. */}
-      <div className="pointer-events-none absolute inset-0" aria-hidden>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/media/fx/saved-world.webp"
-          alt=""
-          loading="lazy"
-          className="world-drift absolute inset-0 h-full w-full object-cover object-[50%_80%]"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-ink from-5% via-ink/55 via-40% to-transparent to-75%" />
-        <div className="absolute inset-y-0 left-0 w-2/3 bg-gradient-to-r from-ink/60 to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-ink to-transparent" />
-        <div className="scanlines absolute inset-0 opacity-20" />
+      <div className="absolute inset-0" aria-hidden>
+        <RestoredWorldCanvas className="absolute inset-0 h-full w-full" />
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-ink to-transparent" />
+        <div className="pointer-events-none absolute inset-y-0 left-0 hidden w-1/2 bg-gradient-to-r from-ink/70 to-transparent lg:block" />
       </div>
       <div className="wrap relative">
         <SectionHeader

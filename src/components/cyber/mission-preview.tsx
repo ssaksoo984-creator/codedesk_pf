@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { createPortal } from "react-dom";
 import type { WorkProject } from "@/lib/work-content";
 import { useRestored } from "@/lib/mission-progress";
 import { useLocale } from "@/components/site-header/locale-context";
@@ -52,7 +53,9 @@ export function MissionPreview({ project, onClose }: { project: WorkProject | nu
   const ok = restored.includes(project.index);
   const num = missionNumber(project);
 
-  return (
+  // Portal to <body>: ancestors with transform/backdrop-filter would
+  // otherwise turn `fixed` into "fixed to that box".
+  return createPortal(
     <div className="fixed inset-0 z-[90] flex items-end justify-center sm:items-center" role="dialog" aria-modal="true">
       <button type="button" aria-label={COPY.close[locale]} onClick={onClose} className="absolute inset-0 bg-ink/80 backdrop-blur-sm" />
       <div className="preview-in brackets relative max-h-[88svh] w-full max-w-lg overflow-y-auto border border-neon/40 bg-[#070b14] sm:mx-4">
@@ -94,6 +97,7 @@ export function MissionPreview({ project, onClose }: { project: WorkProject | nu
           </Link>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

@@ -6,6 +6,8 @@ import clsx from "clsx";
 import { VISIBLE_WORK_PROJECTS } from "@/lib/work-content";
 import { useRestored } from "@/lib/mission-progress";
 import { useLocale } from "@/components/site-header/locale-context";
+import { MissionCover } from "./mission-browser";
+import { MissionPreview, useTapPreview } from "./mission-preview";
 
 const W = 1000;
 const H = 420;
@@ -19,11 +21,15 @@ function hash(n: number) {
 
 /** Network map of every project as a sector node. Red = still infected,
  * cyan = restored (visited). Lines connect each node to its two nearest
- * neighbours so the map reads as one connected world. */
-export function SectorMap() {
+ * neighbours so the map reads as one connected world. Hovering a node shows
+ * the project's thumbnail; on touch screens a tap opens a preview popup.
+ * `collapsible` starts it folded behind an open/close header. */
+export function SectorMap({ collapsible }: { collapsible?: boolean }) {
   const { locale } = useLocale();
   const restored = useRestored();
   const [hover, setHover] = useState<string | null>(null);
+  const [open, setOpen] = useState(!collapsible);
+  const { preview, intercept, close } = useTapPreview();
 
   const nodes = useMemo(() => {
     const n = VISIBLE_WORK_PROJECTS.length;
@@ -61,8 +67,25 @@ export function SectorMap() {
 
   return (
     <div className="brackets relative border border-neon/20 bg-ink/60 backdrop-blur-sm">
-      <div className="flex items-center justify-between border-b border-neon/15 px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.25em] text-white/40">
-        <span>World map // live</span>
+      <div
+        className={clsx(
+          "flex items-center justify-between px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.25em] text-white/40",
+          open && "border-b border-neon/15"
+        )}
+      >
+        {collapsible ? (
+          <button
+            type="button"
+            onClick={() => setOpen((o) => !o)}
+            aria-expanded={open}
+            className="ko-safe flex items-center gap-2 uppercase tracking-[0.25em] text-neon hover:text-paper"
+          >
+            <span className={clsx("inline-block transition-transform", open && "rotate-90")}>▶</span>
+            World map {"//"} {open ? (locale === "ko" ? "접기" : "Close") : locale === "ko" ? "열기" : "Open"}
+          </button>
+        ) : (
+          <span>World map {"//"} live</span>
+        )}
         <span className="flex items-center gap-4">
           <span className="flex items-center gap-1.5">
             <i className="h-2 w-2 bg-alert" /> {locale === "ko" ? "감염" : "Infected"}
@@ -73,7 +96,7 @@ export function SectorMap() {
         </span>
       </div>
 
-      <div className="relative">
+      <div className={clsx("relative", !open && "hidden")}>
         <svg viewBox={`0 0 ${W} ${H}`} className="block h-auto w-full" role="img" aria-label="Sector map">
           <defs>
             <pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse">
@@ -112,6 +135,7 @@ export function SectorMap() {
                 onMouseLeave={() => setHover(null)}
                 onFocus={() => setHover(p.index)}
                 onBlur={() => setHover(null)}
+                onClick={intercept(p)}
                 aria-label={p.title[locale]}
               >
                 <g transform={`translate(${x} ${y})`} className="cursor-pointer">
@@ -146,17 +170,28 @@ export function SectorMap() {
 
         {hovered && (
           <div
-            className="pointer-events-none absolute z-10 w-56 -translate-x-1/2 -translate-y-[calc(100%+22px)] border border-neon/40 bg-ink/95 p-3 font-mono text-[11px] shadow-[0_0_24px_rgba(0,240,255,0.2)]"
+            className={clsx(
+              "pointer-events-none absolute z-10 hidden w-64 border border-neon/40 bg-ink/95 font-mono text-[11px] shadow-[0_0_28px_rgba(0,240,255,0.25)] md:block",
+              hovered.y < H / 2 ? "translate-y-[26px]" : "-translate-y-[calc(100%+26px)]",
+              hovered.x < 160 ? "translate-x-0" : hovered.x > W - 160 ? "-translate-x-full" : "-translate-x-1/2"
+            )}
             style={{ left: `${(hovered.x / W) * 100}%`, top: `${(hovered.y / H) * 100}%` }}
           >
-            <div className={clsx("text-[9px] tracking-[0.25em]", restored.includes(hovered.p.index) ? "text-neon" : "text-alert")}>
-              {restored.includes(hovered.p.index) ? "● RESTORED" : "● INFECTED"}
+            <div className="relative aspect-[16/10] overflow-hidden border-b border-neon/20">
+              <MissionCover project={hovered.p} className="h-full w-full" />
+              <div className="scanlines absolute inset-0 opacity-50" />
             </div>
-            <div className="mt-1.5 font-sans text-sm font-semibold text-paper">{hovered.p.title[locale]}</div>
-            <div className="mt-0.5 text-white/45">{hovered.p.category[locale]}</div>
+            <div className="p-3">
+              <div className={clsx("text-[9px] tracking-[0.25em]", restored.includes(hovered.p.index) ? "text-neon" : "text-alert")}>
+                {restored.includes(hovered.p.index) ? "● RESTORED" : "● INFECTED"}
+              </div>
+              <div className="mt-1.5 font-sans text-sm font-semibold text-paper">{hovered.p.title[locale]}</div>
+              <div className="mt-0.5 text-white/45">{hovered.p.category[locale]}</div>
+            </div>
           </div>
         )}
       </div>
+      <MissionPreview project={preview} onClose={close} />
     </div>
   );
 }
