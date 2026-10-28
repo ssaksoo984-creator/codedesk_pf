@@ -61,8 +61,15 @@ export function StoryBlockContent({ block, skipEmbed }: { block: StoryBlockData;
 
       {block.video && (
         <figure>
-          <div className="brackets relative overflow-hidden border border-white/10 bg-black">
-            <video src={block.video.src} poster={block.video.poster} controls playsInline preload="metadata" className="block w-full" />
+          <div className="stage-bg brackets relative overflow-hidden border border-white/10">
+            <video
+              src={block.video.src}
+              poster={block.video.poster}
+              controls
+              playsInline
+              preload="metadata"
+              className="stage-img mx-auto block max-h-[64svh] w-full"
+            />
           </div>
           {block.video.caption && (
             <figcaption className="mt-2 font-mono text-[11px] leading-snug text-white/45">{block.video.caption[locale]}</figcaption>
@@ -125,7 +132,10 @@ export function StoryBlockContent({ block, skipEmbed }: { block: StoryBlockData;
               <figure key={i} className="group">
                 <Zoomable item={{ src: img.src, alt: img.caption?.[locale] ?? "" }} className="w-full">
                   <div
-                    className="relative overflow-hidden border border-white/10 transition-colors group-hover:border-neon/50"
+                    className={clsx(
+                      "relative overflow-hidden border border-white/10 transition-colors group-hover:border-neon/50",
+                      !img.bg && "stage-bg"
+                    )}
                     style={img.bg ? { background: img.bg } : undefined}
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -134,9 +144,8 @@ export function StoryBlockContent({ block, skipEmbed }: { block: StoryBlockData;
                       alt={img.caption?.[locale] ?? ""}
                       loading="lazy"
                       className={clsx(
-                        "w-full transition-transform duration-500 group-hover:scale-[1.03]",
-                        img.fit === "contain" ? "object-contain" : "object-cover",
-                        (block.columns ?? 2) > 2 && "aspect-[3/2]"
+                        "stage-img mx-auto block w-full transition-transform duration-500 group-hover:scale-[1.02]",
+                        (block.columns ?? 2) > 2 ? "aspect-[3/2]" : "max-h-[68svh]"
                       )}
                     />
                   </div>

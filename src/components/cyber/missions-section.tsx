@@ -1,7 +1,7 @@
 "use client";
 
 import { useLocale } from "@/components/site-header/locale-context";
-import { MissionBrowser } from "./mission-browser";
+import { LatestCarousel } from "./latest-carousel";
 import { SectionHeader, useRevealChildren } from "./primitives";
 import { SectorMap } from "./sector-map";
 import { InfectedGlobe } from "./infected-globe";
@@ -38,7 +38,7 @@ export function MissionsSection() {
             <SectorMap />
           </div>
         </div>
-        <MissionBrowser limit={7} showArchiveLink />
+        <LatestCarousel />
       </div>
     </section>
   );

@@ -105,10 +105,10 @@ function ShowcaseCardView({ card, locale }: { card: ShowcaseCard; locale: Locale
 
       <Zoomable
         item={{ src, alt: card.title[locale] }}
-        className="block aspect-[4/3] w-full overflow-hidden rounded-xl border border-white/10 bg-black/20"
+        className="stage-bg block aspect-[4/3] w-full overflow-hidden rounded-xl border border-white/10"
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={src} alt={card.title[locale]} className="h-full w-full object-cover object-top" />
+        <img src={src} alt={card.title[locale]} className="stage-img h-full w-full" />
       </Zoomable>
     </div>
   );

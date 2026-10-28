@@ -241,14 +241,18 @@ export function WorkDetailClient({ project, prev, next }: WorkDetailClientProps)
           )}
 
           {/* ---- Cover ---- */}
-          <div data-reveal className="brackets mt-14 border border-white/10 md:mt-20" style={project.coverBg ? { background: project.coverBg } : undefined}>
+          <div
+            data-reveal
+            className={clsx("brackets mt-14 border border-white/10 md:mt-20", !project.coverBg && "stage-bg")}
+            style={project.coverBg ? { background: project.coverBg } : undefined}
+          >
             <div className="relative overflow-hidden">
               {project.video ? (
-                <video src={project.video} autoPlay loop muted playsInline className="block w-full" />
+                <video src={project.video} autoPlay loop muted playsInline className="stage-img mx-auto block max-h-[72svh] w-full" />
               ) : (
                 <MissionCover
                   project={project}
-                  className={clsx("block w-full", project.coverFit === "contain" ? "max-h-[70vh] py-8" : "max-h-[80vh]", !(project.cover ?? project.image) && "aspect-[16/7]")}
+                  className={clsx("block w-full", (project.cover ?? project.image) ? "stage-img mx-auto max-h-[72svh] !bg-transparent" : "aspect-[16/7]")}
                 />
               )}
               <div className="scanlines pointer-events-none absolute inset-0 opacity-30" />

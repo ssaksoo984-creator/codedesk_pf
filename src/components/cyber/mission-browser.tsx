@@ -1,18 +1,18 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import clsx from "clsx";
 import { VISIBLE_WORK_PROJECTS, type WorkProject } from "@/lib/work-content";
 import { useRestored } from "@/lib/mission-progress";
 import { useLocale } from "@/components/site-header/locale-context";
-import { Chip, useRevealChildren } from "./primitives";
+import { useRevealChildren } from "./primitives";
+import { MissionPreview, useTapPreview } from "./mission-preview";
 
 const FILTERS = ["All", "Built by Me", "Brand & Identity", "Public", "Business", "Systems & Tools"] as const;
 type Filter = (typeof FILTERS)[number];
 
 const COPY = {
-  enter: { ko: "미션 진입", en: "Enter mission" },
   restored: { ko: "복구 완료", en: "Restored" },
   infected: { ko: "감염됨", en: "Infected" },
   noSignal: { ko: "이미지 수신 대기", en: "Awaiting visual feed" },
@@ -53,7 +53,15 @@ export function MissionCover({ project, className }: { project: WorkProject; cla
   );
 }
 
-function MissionCard({ project, featured }: { project: WorkProject; featured?: boolean }) {
+function MissionRow({
+  project,
+  onHover,
+  onTap,
+}: {
+  project: WorkProject;
+  onHover: (p: WorkProject | null) => void;
+  onTap: (e: React.MouseEvent) => void;
+}) {
   const { locale } = useLocale();
   const restored = useRestored().includes(project.index);
   const num = missionNumber(project);
@@ -62,91 +70,83 @@ function MissionCard({ project, featured }: { project: WorkProject; featured?: b
     <Link
       href={`/work/${project.index}`}
       data-reveal
-      className={clsx(
-        "group relative flex flex-col border border-white/10 bg-ink/70 backdrop-blur-sm transition-colors duration-300 hover:border-neon/60",
-        featured && "md:col-span-2 md:grid md:grid-cols-[1.25fr_1fr]"
-      )}
+      onClick={onTap}
+      onMouseEnter={() => onHover(project)}
+      onMouseLeave={() => onHover(null)}
+      className="group relative grid grid-cols-[72px_minmax(0,1fr)_auto] items-center gap-4 border-t border-white/10 py-5 transition-colors hover:bg-neon/[0.04] md:grid-cols-[90px_minmax(0,1.6fr)_minmax(0,1fr)_120px_48px] md:gap-6 md:py-7"
     >
-      <div className={clsx("relative overflow-hidden", featured ? "aspect-[16/10] md:aspect-auto md:h-full" : "aspect-[16/10]")}>
-        <MissionCover
-          project={project}
-          className="rgb-hover h-full w-full transition-transform duration-700 ease-out group-hover:scale-[1.04]"
-        />
-        {project.video && (
-          <video
-            src={project.video}
-            muted
-            loop
-            playsInline
-            preload="none"
-            aria-hidden
-            className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-            ref={(el) => {
-              const card = el?.closest("a");
-              if (!el || !card || card.dataset.videoBound) return;
-              card.dataset.videoBound = "1";
-              card.addEventListener("mouseenter", () => el.play().catch(() => {}));
-              card.addEventListener("mouseleave", () => el.pause());
-            }}
-          />
-        )}
-        {project.video && (
-          <span className="ko-safe pointer-events-none absolute bottom-3 left-3 border border-white/20 bg-ink/70 px-2 py-1 font-mono text-[10px] uppercase tracking-widest text-white/70 transition-opacity group-hover:opacity-0">
-            ▶ Film
-          </span>
-        )}
-        <div className="scanlines pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-ink/60 to-transparent" />
-        <div className="absolute left-3 top-3 flex gap-2">
-          <Chip tone={restored ? "neon" : "alert"} className="bg-ink/80">
-            ● {restored ? COPY.restored[locale] : COPY.infected[locale]}
-          </Chip>
-          {project.isNew && (
-            <Chip tone="acid" className="bg-ink/80">
-              New
-            </Chip>
-          )}
-        </div>
-        <span className="absolute bottom-3 right-4 font-display text-6xl font-bold leading-none text-white/10 transition-colors group-hover:text-neon/30 md:text-7xl">
-          {num}
-        </span>
+      <div className="relative aspect-[4/3] overflow-hidden border border-white/10 md:hidden">
+        <MissionCover project={project} className="h-full w-full" />
       </div>
-
-      <div className="flex flex-1 flex-col p-5 md:p-7">
-        <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.25em] text-white/40">
+      <span className="hidden font-display text-4xl font-bold leading-none text-white/15 transition-colors group-hover:text-neon md:block">
+        {num}
+      </span>
+      <div className="min-w-0">
+        <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.25em]">
           <span className="text-neon">MSN-{num}</span>
-          <span>{"//"}</span>
-          <span className="truncate">{project.year ?? project.stage?.en ?? "Field op"}</span>
+          <span className={restored ? "text-neon/70" : "text-alert/80"}>● {restored ? COPY.restored[locale] : COPY.infected[locale]}</span>
+          {project.isNew && <span className="text-acid">New</span>}
         </div>
-        <h3 className="mt-3 font-display text-2xl font-semibold leading-tight text-paper transition-colors group-hover:text-neon md:text-3xl">
+        <h3 className="mt-1.5 truncate font-display text-xl font-semibold leading-tight text-paper transition-[color,transform] duration-300 group-hover:text-neon md:text-4xl md:group-hover:translate-x-2">
           {project.title[locale]}
         </h3>
-        <p className="mt-2 text-sm text-white/50">{project.category[locale]}</p>
-        {featured && project.description && (
-          <p className="mt-5 line-clamp-4 text-[15px] leading-relaxed text-white/60">{project.description[locale]}</p>
-        )}
-        <div className="mt-5 flex flex-wrap gap-1.5">
-          {(project.tags ?? []).map((t) => (
-            <Chip key={t}>{t}</Chip>
-          ))}
-        </div>
-        <div className="ko-safe mt-auto flex items-center justify-between pt-6 font-mono text-xs uppercase tracking-[0.2em]">
-          <span className="text-white/40 transition-colors group-hover:text-neon">{COPY.enter[locale]}</span>
-          <span className="flex h-9 w-9 items-center justify-center border border-white/15 text-white/50 transition-all group-hover:border-neon group-hover:bg-neon group-hover:text-ink">
-            ▶
-          </span>
-        </div>
+        <p className="mt-1 truncate text-xs text-white/45 md:hidden">{project.category[locale]}</p>
       </div>
+      <p className="hidden text-sm text-white/50 md:block">{project.category[locale]}</p>
+      <span className="hidden font-mono text-xs text-white/40 md:block">{project.year ?? project.stage?.en ?? "Field op"}</span>
+      <span className="flex h-9 w-9 items-center justify-center justify-self-end border border-white/15 font-mono text-xs text-white/50 transition-all group-hover:border-neon group-hover:bg-neon group-hover:text-ink">
+        ▶
+      </span>
     </Link>
   );
 }
 
-/** Mission grid with category filters. The first card is promoted to a
- * wide "featured" slot when no filter is applied. */
+/** Cursor-following thumbnail for the archive list (mouse only). Position
+ * is written straight to the element to avoid re-rendering on every move. */
+function HoverThumb({ project }: { project: WorkProject | null }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [shown, setShown] = useState<WorkProject | null>(null);
+  if (project && project !== shown) setShown(project);
+
+  useEffect(() => {
+    const move = (e: PointerEvent) => {
+      if (e.pointerType !== "mouse" || !ref.current) return;
+      ref.current.style.transform = `translate3d(${e.clientX + 28}px, ${e.clientY - 120}px, 0)`;
+    };
+    window.addEventListener("pointermove", move, { passive: true });
+    return () => window.removeEventListener("pointermove", move);
+  }, []);
+
+  return (
+    <div ref={ref} className="pointer-events-none fixed left-0 top-0 z-[60] hidden md:block" aria-hidden>
+      <div
+        className={clsx(
+          "brackets w-[340px] overflow-hidden border border-neon/50 bg-ink shadow-[0_20px_60px_-20px_rgba(0,240,255,0.5)] transition-[opacity,transform] duration-300",
+          project ? "scale-100 opacity-100" : "scale-90 opacity-0"
+        )}
+      >
+        {shown && (
+          <div className="relative aspect-[16/10]">
+            <MissionCover project={shown} className="h-full w-full" />
+            <div className="scanlines absolute inset-0 opacity-60" />
+            {shown.video && project && (
+              <video src={shown.video} autoPlay muted loop playsInline className="absolute inset-0 h-full w-full object-cover" />
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** Mission archive: filterable list. Mouse users get a floating thumbnail
+ * on hover; touch users get a preview popup before navigating. */
 export function MissionBrowser({ limit, showArchiveLink }: { limit?: number; showArchiveLink?: boolean }) {
   const { locale } = useLocale();
   const [filter, setFilter] = useState<Filter>("All");
   const ref = useRevealChildren<HTMLDivElement>();
+  const [hover, setHover] = useState<WorkProject | null>(null);
+  const { preview, intercept, close } = useTapPreview();
 
   const list = useMemo(() => {
     const all = filter === "All" ? VISIBLE_WORK_PROJECTS : VISIBLE_WORK_PROJECTS.filter((p) => (p.tags ?? []).includes(filter));
@@ -174,11 +174,13 @@ export function MissionBrowser({ limit, showArchiveLink }: { limit?: number; sho
         })}
       </div>
 
-      <div key={filter} className="grid gap-5 md:grid-cols-2 md:gap-6">
-        {list.map((p, i) => (
-          <MissionCard key={p.index} project={p} featured={filter === "All" && i === 0} />
+      <div key={filter} className="border-b border-white/10">
+        {list.map((p) => (
+          <MissionRow key={p.index} project={p} onHover={setHover} onTap={intercept(p)} />
         ))}
       </div>
+      <HoverThumb project={hover} />
+      <MissionPreview project={preview} onClose={close} />
 
       {showArchiveLink && (
         <div className="mt-12 flex justify-center">

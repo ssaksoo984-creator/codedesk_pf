@@ -20,7 +20,7 @@ interface Line {
 // "world is broken, we're fixing it" fiction while the visitor browses.
 const SCRIPT: Line[][] = [
   [
-    { mood: "error", ko: "ERR 404: 사용자가 메뉴 3단계 안에서 길을 잃음", en: "ERR 404: user lost three menus deep" },
+    { mood: "error", ko: "ERR NAV-3: 사용자가 메뉴 3단계 안에서 길을 잃음", en: "ERR NAV-3: user lost three menus deep" },
     { mood: "fixing", ko: "정보 구조 재배치 중...", en: "Rebuilding information architecture..." },
     { mood: "ok", ko: "경로 복구 완료. 이제 두 번 클릭이면 도착!", en: "Path restored. Two clicks to anywhere!" },
   ],

@@ -428,3 +428,71 @@ html[lang="ko"] .ko-safe * {
   .saved-flash, .saved-in { animation: none !important; }
   .saved-flash { opacity: 0; }
 }
+
+/* ── 3D tilt cards (home "latest missions") ───────────────────────── */
+.tilt-card {
+  --rx: 0deg;
+  --ry: 0deg;
+  --gx: 50%;
+  --gy: 50%;
+  transform: rotateX(var(--rx)) rotateY(var(--ry));
+  transform-style: preserve-3d;
+  transition: transform 0.25s ease-out, border-color 0.3s, box-shadow 0.3s;
+  will-change: transform;
+}
+.tilt-card:hover {
+  box-shadow: 0 30px 60px -25px rgba(0, 240, 255, 0.35);
+}
+.tilt-card .tilt-pop {
+  transform: translateZ(28px);
+}
+.tilt-glare {
+  opacity: 0;
+  transition: opacity 0.3s;
+  background: radial-gradient(circle at var(--gx) var(--gy), rgba(255, 255, 255, 0.16), transparent 55%);
+}
+.tilt-card:hover .tilt-glare {
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .tilt-card {
+    transform: none !important;
+  }
+}
+
+/* ── mission preview popup / hover thumbnail ──────────────────────── */
+@keyframes preview-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.preview-in {
+  animation: preview-in 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* ── media stage: detail images sit smaller, centred on a lit backdrop
+   instead of filling (and cropping) the whole column ─────────────────── */
+.stage-bg {
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(0, 240, 255, 0.14), transparent 60%),
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px) 0 0 / 28px 28px,
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px) 0 0 / 28px 28px,
+    #0a101c;
+}
+.stage-img {
+  padding: clamp(14px, 4vw, 44px);
+  object-fit: contain !important;
+}
+.case-content img {
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(0, 240, 255, 0.12), transparent 60%),
+    #0a101c;
+  padding: clamp(10px, 2.5vw, 28px);
+  object-fit: contain !important;
+  object-position: center !important;
+}
