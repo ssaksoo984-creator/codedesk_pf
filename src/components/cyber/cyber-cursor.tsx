@@ -20,13 +20,14 @@ export function CyberCursor() {
     const pos = { x: -100, y: -100 };
     const ring = { x: -100, y: -100 };
     let hot = false;
-    let raf = 0;
+    let raf = 0; // 0 = loop asleep; it only runs while the ring is catching up
 
     function onMove(e: PointerEvent) {
       pos.x = e.clientX;
       pos.y = e.clientY;
       const t = e.target as Element | null;
       hot = Boolean(t?.closest("a, button, [role=button], input, textarea, select, label"));
+      if (!raf) raf = requestAnimationFrame(tick);
     }
 
     function tick() {
@@ -40,11 +41,11 @@ export function CyberCursor() {
         ringRef.current.style.transform = `translate3d(${ring.x}px, ${ring.y}px, 0) scale(${s}) rotate(${hot ? 45 : 0}deg)`;
         ringRef.current.style.borderColor = hot ? "var(--magenta)" : "var(--neon)";
       }
-      raf = requestAnimationFrame(tick);
+      // Sleep once the ring has caught up, instead of restyling every frame forever.
+      raf = Math.abs(pos.x - ring.x) + Math.abs(pos.y - ring.y) > 0.3 ? requestAnimationFrame(tick) : 0;
     }
 
     window.addEventListener("pointermove", onMove, { passive: true });
-    raf = requestAnimationFrame(tick);
     return () => {
       window.removeEventListener("pointermove", onMove);
       cancelAnimationFrame(raf);

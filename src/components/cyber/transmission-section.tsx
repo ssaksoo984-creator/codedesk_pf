@@ -97,7 +97,7 @@ function OperatorCode({ restoredCount, next }: { restoredCount: number; next?: s
 
       <div className="flex gap-2 p-5">
         {next ? (
-          <Link
+          <Link prefetch={false}
             href={`/work/${next}`}
             className="flex-1 bg-neon px-4 py-3 text-center uppercase tracking-[0.2em] text-ink transition-colors hover:bg-paper"
           >

@@ -134,9 +134,16 @@ export function DataField() {
       pulses = pulses.filter((p) => p.life > 0 && p.x > -100 && p.x < w + 100 && p.y > -100 && p.y < h + 100);
     }
 
+    // Hold still while the page is scrolling — scroll frames get the GPU.
+    let scrollingUntil = 0;
+    const onScroll = () => {
+      scrollingUntil = performance.now() + 180;
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+
     function loop(now: number) {
       raf = requestAnimationFrame(loop);
-      if (document.hidden || now - last < FRAME_MS) return;
+      if (document.hidden || now < scrollingUntil || now - last < FRAME_MS) return;
       const dt = Math.min(0.1, (now - (last || now)) / 1000);
       last = now;
       t += dt;
@@ -157,6 +164,7 @@ export function DataField() {
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", onResize);
+      window.removeEventListener("scroll", onScroll);
     };
   }, []);
 

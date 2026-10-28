@@ -5,7 +5,7 @@ import { DataField } from "./data-field";
  * the expensive canvas work stays inside the hero only. */
 export function CyberBackground() {
   return (
-    <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden bg-ink">
+    <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden bg-ink [contain:strict] [will-change:transform]">
       <div className="grid-bg absolute inset-0 [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_85%)]" />
       <DataField />
       {/* Light spills as plain radial gradients — a filter: blur() this

@@ -60,7 +60,7 @@ function MissionCard({ project, featured, onTap }: { project: WorkProject; featu
   const num = missionNumber(project);
 
   return (
-    <Link
+    <Link prefetch={false}
       href={`/work/${project.index}`}
       data-reveal
       onClick={onTap}

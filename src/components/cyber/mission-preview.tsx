@@ -89,7 +89,7 @@ export function MissionPreview({ project, onClose }: { project: WorkProject | nu
               <Chip key={t}>{t}</Chip>
             ))}
           </div>
-          <Link
+          <Link prefetch={false}
             href={`/work/${project.index}`}
             className="ko-safe mt-6 flex items-center justify-center gap-3 bg-neon px-5 py-4 font-mono text-xs uppercase tracking-[0.25em] text-ink"
           >

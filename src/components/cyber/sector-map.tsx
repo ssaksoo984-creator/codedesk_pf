@@ -128,7 +128,7 @@ export function SectorMap({ collapsible }: { collapsible?: boolean }) {
             const color = ok ? "#00f0ff" : "#ff3355";
             const on = hover === p.index;
             return (
-              <Link
+              <Link prefetch={false}
                 key={p.index}
                 href={`/work/${p.index}`}
                 onMouseEnter={() => setHover(p.index)}

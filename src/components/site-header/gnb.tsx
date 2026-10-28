@@ -87,7 +87,7 @@ export function Gnb() {
       <div
         className={clsx(
           "border-b transition-colors duration-300",
-          scrolled || open ? "border-neon/20 bg-ink/80 backdrop-blur-md" : "border-transparent bg-transparent"
+          scrolled || open ? "border-neon/20 bg-ink/[0.96]" : "border-transparent bg-transparent"
         )}
       >
         <div className="wrap flex h-16 items-center justify-between gap-4 md:h-[72px]">
@@ -136,7 +136,7 @@ export function Gnb() {
       <div
         ref={panelRef}
         className={clsx(
-          "absolute inset-x-0 top-16 border-b border-neon/20 bg-ink/95 backdrop-blur-md transition-[clip-path] duration-300 md:top-[72px] lg:hidden",
+          "absolute inset-x-0 top-16 border-b border-neon/20 bg-ink/[0.98] transition-[clip-path] duration-300 md:top-[72px] lg:hidden",
           open ? "pointer-events-auto [clip-path:inset(0_0_0_0)]" : "pointer-events-none [clip-path:inset(0_0_100%_0)]"
         )}
       >
