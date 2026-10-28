@@ -18,6 +18,9 @@ export function DataField() {
     const canvas = ref.current!;
     const ctx = canvas.getContext("2d")!;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    // Phones: lighter field (no glyph rain, fewer nodes, ~20fps).
+    const coarse = window.matchMedia("(pointer: coarse)").matches;
+    const FRAME_MS = coarse ? 50 : 33;
     let w = 0;
     let h = 0;
     let raf = 0;
@@ -31,9 +34,12 @@ export function DataField() {
 
     function build() {
       w = window.innerWidth;
-      h = window.innerHeight;
+      // Sized to the tallest the viewport gets (address bar hidden), so it
+      // never needs a resize mid-scroll.
+      h = Math.max(window.innerHeight, window.screen?.height || 0);
       canvas.width = w;
       canvas.height = h;
+      canvas.style.height = `${h}px`;
       drops = Array.from({ length: Math.ceil(w / 64) }, (_, i) => ({
         x: i * 64 + rand(0, 20),
         y: rand(-h, h),
@@ -41,7 +47,7 @@ export function DataField() {
         len: Math.floor(rand(5, 14)),
         on: Math.random() < 0.45,
       }));
-      nodes = Array.from({ length: Math.round(Math.min(46, (w * h) / 32000)) }, () => ({
+      nodes = Array.from({ length: Math.round(Math.min(coarse ? 16 : 46, (w * h) / 32000)) }, () => ({
         x: rand(0, w),
         y: rand(0, h),
         vx: rand(-8, 8),
@@ -93,8 +99,8 @@ export function DataField() {
       }
 
       // glyph rain
-      ctx.font = "12px 'JetBrains Mono', monospace";
-      for (const d of drops) {
+      if (!coarse) ctx.font = "12px 'JetBrains Mono', monospace";
+      for (const d of coarse ? [] : drops) {
         d.y += d.v * dt;
         if (d.y - d.len * 15 > h) {
           d.y = rand(-300, 0);
@@ -130,7 +136,7 @@ export function DataField() {
 
     function loop(now: number) {
       raf = requestAnimationFrame(loop);
-      if (document.hidden || now - last < 33) return;
+      if (document.hidden || now - last < FRAME_MS) return;
       const dt = Math.min(0.1, (now - (last || now)) / 1000);
       last = now;
       t += dt;
@@ -140,7 +146,10 @@ export function DataField() {
     build();
     if (reduce) frame(0);
     else raf = requestAnimationFrame(loop);
+    // Mobile browsers fire resize as the address bar slides in and out while
+    // scrolling; only rebuild when the width actually changes.
     const onResize = () => {
+      if (window.innerWidth === w) return;
       build();
       if (reduce) frame(0);
     };
@@ -151,5 +160,5 @@ export function DataField() {
     };
   }, []);
 
-  return <canvas ref={ref} aria-hidden className="absolute inset-0 h-full w-full" />;
+  return <canvas ref={ref} aria-hidden className="absolute inset-x-0 top-0 w-full" />;
 }

@@ -467,3 +467,13 @@ html[lang="ko"] .ko-safe * {
   object-fit: contain !important;
   object-position: center !important;
 }
+
+/* Touch devices: drop backdrop-filter. Every blurred panel over the animated
+   backdrop is re-composited each frame, which is what makes phone scrolling
+   stutter; the panels already have semi-opaque ink fills. */
+@media (pointer: coarse) {
+  [class*="backdrop-blur"] {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+}

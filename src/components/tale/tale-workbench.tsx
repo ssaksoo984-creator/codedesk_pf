@@ -2,11 +2,18 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useLocale } from "@/components/site-header/locale-context";
-import { TALE_BODY } from "./tale-body";
+import { TALE_BODY, TALE_BODY_EN } from "./tale-body";
 
 const BASE = "/proto/tale";
-// Her own code, in the order the original file ran it.
-const SCRIPTS = ["flow-data", "flow-view", "proto", "glue", "spec"];
+// Her own code, in the order the original file ran it. `true` = has an
+// English build (*.en.js); the prototype screens mock the Korean product UI.
+const SCRIPTS: [string, boolean][] = [
+  ["flow-data", true],
+  ["flow-view", true],
+  ["proto", false],
+  ["glue", true],
+  ["spec", true],
+];
 export const TALE_TAB_EVENT = "tale-tab";
 export type TaleTab = "flow" | "proto" | "spec";
 
@@ -37,13 +44,15 @@ function loadOnce(src: string) {
   });
 }
 
+async function load(src: string) {
+  const r = await fetch(src);
+  if (!r.ok) throw new Error(src);
+  return r.text();
+}
+
 /** Re-executes a script every mount: her code wires itself to the DOM it
  * finds at run time, so a fresh page needs a fresh run. */
-async function run(src: string) {
-  const code = await fetch(src).then((r) => {
-    if (!r.ok) throw new Error(src);
-    return r.text();
-  });
+function exec(code: string) {
   const s = document.createElement("script");
   s.text = code;
   document.body.appendChild(s);
@@ -58,10 +67,12 @@ export function TaleWorkbench({ startTab = "proto" }: { startTab?: TaleTab }) {
   const host = useRef<HTMLDivElement>(null);
   const started = useRef(false);
   const [state, setState] = useState<"idle" | "loading" | "ready" | "error">("idle");
+  const en = locale === "en";
 
   useEffect(() => {
     const el = host.current;
     if (!el) return;
+    let cancelled = false; // e.g. the language flipped mid-load and this instance was replaced
     const io = new IntersectionObserver(
       ([e]) => {
         if (!e.isIntersecting || started.current) return;
@@ -77,9 +88,14 @@ export function TaleWorkbench({ startTab = "proto" }: { startTab?: TaleTab }) {
             document.head.appendChild(l);
           }
           await loadOnce(`${BASE}/mermaid.js`);
-          el.innerHTML = TALE_BODY;
+          if (cancelled) return;
+          el.innerHTML = en ? TALE_BODY_EN : TALE_BODY;
           window.TALE_START_TAB = startTab;
-          for (const n of SCRIPTS) await run(`${BASE}/${n}.js`);
+          for (const [n, hasEn] of SCRIPTS) {
+            const code = await load(`${BASE}/${n}${en && hasEn ? ".en" : ""}.js`);
+            if (cancelled) return;
+            exec(code);
+          }
           setState("ready");
           // Mermaid lays out after fonts settle; fit the chart once it has.
           [400, 1500].forEach((t) => setTimeout(() => (document.getElementById("zfit") as HTMLButtonElement | null)?.click(), t));
@@ -92,10 +108,11 @@ export function TaleWorkbench({ startTab = "proto" }: { startTab?: TaleTab }) {
     const onTab = (e: Event) => window.TaleSetTab?.((e as CustomEvent<TaleTab>).detail);
     window.addEventListener(TALE_TAB_EVENT, onTab);
     return () => {
+      cancelled = true;
       io.disconnect();
       window.removeEventListener(TALE_TAB_EVENT, onTab);
     };
-  }, [startTab]);
+  }, [startTab, en]);
 
   return (
     <div className="brackets relative">
