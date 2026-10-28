@@ -15,7 +15,7 @@ export default function WorkPage() {
         <div className="wrap">
           <SectionHeader index="02" label="Mission archive" title={<>All <span className="text-neon">sectors</span></>} />
           <div data-reveal className="mb-14">
-            <SectorMap />
+            <SectorMap collapsible />
           </div>
           <MissionBrowser />
         </div>

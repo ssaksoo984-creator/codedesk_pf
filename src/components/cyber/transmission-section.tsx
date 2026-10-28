@@ -7,7 +7,7 @@ import { VISIBLE_WORK_PROJECTS } from "@/lib/work-content";
 import { resetRestored, useRestored } from "@/lib/mission-progress";
 import { SectionHeader, useRevealChildren } from "./primitives";
 import { REPLAY_EVENT } from "./world-saved";
-import { DigitalWorld } from "./digital-world";
+import { RestoredWorldCanvas } from "./restored-world-canvas";
 
 const COPY = {
   lead: {
@@ -25,8 +25,6 @@ const COPY = {
   continue: { ko: "다음 미션으로", en: "Next mission" },
   replay: { ko: "처음부터 다시", en: "Start over" },
   celebrate: { ko: "축하 다시 보기", en: "Replay finale" },
-  world: { ko: "우리가 지키는 세상", en: "The world we're saving" },
-  worldTag: { ko: "복구된 세계 미리보기", en: "Restored world preview" },
   status: { ko: "출동 대기 중", en: "on call" },
 };
 
@@ -136,8 +134,14 @@ export function TransmissionSection() {
   const next = remaining[0];
 
   return (
-    <section ref={ref} id="contact" className="relative scroll-mt-20 py-24 md:py-28">
-      <div className="wrap">
+    <section ref={ref} id="contact" className="relative scroll-mt-20 overflow-hidden pb-[500px] pt-24 md:pb-[560px] md:pt-28">
+      {/* The restored world — the city from the hero, after the rescue. */}
+      <div className="absolute inset-0" aria-hidden>
+        <RestoredWorldCanvas className="absolute inset-0 h-full w-full" />
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-ink to-transparent" />
+        <div className="pointer-events-none absolute inset-y-0 left-0 hidden w-1/2 bg-gradient-to-r from-ink/70 to-transparent lg:block" />
+      </div>
+      <div className="wrap relative">
         <SectionHeader
           index="03"
           label="Transmission"
@@ -157,19 +161,6 @@ export function TransmissionSection() {
           <OperatorCode restoredCount={VISIBLE_WORK_PROJECTS.length - remaining.length} next={next?.index} />
         </div>
 
-        {/* the world being saved */}
-        <figure data-reveal className="brackets relative mt-16 overflow-hidden border border-neon/25 md:mt-24">
-          <DigitalWorld className="block h-[300px] w-full md:h-[460px]" />
-          <figcaption className="pointer-events-none absolute left-4 top-4 max-w-[80%] md:left-8 md:top-7">
-            <div className="ko-safe font-mono text-[10px] uppercase tracking-[0.3em] text-[#5b4bd6]">
-              ● Sector 2077 {"//"} {COPY.worldTag[locale]}
-            </div>
-            <p className="ko-safe mt-2 font-display text-xl font-semibold leading-tight text-[#2a2370] md:text-4xl">{COPY.world[locale]}</p>
-          </figcaption>
-          <div className="pointer-events-none absolute bottom-3 left-4 right-4 text-right font-mono text-[10px] uppercase tracking-[0.25em] text-[#5b4bd6]/70">
-            {remaining.length ? COPY.remaining(remaining.length)[locale] : COPY.complete[locale]}
-          </div>
-        </figure>
       </div>
     </section>
   );
