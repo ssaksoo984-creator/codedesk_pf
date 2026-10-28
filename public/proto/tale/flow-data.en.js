@@ -26,7 +26,7 @@ window.FLOW = {
   ],
 
   nodes: [
-    
+
     { id: 'E1', stage: 'entry', type: 'screen', plan: 'A', vs: 'change', label: '① Story material',
       desc: 'Write text or upload a file. Only the file is optional; text must be over 20 characters (if there\'s a file, text can be empty). The image-rights consent is gone.',
       items: ['Idea / synopsis input + character count (20+)', '[Attach file] → file upload popup', '[Next →]'],
@@ -75,7 +75,7 @@ window.FLOW = {
     { id: 'E5q', stage: 'entry', type: 'decision', label: 'Change level "keep as is"?', screen: 'E4',
       desc: 'With "keep as is", it goes to a read-only prose view that doesn\'t alter the original.' },
 
-    
+
     { id: 'W1', stage: 'writer', type: 'screen', vs: 'change', label: 'Prose workspace',
       desc: 'This screen handles prose only. Running time and genre & mood aren\'t chips under the title — they\'re inputs to a rewrite. Plan A: prose + side chat, options fold out under [AI rewrite ▾]. Plan B: the same chat room as Producer — the prose arrives as a card in the chat with [Rewrite] [Edit myself] [Break it down]. The three revision options also arrive as chat cards.',
       items: ['Prose body (scene story)', '[AI rewrite] — plan A: options fold out under the button / plan B: chat card', '[Write myself] — popup', 'Agent chat ("rewrite it" or a specific request)', '[Break it down →]'],
@@ -110,7 +110,7 @@ window.FLOW = {
     { id: 'W6', stage: 'writer', type: 'modal', vs: 'change', label: 'Lock the prose?',
       desc: 'Confirming runs the breakdown immediately and locks the prose. It explains that adding cast or sets later means rolling back to the prose.' },
 
-    
+
     { id: 'A0', stage: 'artist', type: 'ai', vs: 'new', label: 'AI breaking it down',
       desc: 'From the locked prose, extracts cast · sets · each character\'s looks (outfit, age… no base/derived split) as text.',
       open: ['Dev check: can cast & set design (Writer 07) run from the locked prose alone, without Writer 02·03?'] },
@@ -168,7 +168,7 @@ window.FLOW = {
     { id: 'A9', stage: 'artist', type: 'modal', vs: 'new', label: 'Finish · to Storyboard', lock: 'Cast & set list',
       desc: 'Handing off passes the cast and set list to Storyboard. If any character or set lacks a main image you can\'t proceed ([Finish] and the Storyboard tab above are locked). Only the list locks (new cast/sets via rollback only). Artist itself stays open — come back anytime to fix looks, descriptions and images.' },
 
-    
+
     { id: 'S0', stage: 'board', type: 'ai', vs: 'keep', label: 'AI splitting scenes & shots and drawing roughs',
       desc: 'A long job, so progress stays visible (v18 boot). A progress card over the board: % · step · time left; steps fill in line by line, and roughs appear on the board behind as each shot finishes (the rest show "drawing / waiting"). Screen and chat stay locked until done. Entry requires all Artist images (the Storyboard stage tab is 🔒 until then).',
       items: ['Reading N paragraphs of prose', 'Splitting into N scenes — S1 place · S2 place', 'Placed Minho in S1 · S2 …', 'Camera positions · N shots', 'Shot size · angle · movement', 'Drawing roughs k/N (a cell fills per shot)'],
@@ -202,7 +202,7 @@ window.FLOW = {
     { id: 'S7', stage: 'board', type: 'modal', vs: 'change', label: 'Hand off to Director?',
       desc: 'Shots and running time carried over. Shots without roughs are flagged as left out, with [Draw remaining cuts] alongside.' },
 
-    
+
     { id: 'D1', stage: 'after', type: 'ext', vs: 'keep', label: 'Director → Editor',
       desc: 'Out of this scoped-down round. Only check together whether it references the Artist sheet (error 13).', fixes: [13, 15] },
   ],
@@ -360,7 +360,7 @@ window.FLOW = {
 
   ],
 
-  
+
   questions: [
     { id: 'q-plan', node: 'E1', text: 'Should Producer · Writer use plan A (pick on screen) or plan B (build by chat)? Artist onward is the same. Compare with the plan A/B toggle above.' },
     { id: 'q-name', node: 'S1', text: 'Name for stage 3. Candidates: Storyboard (recommended) · DOP · Shot Designer. The prose stage became Writer, so this one isn\'t Writer.' },
