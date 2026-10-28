@@ -7,6 +7,7 @@ import { useLocale } from "@/components/site-header/locale-context";
 import { VISIBLE_WORK_PROJECTS } from "@/lib/work-content";
 import { useRestored } from "@/lib/mission-progress";
 import { usePastHero } from "@/lib/use-past-hero";
+import { BotChat } from "./bot-chat";
 
 type Mood = "error" | "fixing" | "ok";
 
@@ -42,7 +43,7 @@ const SCRIPT: Line[][] = [
 ];
 
 const COPY = {
-  hello: { ko: "SYS-BOT 온라인. 함께 세계를 복구해요!", en: "SYS-BOT online. Let's restore the world!" },
+  hello: { ko: "SYS-BOT 온라인. 저를 누르면 수민에 대해 물어볼 수 있어요!", en: "SYS-BOT online. Tap me to ask about Soomin!" },
   progress: (n: number, t: number) => ({
     ko: `세계 복구율 ${Math.round((n / t) * 100)}% — 남은 섹터 ${t - n}개`,
     en: `World integrity ${Math.round((n / t) * 100)}% — ${t - n} sectors left`,
@@ -67,6 +68,7 @@ export function SysBot() {
   const pastHero = usePastHero();
   const [text, setText] = useState<{ mood: Mood; msg: string; progress?: number } | null>(null);
   const [glitch, setGlitch] = useState(false);
+  const [chat, setChat] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const scene = useRef({ i: 0, step: -1 });
   const advanceRef = useRef<(() => void) | null>(null);
@@ -85,7 +87,7 @@ export function SysBot() {
   }, []);
 
   useEffect(() => {
-    if (hidden) return;
+    if (hidden || chat) return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     function advance() {
@@ -123,7 +125,7 @@ export function SysBot() {
     return () => {
       if (timer.current) clearTimeout(timer.current);
     };
-  }, [hidden, pathname]);
+  }, [hidden, chat, pathname]);
 
   // Animate the "fixing" progress bar.
   useEffect(() => {
@@ -173,7 +175,9 @@ export function SysBot() {
     text?.mood === "error" ? "border-alert text-alert" : text?.mood === "fixing" ? "border-acid text-acid" : "border-neon text-neon";
 
   return (
-    <div
+    <>
+      <BotChat open={chat} onClose={() => setChat(false)} />
+      <div
       className={clsx(
         "pointer-events-none fixed bottom-16 right-1 z-40 flex items-end gap-1 transition-all duration-500 md:bottom-[100px] md:right-6",
         pastHero ? "opacity-100" : "translate-y-6 opacity-0 [&_*]:!pointer-events-none"
@@ -198,7 +202,9 @@ export function SysBot() {
             ✕
           </button>
         </div>
-        <p className="text-paper">{text?.msg}</p>
+        <p className="cursor-pointer text-paper" onClick={skip}>
+          {text?.msg}
+        </p>
         {text?.mood === "fixing" && (
           <div className="mt-2 flex items-center gap-2">
             <div className="h-1 flex-1 bg-acid/15">
@@ -212,8 +218,13 @@ export function SysBot() {
 
       <button
         type="button"
-        onClick={skip}
+        onClick={() => {
+          if (timer.current) clearTimeout(timer.current);
+          setText(null);
+          setChat((c) => !c);
+        }}
         aria-label="SYS-BOT"
+        aria-expanded={chat}
         className={clsx("bot-float pointer-events-auto relative h-12 w-12 shrink-0 md:h-24 md:w-24", glitch && "bot-glitch")}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -226,6 +237,7 @@ export function SysBot() {
           )}
         />
       </button>
-    </div>
+      </div>
+    </>
   );
 }
