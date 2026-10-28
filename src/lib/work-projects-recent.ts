@@ -59,7 +59,7 @@ export const RECENT_PROJECTS: WorkProject[] = [
     },
     cover: "/media/covers/09.webp?v=2",
     links: [
-      { label: { ko: "프로토타입 열기", en: "Open prototype" }, url: "/proto/tale-studio.html" },
+      { label: { ko: "프로토타입 열기", en: "Open prototype" }, url: "/proto/tale-studio/" },
       { label: { ko: "Lumi 상태 17종", en: "Lumi — 17 states" }, url: "https://claude.ai/artifact/LbhbVTNxmxQLcq8WyPzAc1" },
     ],
     story: [
@@ -137,7 +137,7 @@ export const RECENT_PROJECTS: WorkProject[] = [
             en: "For every stage I designed not just the happy path but alternate flows on each yes/no branch, exception flows on errors, and where rollback is or isn't possible. A legend separates screens, popups, branches, AI-lock states, errors, new screens, rollbacks and locked values, so any node reads at a glance.",
           },
         ],
-        embed: { src: "/proto/tale-studio.html?tab=flow&embed=1", label: { ko: "플로우 차트", en: "Flow chart" }, height: 820 },
+        workbenchJump: "flow",
       },
       {
         id: "prototype",
@@ -152,7 +152,7 @@ export const RECENT_PROJECTS: WorkProject[] = [
             en: "Prototype, flow and spec tabs live in one HTML file. Picking a screen lights its node in the flow chart beside it; clicking a node jumps to that screen. Plan A (pick on screen) and Plan B (build by chat) toggle side by side.",
           },
         ],
-        embed: { src: "/proto/tale-studio.html?tab=proto&embed=1", label: { ko: "프로토타입", en: "Prototype" }, height: 860 },
+        workbench: "proto",
       },
       {
         id: "design",
@@ -188,7 +188,7 @@ export const RECENT_PROJECTS: WorkProject[] = [
             en: "Every feature is tabled as before → after with its disposition (kept, changed, moved, new, split, removed) and where it touches the code, keyed by screen ID. Clicking an ID opens that prototype screen; picking a screen in the prototype pins its changes under the description.",
           },
         ],
-        embed: { src: "/proto/tale-studio.html?tab=spec&embed=1", label: { ko: "개발 전달 명세", en: "Dev handoff spec" }, height: 760 },
+        workbenchJump: "spec",
       },
       {
         id: "lumi",
@@ -264,7 +264,7 @@ export const RECENT_PROJECTS: WorkProject[] = [
       en: "Express the library and AI symbols — book, bookmark, star — in two directions between public trust and approachability.",
     },
     cover: "/media/covers/10.webp",
-    links: [{ label: { ko: "챗봇 프로토타입 열기", en: "Open chatbot prototype" }, url: "/proto/nail-search.html" }],
+    links: [{ label: { ko: "챗봇 프로토타입 열기", en: "Open chatbot prototype" }, url: "/proto/nail-search/" }],
     story: [
       {
         id: "type1",
@@ -357,7 +357,7 @@ export const RECENT_PROJECTS: WorkProject[] = [
             note: { ko: "이용 가이드에서 일반 이용자와 국회 직원이 검색할 수 있는 자료 범위를 구분해 보여 줍니다.", en: "The guide separates what the public and Assembly staff can each search." },
           },
         ],
-        embed: { src: "/proto/nail-search.html", label: { ko: "NAIL AI 검색", en: "NAIL AI search" }, height: 780 },
+        embed: { src: "/proto/nail-search/", label: { ko: "NAIL AI 검색", en: "NAIL AI search" }, height: 780 },
         columns: 2,
         images: [
           { src: "/media/home_work/nail/chatbot/n_home.webp", caption: { ko: "첫 화면 — 문장으로 묻는 검색창과 추천 질문", en: "Home — sentence search and suggested questions" } },

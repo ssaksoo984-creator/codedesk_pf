@@ -7,6 +7,7 @@ import { LightboxProvider, Zoomable } from "@/components/work/lightbox";
 import { LumiLoadingScenes } from "./lumi-loading-scenes";
 import { LiveEmbed } from "./live-embed";
 import { NailLogoSheet } from "./nail-logo-sheet";
+import { TALE_TAB_EVENT } from "@/components/tale/tale-workbench";
 
 const COLS: Record<number, string> = {
   1: "grid-cols-1",
@@ -19,6 +20,11 @@ const COPY = {
   before: { ko: "기존", en: "Before" },
   after: { ko: "리뉴얼", en: "After" },
   pending: { ko: "데이터 수신 중", en: "Incoming transmission" },
+  jump: {
+    flow: { ko: "실제 플로우 차트 열기", en: "Open the live flow chart" },
+    proto: { ko: "프로토타입 열기", en: "Open the prototype" },
+    spec: { ko: "실제 개발 전달 명세 열기", en: "Open the live handoff spec" },
+  },
 };
 
 /** Renders one free-form case-study section's content (the section label
@@ -58,6 +64,23 @@ export function StoryBlockContent({ block, skipEmbed }: { block: StoryBlockData;
       )}
 
       {block.embed && !skipEmbed && <LiveEmbed {...block.embed} />}
+
+      {block.workbenchJump && (
+        <button
+          type="button"
+          onClick={() => {
+            const tab = block.workbenchJump!;
+            if (window.TaleSetTab) window.dispatchEvent(new CustomEvent(TALE_TAB_EVENT, { detail: tab }));
+            else {
+              window.TALE_START_TAB = tab;
+              document.getElementById("taleWb")?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
+          }}
+          className="ko-safe notch-sm inline-flex w-fit items-center gap-3 border border-neon/50 px-6 py-3.5 font-mono text-xs uppercase tracking-[0.2em] text-neon transition-colors hover:bg-neon hover:text-ink"
+        >
+          ▶ {COPY.jump[block.workbenchJump][locale]}
+        </button>
+      )}
 
       {block.video && (
         <figure>

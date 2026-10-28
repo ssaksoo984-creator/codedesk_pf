@@ -14,6 +14,7 @@ import { Chip, useRevealChildren } from "@/components/cyber/primitives";
 import { MissionCover, missionNumber } from "@/components/cyber/mission-browser";
 import { StoryBlockContent } from "@/components/cyber/story-block";
 import { LiveEmbed } from "@/components/cyber/live-embed";
+import { TaleWorkbench } from "@/components/tale/tale-workbench";
 import { RecoveryToast } from "@/components/cyber/recovery-toast";
 
 const COPY = {
@@ -129,7 +130,13 @@ export function WorkDetailClient({ project, prev, next }: WorkDetailClientProps)
         n={++n}
         label={block.label[locale]}
         wide={Boolean(block.images)}
-        after={block.embed && <LiveEmbed {...block.embed} />}
+        after={
+          block.workbench ? (
+            <TaleWorkbench startTab={block.workbench} />
+          ) : (
+            block.embed && <LiveEmbed {...block.embed} />
+          )
+        }
       >
         <StoryBlockContent block={block} skipEmbed />
       </Section>

@@ -235,6 +235,11 @@ export interface StoryBlock {
   video?: { src: string; poster?: string; caption?: Copy };
   /** Built-in interactive widgets that need code, not data. */
   widget?: "lumi-loading" | "nail-type1" | "nail-type2";
+  /** Mount the live Tale Studio workbench (her prototype code) under this
+   * block, opened on the given tab. Only one block per page may set it. */
+  workbench?: "flow" | "proto" | "spec";
+  /** Button that switches the page's workbench to a tab and scrolls to it. */
+  workbenchJump?: "flow" | "proto" | "spec";
   /** Short headed paragraphs, e.g. "Concept" / "What the mark means". */
   notes?: { heading: Copy; text: Copy }[];
 }
