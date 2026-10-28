@@ -26,10 +26,3 @@ export const ABOUT_SLIDES: AboutSlide[] = [
     },
   },
 ];
-
-const IMAGE_COUNT = 24;
-
-export const ABOUT_IMAGES: string[] = Array.from(
-  { length: IMAGE_COUNT },
-  (_, i) => `/media/home_about/about_${i + 1}.png`
-);

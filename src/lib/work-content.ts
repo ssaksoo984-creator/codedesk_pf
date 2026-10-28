@@ -1,4 +1,5 @@
 import { KARTS_IMAGE_SHOWCASE } from "./karts-showcase";
+import { RECENT_PROJECTS } from "./work-projects-recent";
 
 interface Copy {
   ko: string;
@@ -187,11 +188,61 @@ export interface WorkProject {
    * the entry — use VISIBLE_WORK_PROJECTS, not WORK_PROJECTS, anywhere the
    * site actually renders a link a visitor could reach. */
   hidden?: boolean;
+  /** Mission-card / detail hero image when it should differ from `image`. */
+  cover?: string;
+  /** "contain" for transparent artwork (characters, logos) that must not be cropped. */
+  coverFit?: "cover" | "contain";
+  /** CSS background painted behind a contained cover. */
+  coverBg?: string;
+  /** Shown as a NEW badge on the mission card. */
+  isNew?: boolean;
+  /** Free-form timeline label shown in the meta row, e.g. "2025". */
+  year?: string;
+  /** External links besides `url` — prototypes, artifacts, live demos. */
+  links?: { label: Copy; url: string }[];
+  /** Free-form case-study sections for projects not documented in the
+   * Design Guide format (brand work, character work, flows). */
+  story?: StoryBlock[];
+}
+
+export interface StoryImage {
+  src: string;
+  caption?: Copy;
+  /** Transparent artwork renders contained on a tinted panel. */
+  fit?: "cover" | "contain";
+  bg?: string;
+}
+
+export interface StoryBlock {
+  id: string;
+  label: Copy;
+  /** Large lead statement shown above the body. */
+  title?: Copy;
+  body?: Copy[];
+  /** Numbered rows — label + optional note. */
+  items?: { label: Copy; note?: Copy }[];
+  /** Before/after flow as two lanes of steps. */
+  flow?: { before: Copy[]; after: Copy[] };
+  colors?: { hex: string; name: Copy }[];
+  images?: StoryImage[];
+  /** Image grid column count on desktop. */
+  columns?: 1 | 2 | 3 | 4;
+  /** "Coming soon" placeholder — content the designer is still preparing. */
+  pending?: Copy;
+  /** A live, interactive page (prototype, flow chart) framed inline. */
+  embed?: { src: string; label: Copy; height?: number };
+  /** A playable film with sound and controls. */
+  video?: { src: string; poster?: string; caption?: Copy };
+  /** Built-in interactive widgets that need code, not data. */
+  widget?: "lumi-loading" | "nail-type1" | "nail-type2";
+  /** Short headed paragraphs, e.g. "Concept" / "What the mark means". */
+  notes?: { heading: Copy; text: Copy }[];
 }
 
 // Only real, shipped projects go here — the list grows as more come in, so
 // keep it short rather than padding it out with placeholders.
 export const WORK_PROJECTS: WorkProject[] = [
+  ...RECENT_PROJECTS,
   {
     index: "01",
     title: { ko: "Bloom Soft", en: "Bloom Soft" },
@@ -209,6 +260,7 @@ export const WORK_PROJECTS: WorkProject[] = [
       ko: "기획·디자인·프론트엔드 개발을 전부 혼자 진행했고, 코드 구현은 Claude Code와의 바이브 코딩으로 완성했습니다. 이런 유형의 IT 기업 소개 사이트는 서비스 라인업이 많고 다루는 숫자와 조직 정보도 많아, 자칫하면 텍스트로 빽빽한 소개 자료처럼 보이기 쉽습니다. 색을 레드 하나로 제한하고, 진입 순간부터 하나의 애니메이션 시퀀스로 시작해 스크롤을 따라 콘텐츠가 차례로 드러나게 함으로써, 정보량이 많은 사이트도 처음부터 끝까지 하나의 이야기처럼 읽히도록 만드는 것이 과제였습니다.",
       en: "I ran planning, design, and frontend development solo, building the code itself through vibe coding with Claude Code. A B2B IT-company site like this carries a lot of service lines, numbers, and org information — the kind of content that easily reads as a dense corporate binder. The challenge was keeping color down to one red accent and opening with a single animated sequence, so scrolling reveals content in order and the whole thing reads as one continuous story instead of a stack of separate sections.",
     },
+    cover: "/media/covers/01.webp",
     image: "/media/home_work/work_05_company.png",
     url: "https://bloomcompany-xgvi.vercel.app/",
     designGuide: {
@@ -349,6 +401,7 @@ export const WORK_PROJECTS: WorkProject[] = [
       { label: { ko: "UI 디자인", en: "UI Design" }, value: { ko: "100%", en: "100%" } },
       { label: { ko: "반응형 대응", en: "Responsive" }, value: { ko: "100%", en: "100%" } },
     ],
+    cover: "/media/covers/02.webp",
     image: "/media/home_work/Foreign%20Affairs/Foreign-Affairs_thum.png",
     designGuide: {
       panels: [
@@ -626,6 +679,7 @@ export const WORK_PROJECTS: WorkProject[] = [
       ko: "저작권 없는 퍼블릭 도메인 아카이브(PICRYL) 이미지를 소재로, 실제 서비스 가능한 아트 아카이브 사이트를 기획부터 디자인, 개발까지 혼자 진행한 프로젝트입니다. 아카이브가 다루는 자료는 시대도 형태도 화질도 제각각입니다 — 유화부터 스케치, 흑백 인물사진, 색 바랜 포스터까지. 이 이질적인 자료들을 한 사이트 안에 묶으면서도 각각이 가진 분위기를 지우지 않는 것이 과제였습니다. IA 설계부터 메인 히어로 연출, 반응형 구현까지 전 과정을 담당했습니다.",
       en: "Built solo end to end — planning, design, and development — as a working demo of an art-archive site, using public-domain images from PICRYL. What the archive holds varies wildly: oil paintings, sketches, black-and-white portraits, faded old posters, spanning different eras and image quality. The challenge was binding that mismatched material into one site without flattening what makes each piece feel the way it does. I handled everything from the IA to the main hero's staging to the responsive build.",
     },
+    cover: "/media/covers/03.webp",
     image: "/media/home_work/work_04_artl.png",
     url: "https://lookback-dusky.vercel.app/",
     designGuide: {
@@ -816,6 +870,7 @@ export const WORK_PROJECTS: WorkProject[] = [
       ko: "\"잘 정돈되어 있지만 결코 단순하지는 않은 화면.\" 이것이 이 프로젝트의 목표였습니다. 기능이 많은 시스템에서 단순화는 답이 아닙니다. 필요한 것은 덜어내기가 아니라 위계 세우기였습니다. 자주 쓰는 것을 앞에, 가끔 쓰는 것은 찾으면 있는 자리에.",
       en: "\"Organized, but never oversimplified.\" That was the goal. In a system carrying this many functions, simplifying isn't the answer — what it needed was hierarchy, not subtraction. The frequent things up front; the occasional things exactly where you'd look for them.",
     },
+    cover: "/media/covers/04.webp",
     image: "/media/home_work/karts/thumb.png",
     imageShowcase: KARTS_IMAGE_SHOWCASE,
     designGuide: {
@@ -1031,6 +1086,7 @@ export const WORK_PROJECTS: WorkProject[] = [
       ko: "IA 설계부터 브랜드 컬러 선정, 레이아웃 설계, 코드 구현까지 — 전 과정을 혼자 진행했습니다. 성형외과 사이트는 신뢰감과 고급스러움을 동시에 전달해야 합니다. 과도한 홍보 문구보다 시술 정보와 의료진 이력이 명확히 정리되어 있어야 방문자가 안심하고 상담을 예약합니다. 이 원칙 아래 정보구조를 먼저 짜고, 사용자가 가장 궁금해할 순서로 내비게이션을 구성했습니다.",
       en: "From IA design and brand color selection to layout and code — I ran the entire process solo. A plastic surgery site has to read as trustworthy and upscale at the same time. Visitors book a consultation with confidence not from promotional copy, but from procedure details and staff credentials laid out clearly. Working from that principle, I mapped the information architecture first, then ordered the navigation around what visitors actually want to know.",
     },
+    cover: "/media/covers/05.webp",
     image: "/media/home_work/work_01_Arte.png",
     url: "https://note-clinic-portfolio.vercel.app/",
     designGuide: {
@@ -1238,6 +1294,7 @@ export const WORK_PROJECTS: WorkProject[] = [
       ko: "무엇을 덜어낼지 결정하고 나면 정보 접근성과 시각적 완성도가 같은 방향을 향한다는 것을 확인했습니다. 미감은 더해서 만드는 것이 아니라, 방해 요소를 걷어내면 이미 그 자리에 있던 것이 드러나는 것에 가까웠습니다.",
       en: "Once you decide what to cut, information access and visual polish turn out to point the same way. Beauty isn't built by adding — it's closer to removing what gets in the way and letting what was already there come through.",
     },
+    cover: "/media/covers/06.webp",
     image: "/media/home_work/national-museum/national_museum_thum.png",
     url: "https://nmk-next.vercel.app/",
     designGuide: {
@@ -1460,6 +1517,7 @@ export const WORK_PROJECTS: WorkProject[] = [
       ko: "한의원은 진입장벽이 있는 업종입니다. 젊은 세대일수록 '한약', '침'이라는 단어에서 올드하고 어려운 이미지를 먼저 떠올립니다. 이 장벽을 낮추는 방법으로 설명이 아니라 체험을 택했습니다 — 홈 화면에 '1분 체질 자가진단'을 두어, 방문자가 정보를 읽기 전에 먼저 참여하게 만들었습니다. 진료 과목은 한의학 용어 그대로 나열하지 않고 DIET·BEAUTY·POSTURE처럼 영문 라벨과 함께 재배치해 어떤 병원인지 한눈에 읽히게 했고, 원장의 소개는 자격이 아니라 태도로 이야기하도록 문구를 다듬었습니다. 기획부터 디자인, 프론트엔드 구현까지 전 과정을 진행했습니다.",
       en: "A Korean medicine clinic carries a real barrier to entry — the words \"herbal medicine\" and \"acupuncture\" read as old-fashioned and hard to approach, especially to a younger audience. Rather than explain that away, I chose to let visitors experience it: a \"1-minute constitution check\" sits right on the home screen, so a visitor participates before they've read a single line of copy. Treatment categories aren't listed in clinical terms — DIET, BEAUTY, POSTURE and the like sit alongside the Korean labels so what kind of clinic this is reads at a glance — and the doctor's introduction is written around his manner with patients, not his credentials. I ran the whole process: planning, design, and frontend build.",
     },
+    cover: "/media/covers/07.webp",
     image: "/media/home_work/work_03_medical.png",
     url: "https://hanbang-taupe.vercel.app/",
     designGuide: {
@@ -1631,6 +1689,7 @@ export const WORK_PROJECTS: WorkProject[] = [
       ko: "헬스 및 피트니스 관련 웹 프로젝트 디자인과 개발을 포함합니다.",
       en: "Design and development for a fitness website.",
     },
+    cover: "/media/covers/08.webp",
     image: "/media/home_work/work_02_reboot.png",
     url: "https://reboot-camp-liard.vercel.app/",
     hidden: true,

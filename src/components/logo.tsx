@@ -6,34 +6,28 @@ import clsx from "clsx";
 
 interface LogoProps {
   className?: string;
-  tone?: "ink" | "paper";
   size?: "default" | "small";
 }
 
-export function Logo({ className, tone = "ink", size = "default" }: LogoProps) {
+export function Logo({ className, size = "default" }: LogoProps) {
   const pathname = usePathname();
-  const color = tone === "ink" ? "text-ink" : "text-paper";
-  const fontSize = size === "small" ? "text-lg" : "text-xl md:text-2xl";
   const classes = clsx(
-    "inline-flex items-baseline gap-[0.05em] font-semibold tracking-tight select-none",
-    fontSize,
-    color,
+    "group inline-flex items-baseline font-display font-semibold uppercase tracking-wider text-paper select-none",
+    size === "small" ? "text-base md:text-lg" : "text-xl md:text-2xl",
     className
   );
 
   const mark = (
     <>
-      <span className="font-display font-normal">{"{"}</span>
-      <span className="font-sans font-semibold">Code</span>
-      <span className="font-display font-normal">{"}"}</span>
-      <span className="font-sans font-semibold px-[0.15em]">·</span>
-      <span className="font-display italic font-medium">Desk</span>
+      <span className="text-neon text-glow transition-colors group-hover:text-magenta">{"{"}</span>
+      <span>Code</span>
+      <span className="text-neon text-glow transition-colors group-hover:text-magenta">{"}"}</span>
+      <span className="px-[0.2em] text-magenta">·</span>
+      <span className="font-medium italic text-white/80">Desk</span>
     </>
   );
 
-  // On the home page itself there's nowhere to "navigate" to — scroll back
-  // up to the hero instead. Anywhere else (e.g. /work), it's still a real
-  // link back home, since there's no local top to return to.
+  // On the home page there's nowhere to navigate to — scroll to the top.
   if (pathname === "/") {
     return (
       <button

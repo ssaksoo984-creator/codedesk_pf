@@ -1,9 +1,9 @@
 import { Gnb } from "@/components/site-header/gnb";
-import { Hero } from "@/components/hero/hero";
-import { AboutSection } from "@/components/about/about-section";
-import { WorkSection } from "@/components/work/work-section";
+import { Hero } from "@/components/cyber/hero";
+import { OperatorSection } from "@/components/cyber/operator-section";
+import { MissionsSection } from "@/components/cyber/missions-section";
+import { TransmissionSection } from "@/components/cyber/transmission-section";
 import { SiteFooter } from "@/components/footer/site-footer";
-import { GameAlertBadge } from "@/components/game/game-alert-badge";
 
 export default function Home() {
   return (
@@ -11,11 +11,11 @@ export default function Home() {
       <Gnb />
       <main>
         <Hero />
-        <AboutSection />
-        <WorkSection />
+        <OperatorSection />
+        <MissionsSection />
+        <TransmissionSection />
       </main>
       <SiteFooter />
-      <GameAlertBadge />
     </>
   );
 }

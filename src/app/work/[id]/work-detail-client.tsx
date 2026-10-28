@@ -1,29 +1,69 @@
 "use client";
 
-import { useState } from "react";
-import clsx from "clsx";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import clsx from "clsx";
 import type { WorkProject } from "@/lib/work-content";
+import { markRestored, useRestored } from "@/lib/mission-progress";
 import { useLocale } from "@/components/site-header/locale-context";
 import { Gnb } from "@/components/site-header/gnb";
-import { ThemeSection } from "@/components/site-header/theme-section";
 import { SiteFooter } from "@/components/footer/site-footer";
-import { NoScrollSnap } from "@/components/ui/no-scroll-snap";
-import { WorkArrowIcon } from "@/components/work/work-arrow-icon";
 import { WorkDesignGuide } from "@/components/work/work-design-guide";
-import { CaseStudyTabs } from "@/components/work/case-study";
 import { ImageShowcase } from "@/components/work/image-showcase";
+import { Chip, useRevealChildren } from "@/components/cyber/primitives";
+import { MissionCover, missionNumber } from "@/components/cyber/mission-browser";
+import { StoryBlockContent } from "@/components/cyber/story-block";
+import { LiveEmbed } from "@/components/cyber/live-embed";
+import { RecoveryToast } from "@/components/cyber/recovery-toast";
 
 const COPY = {
-  back: { ko: "Work로 돌아가기", en: "Back to Work" },
-  visit: { ko: "사이트 방문하기", en: "Visit site" },
-  prev: { ko: "이전 프로젝트", en: "Previous" },
-  next: { ko: "다음 프로젝트", en: "Next" },
-  skills: { ko: "사용 스킬", en: "Skills" },
-  role: { ko: "역할", en: "Role" },
+  back: { ko: "미션 아카이브", en: "Mission archive" },
+  file: { ko: "미션 파일", en: "Mission file" },
+  visit: { ko: "라이브 사이트", en: "Live site" },
   client: { ko: "클라이언트", en: "Client" },
-  process: { ko: "작업 노트", en: "Process Notes" },
+  role: { ko: "역할", en: "Role" },
+  stage: { ko: "단계", en: "Stage" },
+  tools: { ko: "스킬", en: "Skills" },
+  notes: { ko: "작업 노트", en: "Field notes" },
+  challenge: { ko: "문제 상황", en: "Challenge" },
+  objective: { ko: "목표", en: "Objective" },
+  process: { ko: "설계 과정", en: "Process" },
+  screens: { ko: "화면", en: "Screens" },
+  debrief: { ko: "회고", en: "Debrief" },
+  next: { ko: "다음 미션", en: "Next mission" },
+  prev: { ko: "이전 미션", en: "Previous" },
+  shipped: { ko: "완료", en: "Shipped" },
 };
+
+/** Two-column case-study row: sticky numbered label left, content right. */
+function Section({
+  n,
+  label,
+  children,
+  wide,
+  after,
+}: {
+  n: number;
+  label: string;
+  children: React.ReactNode;
+  wide?: boolean;
+  /** Full-width row under the label + content columns (live embeds need the room). */
+  after?: React.ReactNode;
+}) {
+  return (
+    <section data-reveal className="grid gap-6 border-t border-white/10 py-14 md:py-20 lg:grid-cols-[minmax(220px,3fr)_9fr] lg:gap-16">
+      <div className="lg:sticky lg:top-28 lg:h-fit">
+        <div className="font-mono text-[11px] uppercase tracking-[0.3em] text-neon">
+          {String(n).padStart(2, "0")} <span className="text-white/30">{"//"}</span>
+        </div>
+        <h2 className="ko-safe mt-2 font-display text-2xl font-semibold uppercase tracking-wide text-paper md:text-3xl">{label}</h2>
+      </div>
+      <div className={clsx("min-w-0", !wide && "max-w-4xl")}>{children}</div>
+      {after && <div className="min-w-0 lg:col-span-2">{after}</div>}
+    </section>
+  );
+}
+
 
 interface WorkDetailClientProps {
   project: WorkProject;
@@ -33,208 +73,247 @@ interface WorkDetailClientProps {
 
 export function WorkDetailClient({ project, prev, next }: WorkDetailClientProps) {
   const { locale } = useLocale();
-  const [showProcess, setShowProcess] = useState(false);
+  const restored = useRestored();
+  const [toast, setToast] = useState(false);
+  const ref = useRevealChildren<HTMLElement>();
+  const num = missionNumber(project);
+
+  // Opening a mission file restores its sector — celebrate only the first time.
+  useEffect(() => {
+    const already = (() => {
+      try {
+        return JSON.parse(localStorage.getItem("rp-restored") ?? "[]").includes(project.index);
+      } catch {
+        return false;
+      }
+    })();
+    markRestored(project.index);
+    if (already) return;
+    const show = setTimeout(() => setToast(true), 500);
+    return () => clearTimeout(show);
+  }, [project.index]);
+
+  const hideToast = useCallback(() => setToast(false), []);
+  const isRestored = restored.includes(project.index);
+
+  let n = 0;
+  const sections: React.ReactNode[] = [];
+  if (project.process) {
+    sections.push(
+      <Section key="notes" n={++n} label={COPY.notes[locale]}>
+        <p className="text-[15px] leading-[1.85] text-white/65 md:text-[17px]">{project.process[locale]}</p>
+      </Section>
+    );
+  }
+  if (project.situation) {
+    sections.push(
+      <Section key="challenge" n={++n} label={COPY.challenge[locale]}>
+        <p className="font-display text-xl leading-relaxed text-white/80 md:text-2xl">{project.situation[locale]}</p>
+      </Section>
+    );
+  }
+  if (project.task) {
+    sections.push(
+      <Section key="objective" n={++n} label={COPY.objective[locale]}>
+        <div className="brackets notch relative border border-neon/40 bg-neon/[0.05] p-7 md:p-10">
+          <div className="font-mono text-[10px] uppercase tracking-[0.3em] text-neon">◎ Target</div>
+          <p className="mt-4 text-xl font-semibold leading-snug text-paper md:text-3xl">{project.task[locale]}</p>
+        </div>
+      </Section>
+    );
+  }
+  for (const block of project.story ?? []) {
+    sections.push(
+      <Section
+        key={block.id}
+        n={++n}
+        label={block.label[locale]}
+        wide={Boolean(block.images)}
+        after={block.embed && <LiveEmbed {...block.embed} />}
+      >
+        <StoryBlockContent block={block} skipEmbed />
+      </Section>
+    );
+  }
+  if (project.designGuide) {
+    sections.push(
+      <Section key="process" n={++n} label={COPY.process[locale]} wide>
+        <div className="case-content">
+          <WorkDesignGuide guide={project.designGuide} embedded />
+        </div>
+      </Section>
+    );
+  }
 
   return (
     <>
-      <NoScrollSnap />
       <Gnb />
-      <ThemeSection theme="dark">
-        <main className="min-h-screen bg-ink pb-24 pt-[104px] md:pt-[132px]">
-          <div className="wrap">
-            <Link
-              href="/work"
-              className="group inline-flex items-center gap-2 text-xs text-white/50 transition-colors duration-200 hover:text-paper md:text-sm"
-            >
-              <WorkArrowIcon className="h-3.5 w-3.5 rotate-[225deg] transition-transform duration-300 group-hover:-translate-x-0.5" />
-              {COPY.back[locale]}
+      <RecoveryToast run={toast} onDone={hideToast} />
+      <main ref={ref} className="min-h-screen pb-24 pt-28 md:pt-36">
+        <div className="wrap">
+          {/* ---- Hero ---- */}
+          <div className="ko-safe flex flex-wrap items-center justify-between gap-4 font-mono text-[11px] uppercase tracking-[0.25em]">
+            <Link href="/work" className="group inline-flex items-center gap-2 text-white/50 transition-colors hover:text-neon">
+              <span className="transition-transform group-hover:-translate-x-1">←</span> {COPY.back[locale]}
             </Link>
+            <span className="flex items-center gap-3 text-white/40">
+              {COPY.file[locale]} MSN-{num}
+              <Chip tone={isRestored ? "neon" : "alert"}>● {isRestored ? "Restored" : "Infected"}</Chip>
+            </span>
+          </div>
 
-            <div className="mt-8 grid gap-10 md:mt-14 md:grid-cols-2 md:gap-16">
-              <div className="min-w-0 md:sticky md:top-[132px] md:h-fit md:self-start">
-                <span className="font-display text-sm italic text-white/30">
-                  {project.index}
-                </span>
-                <h1 className="mt-3 font-display text-4xl italic leading-tight text-paper md:text-6xl">
-                  {project.title[locale]}
-                </h1>
-                <p className="mt-4 text-sm text-white/50 md:text-base">
-                  {project.category[locale]}
-                </p>
-                {project.client && (
-                  <p className="mt-1 text-xs text-white/35">
-                    {COPY.client[locale]} · {project.client[locale]}
-                  </p>
-                )}
-
-                {((project.tags ?? []).length > 0 || project.stage) && (
-                  <div className="mt-5 flex flex-wrap gap-2">
-                    {(project.tags ?? []).map((tag) => (
-                      <span
-                        key={tag}
-                        className="rounded-full border border-white/15 px-3 py-1 text-[11px] uppercase tracking-wide text-white/50"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                    {project.stage && (
-                      <span className="rounded-full border border-dashed border-white/25 px-3 py-1 text-[11px] uppercase tracking-wide text-white/40">
-                        {project.stage[locale]}
-                      </span>
-                    )}
-                  </div>
-                )}
-
-                {(project.skills ?? []).length > 0 && (
-                  <div className="mt-6 max-w-md">
-                    <span className="font-display text-xs italic text-white/30">
-                      {COPY.skills[locale]}
-                    </span>
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {project.skills!.map((skill) => (
-                        <span
-                          key={skill}
-                          className="rounded-full border border-white/15 px-3 py-1 text-[11px] text-white/50"
-                        >
-                          {skill}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {(project.roles ?? []).length > 0 && (
-                  <div className="mt-6 max-w-md">
-                    <span className="font-display text-xs italic text-white/30">
-                      {COPY.role[locale]}
-                    </span>
-                    <ul className="mt-2 flex flex-col gap-1">
-                      {project.roles!.map((r, i) => (
-                        <li
-                          key={i}
-                          className="flex items-baseline justify-between gap-3 border-t border-white/10 py-1.5 text-sm first:border-t-0 first:pt-0"
-                        >
-                          <span className="text-white/60">{r.label[locale]}</span>
-                          <span className="shrink-0 text-right text-white/40">
-                            {r.value[locale]}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                <p className="mt-8 max-w-md text-base leading-relaxed text-white/70">
-                  {project.description ? project.description[locale] : project.category[locale]}
-                </p>
-
-                {project.url && (
-                  <a
-                    href={project.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group mt-10 inline-flex items-center gap-2 rounded-full bg-paper px-6 py-3 text-sm text-ink transition-opacity duration-200 hover:opacity-90"
-                  >
-                    {COPY.visit[locale]}
-                    <WorkArrowIcon className="h-3.5 w-3.5 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-                  </a>
-                )}
-              </div>
-
-              <div className="flex min-w-0 flex-col gap-4 md:pt-1">
-                {project.video ? (
-                  <video
-                    src={project.video}
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    className="w-full rounded-2xl"
-                  />
-                ) : project.image ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={project.image}
-                    alt={project.title[locale]}
-                    className="w-full rounded-2xl object-cover"
-                  />
-                ) : (
-                  <div className="aspect-video w-full rounded-2xl bg-white/5" />
-                )}
-
-                {project.process && (
-                  <div className="self-end text-right">
-                    <button
-                      type="button"
-                      onClick={() => setShowProcess((v) => !v)}
-                      className="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 text-xs text-white/60 transition-colors duration-200 hover:text-paper md:text-sm"
-                    >
-                      {COPY.process[locale]}
-                      <WorkArrowIcon
-                        className={clsx(
-                          "h-3 w-3 transition-transform duration-300",
-                          showProcess && "rotate-[225deg]"
-                        )}
-                      />
-                    </button>
-                    {showProcess && (
-                      <p className="mt-3 rounded-2xl bg-white/[0.04] p-5 text-left text-sm leading-relaxed text-white/60 md:p-6">
-                        {project.process[locale]}
-                      </p>
-                    )}
-                  </div>
-                )}
-
-                {project.situation || project.reflection ? (
-                  <CaseStudyTabs project={project} />
-                ) : (
-                  project.designGuide && <WorkDesignGuide guide={project.designGuide} />
-                )}
-              </div>
-            </div>
-
-            {project.imageShowcase && <ImageShowcase showcase={project.imageShowcase} />}
-
-            {(prev || next) && (
-              <div className="mt-20 flex items-center justify-between border-t border-white/15 pt-8 md:mt-28">
-                {prev ? (
-                  <Link
-                    href={`/work/${prev.index}`}
-                    className="group flex flex-col items-start gap-1.5"
-                  >
-                    <span className="flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-white/35">
-                      <WorkArrowIcon className="h-3 w-3 rotate-[225deg] transition-transform duration-300 group-hover:-translate-x-0.5" />
-                      {COPY.prev[locale]}
-                    </span>
-                    <span className="font-display text-lg italic text-paper transition-transform duration-300 group-hover:-translate-x-1 md:text-2xl">
-                      {prev.title[locale]}
-                    </span>
-                  </Link>
-                ) : (
-                  <span />
-                )}
-
-                {next ? (
-                  <Link
-                    href={`/work/${next.index}`}
-                    className="group flex flex-col items-end gap-1.5 text-right"
-                  >
-                    <span className="flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-white/35">
-                      {COPY.next[locale]}
-                      <WorkArrowIcon className="h-3 w-3 transition-transform duration-300 group-hover:translate-x-0.5" />
-                    </span>
-                    <span className="font-display text-lg italic text-paper transition-transform duration-300 group-hover:translate-x-1 md:text-2xl">
-                      {next.title[locale]}
-                    </span>
-                  </Link>
-                ) : (
-                  <span />
-                )}
-              </div>
+          <div data-reveal className="mt-10 md:mt-16">
+            <p className="ko-safe font-mono text-xs uppercase tracking-[0.3em] text-magenta">&gt; {project.category[locale]}</p>
+            <h1 className="mt-4 max-w-6xl font-display text-[clamp(2.6rem,8vw,7.5rem)] font-bold uppercase leading-[0.9] tracking-tight text-paper">
+              {project.title[locale]}
+            </h1>
+            {project.description && (
+              <p className="mt-8 max-w-3xl text-base leading-[1.8] text-white/65 md:text-xl">{project.description[locale]}</p>
             )}
           </div>
-        </main>
-      </ThemeSection>
+
+          {/* ---- Meta grid ---- */}
+          <dl data-reveal className="mt-12 grid grid-cols-2 border-l border-t border-white/10 md:mt-16 lg:auto-cols-fr lg:grid-flow-col">
+            {[
+              { k: COPY.client[locale], v: project.client?.[locale] ?? "—" },
+              {
+                k: COPY.role[locale],
+                v: project.roles?.length ? (
+                  <ul className="space-y-1.5">
+                    {project.roles.map((r, i) => (
+                      <li key={i}>
+                        <span className="text-paper">{r.label[locale]}</span>
+                        <span className="block text-xs text-white/40">{r.value[locale]}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  "—"
+                ),
+              },
+              { k: COPY.stage[locale], v: project.stage?.[locale] ?? (project.url ? COPY.shipped[locale] : "—") },
+              {
+                k: COPY.tools[locale],
+                v: project.skills?.length ? (
+                  <div className="flex flex-wrap gap-1.5">
+                    {project.skills.map((s) => (
+                      <Chip key={s}>{s}</Chip>
+                    ))}
+                  </div>
+                ) : (
+                  "—"
+                ),
+              },
+            ]
+              .filter(({ v }) => v !== "—")
+              .map(({ k, v }) => (
+              <div key={k} className="min-w-0 border-b border-r border-white/10 p-4 md:p-6">
+                <dt className="ko-safe font-mono text-[10px] uppercase tracking-[0.3em] text-neon/70">{k}</dt>
+                <dd className="mt-3 text-sm text-white/70">{v}</dd>
+              </div>
+            ))}
+          </dl>
+
+          {(project.url || project.links?.length) && (
+            <div data-reveal className="ko-safe mt-8 flex flex-wrap gap-3">
+              {project.url && (
+                <a
+                  href={project.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="notch-sm inline-flex items-center gap-2 bg-neon px-6 py-3.5 font-mono text-xs uppercase tracking-[0.2em] text-ink transition-colors hover:bg-paper"
+                >
+                  {COPY.visit[locale]} ↗
+                </a>
+              )}
+              {project.links?.map((l) => (
+                <a
+                  key={l.url}
+                  href={l.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="notch-sm inline-flex items-center gap-2 border border-neon/50 px-6 py-3.5 font-mono text-xs uppercase tracking-[0.2em] text-neon transition-colors hover:bg-neon hover:text-ink"
+                >
+                  {l.label[locale]} ↗
+                </a>
+              ))}
+            </div>
+          )}
+
+          {/* ---- Cover ---- */}
+          <div
+            data-reveal
+            className={clsx("brackets mt-14 border border-white/10 md:mt-20", !project.coverBg && "stage-bg")}
+            style={project.coverBg ? { background: project.coverBg } : undefined}
+          >
+            <div className="relative overflow-hidden">
+              {project.video ? (
+                <video src={project.video} autoPlay loop muted playsInline className="stage-img mx-auto block max-h-[72svh] w-full" />
+              ) : (
+                <MissionCover
+                  project={project}
+                  className={clsx("block w-full", (project.cover ?? project.image) ? "stage-img mx-auto max-h-[72svh] !bg-transparent" : "aspect-[16/7]")}
+                />
+              )}
+              <div className="scanlines pointer-events-none absolute inset-0 opacity-30" />
+            </div>
+          </div>
+
+          {/* ---- Sections ---- */}
+          <div className="mt-16 md:mt-24">{sections}</div>
+        </div>
+
+        {project.imageShowcase && (
+          <div className="wrap case-content" data-reveal>
+            <div className="border-t border-white/10 pt-14 md:pt-20">
+              <ImageShowcase showcase={project.imageShowcase} />
+            </div>
+          </div>
+        )}
+
+        {project.reflection && (
+          <div className="wrap">
+            <section data-reveal className="relative mt-16 overflow-hidden border border-magenta/30 bg-magenta/[0.04] px-6 py-16 text-center md:mt-24 md:px-16 md:py-24">
+              <div className="scanlines pointer-events-none absolute inset-0" />
+              <div className="relative font-mono text-[11px] uppercase tracking-[0.3em] text-magenta">
+                {String(++n).padStart(2, "0")} {"//"} {COPY.debrief[locale]}
+              </div>
+              <p className="relative mx-auto mt-6 max-w-4xl font-display text-xl leading-relaxed text-paper md:text-3xl">
+                “{project.reflection[locale]}”
+              </p>
+            </section>
+          </div>
+        )}
+
+        {/* ---- Next mission ---- */}
+        <div className="wrap mt-24 md:mt-32">
+          {next && (
+            <Link href={`/work/${next.index}`} className="group relative block overflow-hidden border border-white/10 transition-colors hover:border-neon/60">
+              <div className="absolute inset-0 opacity-25 transition-opacity duration-500 group-hover:opacity-45" style={next.coverBg ? { background: next.coverBg } : undefined}>
+                <MissionCover project={next} className="h-full w-full" />
+              </div>
+              <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/85 to-ink/40" />
+              <div className="relative flex flex-col gap-6 p-8 md:flex-row md:items-end md:justify-between md:p-14">
+                <div>
+                  <div className="ko-safe font-mono text-[11px] uppercase tracking-[0.3em] text-neon">{COPY.next[locale]} — MSN-{missionNumber(next)}</div>
+                  <div className="mt-4 font-display text-4xl font-bold uppercase leading-none text-paper transition-colors group-hover:text-neon md:text-7xl">
+                    {next.title[locale]}
+                  </div>
+                  <div className="mt-3 text-sm text-white/50">{next.category[locale]}</div>
+                </div>
+                <span className="flex h-16 w-16 shrink-0 items-center justify-center border border-neon/50 text-2xl text-neon transition-all group-hover:bg-neon group-hover:text-ink">
+                  ▶
+                </span>
+              </div>
+            </Link>
+          )}
+          {prev && (
+            <Link href={`/work/${prev.index}`} className="ko-safe mt-4 inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.2em] text-white/40 transition-colors hover:text-neon">
+              ← {COPY.prev[locale]}: {prev.title[locale]}
+            </Link>
+          )}
+        </div>
+      </main>
       <SiteFooter />
     </>
   );

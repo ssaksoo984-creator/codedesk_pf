@@ -12,17 +12,20 @@ interface LocaleContextValue {
 const LocaleContext = createContext<LocaleContextValue | null>(null);
 
 export function LocaleProvider({ children }: { children: React.ReactNode }) {
-  // <html lang="ko"> is what the server renders, so the client has to start
-  // there too — reading localStorage synchronously here would mismatch SSR
-  // output. Correct it right after mount instead.
-  const [locale, setLocale] = useState<Locale>("ko");
+  // English is the default; <html lang="en"> is what the server renders, so
+  // the client starts there too and only switches after mount if the
+  // visitor previously chose Korean.
+  const [locale, setLocale] = useState<Locale>("en");
 
   useEffect(() => {
-    const saved = window.localStorage.getItem("locale");
-    if (saved === "en") {
-      setTimeout(() => setLocale("en"), 0);
-    }
+    try {
+      if (window.localStorage.getItem("locale") === "ko") setTimeout(() => setLocale("ko"), 0);
+    } catch {}
   }, []);
+
+  useEffect(() => {
+    document.documentElement.lang = locale;
+  }, [locale]);
 
   function toggleLocale() {
     setLocale((prev) => {
