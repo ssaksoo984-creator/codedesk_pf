@@ -70,7 +70,7 @@ export function RestoredWorldCanvas({ className }: { className?: string }) {
     if (!canvas) return;
     const ctx = canvas.getContext("2d")!;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    const dpr = 1; // full-section canvas: 1× keeps paint cost down
     let w = 0;
     let h = 0;
     let horizon = 0;
@@ -192,7 +192,7 @@ export function RestoredWorldCanvas({ className }: { className?: string }) {
         ctx.save();
         ctx.translate(c.x, c.y);
         ctx.shadowColor = `rgba(${NEON},0.8)`;
-        ctx.shadowBlur = 10;
+        ctx.shadowBlur = 0;
         for (const [cx, cy] of c.cells) {
           ctx.fillStyle = `rgba(230,246,255,${0.1 + cy * 0.04})`;
           ctx.fillRect(cx * c.s, cy * c.s, c.s - 2, c.s - 2);
@@ -287,7 +287,7 @@ export function RestoredWorldCanvas({ className }: { className?: string }) {
         ctx.fillRect(Math.min(c.x, c.x - dir * 70), c.y + 3, 70, 1.5);
         ctx.save();
         ctx.shadowColor = `rgba(${c.color},1)`;
-        ctx.shadowBlur = 10;
+        ctx.shadowBlur = 0;
         ctx.strokeStyle = `rgba(${c.color},0.95)`;
         ctx.strokeRect(c.x - 9, c.y, 18, 6);
         ctx.restore();
@@ -324,7 +324,7 @@ export function RestoredWorldCanvas({ className }: { className?: string }) {
       ctx.save();
       ctx.strokeStyle = `rgba(${NEON},0.95)`;
       ctx.shadowColor = `rgba(${NEON},1)`;
-      ctx.shadowBlur = 16;
+      ctx.shadowBlur = 0;
       ctx.beginPath();
       ctx.moveTo(0, horizon);
       ctx.lineTo(w, horizon);
@@ -348,7 +348,7 @@ export function RestoredWorldCanvas({ className }: { className?: string }) {
         ctx.strokeStyle = `rgba(${p.color},0.95)`;
         ctx.fillStyle = "rgba(5,7,13,0.85)";
         ctx.shadowColor = `rgba(${p.color},1)`;
-        ctx.shadowBlur = 8;
+        ctx.shadowBlur = 0;
         ctx.lineWidth = Math.max(1, 1.6 * s);
         ctx.lineCap = "round";
         // legs

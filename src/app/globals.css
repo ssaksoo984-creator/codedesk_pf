@@ -7,6 +7,10 @@
    re-pointing the two tokens re-skins all of that content in one place.
    ------------------------------------------------------------------------- */
 :root {
+  /* Pretendard dynamic subset (public/fonts/pretendard): the browser fetches
+     only the unicode-range chunks a page actually uses instead of the 2MB
+     full variable font. */
+  --font-pretendard: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   --paper: #e6f6ff;
   --ink: #05070d;
   --charcoal: #0a0f1a;
@@ -273,8 +277,8 @@ body {
 }
 
 @keyframes reveal-up {
-  from { opacity: 0; transform: translateY(24px); filter: blur(4px); }
-  to { opacity: 1; transform: none; filter: none; }
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: none; }
 }
 [data-reveal] {
   opacity: 0;
@@ -468,12 +472,10 @@ html[lang="ko"] .ko-safe * {
   object-position: center !important;
 }
 
-/* Touch devices: drop backdrop-filter. Every blurred panel over the animated
-   backdrop is re-composited each frame, which is what makes phone scrolling
-   stutter; the panels already have semi-opaque ink fills. */
-@media (pointer: coarse) {
-  [class*="backdrop-blur"] {
-    -webkit-backdrop-filter: none !important;
-    backdrop-filter: none !important;
-  }
+/* No backdrop-filter anywhere: every blurred panel sits over the animated
+   backdrop, so the browser re-blurs it on every frame — the main cause of
+   the site feeling slow. The panels already have semi-opaque ink fills. */
+[class*="backdrop-blur"] {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
 }

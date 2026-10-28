@@ -67,7 +67,7 @@ export function HeroCanvas({
     if (!ctx) return;
 
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    const dpr = 1; // a full-screen canvas at 1.5× was most of the hero's paint cost
     let w = 0;
     let h = 0;
     let horizon = 0;
@@ -228,14 +228,19 @@ export function HeroCanvas({
         ctx!.stroke();
       }
       // Horizon glow line.
+      // Glow as a soft gradient band — shadowBlur on a full-width line is
+      // re-rasterised every frame.
+      const glow = ctx!.createLinearGradient(0, horizon - 8, 0, horizon + 8);
+      glow.addColorStop(0, `rgba(${NEON},0)`);
+      glow.addColorStop(0.5, `rgba(${NEON},0.35)`);
+      glow.addColorStop(1, `rgba(${NEON},0)`);
+      ctx!.fillStyle = glow;
+      ctx!.fillRect(0, horizon - 8, w, 16);
       ctx!.strokeStyle = `rgba(${NEON},0.9)`;
-      ctx!.shadowColor = `rgba(${NEON},1)`;
-      ctx!.shadowBlur = 14;
       ctx!.beginPath();
       ctx!.moveTo(0, horizon);
       ctx!.lineTo(w, horizon);
       ctx!.stroke();
-      ctx!.shadowBlur = 0;
     }
 
     function burst(x: number, y: number, color = NEON, n = 22, power = 4.5) {
@@ -290,11 +295,13 @@ export function HeroCanvas({
         ctx!.save();
         ctx!.translate(v.x, v.y);
         ctx!.rotate(t + v.phase);
-        ctx!.shadowColor = `rgba(${ALERT},1)`;
-        ctx!.shadowBlur = 16;
+        const r = v.r * pulse;
+        // cheap glow: a wider translucent stroke instead of shadowBlur
+        ctx!.strokeStyle = `rgba(${ALERT},0.25)`;
+        ctx!.lineWidth = 5;
+        ctx!.strokeRect(-r, -r, r * 2, r * 2);
         ctx!.strokeStyle = `rgba(${ALERT},0.95)`;
         ctx!.lineWidth = 1.5;
-        const r = v.r * pulse;
         ctx!.strokeRect(-r, -r, r * 2, r * 2);
         ctx!.fillStyle = `rgba(${ALERT},0.9)`;
         ctx!.fillRect(-2, -2, 4, 4);
@@ -316,7 +323,15 @@ export function HeroCanvas({
       sparks = sparks.filter((s) => s.life > 0);
     }
 
+    // Phones draw every other frame: the full-screen hero is the costliest
+    // thing on the page and 30fps reads the same at that size.
+    const everyOther = window.matchMedia("(pointer: coarse)").matches;
+    let odd = false;
     function frame() {
+      if (everyOther && (odd = !odd)) {
+        if (running && !reduce) raf = requestAnimationFrame(frame);
+        return;
+      }
       t += 1 / 60;
       mouse.sx += (mouse.tx - mouse.sx) * 0.05;
       ctx!.clearRect(0, 0, w, h);

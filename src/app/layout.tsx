@@ -7,7 +7,6 @@ import "@fontsource/chakra-petch/700.css";
 import "@fontsource/chakra-petch/500-italic.css";
 import "@fontsource/jetbrains-mono/400.css";
 import "@fontsource/jetbrains-mono/500.css";
-import { pretendard } from "./fonts";
 import { LocaleProvider } from "@/components/site-header/locale-context";
 import { BackToTop } from "@/components/site-header/back-to-top";
 import { CyberBackground } from "@/components/cyber/cyber-background";
@@ -36,8 +35,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${pretendard.variable} h-full antialiased`} suppressHydrationWarning>
+    <html lang="en" className="h-full antialiased" suppressHydrationWarning>
       <head>
+        {/* Pretendard as unicode-range chunks — only the glyphs a page uses get downloaded. */}
+        {/* eslint-disable-next-line @next/next/no-css-tags */}
+        <link rel="stylesheet" href="/fonts/pretendard/pretendardvariable-dynamic-subset.css" />
         {/* Runs before paint: skip the boot overlay for anyone who already booted this session. */}
         <script
           dangerouslySetInnerHTML={{
