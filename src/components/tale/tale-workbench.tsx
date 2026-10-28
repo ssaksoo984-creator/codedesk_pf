@@ -6,11 +6,11 @@ import { TALE_BODY, TALE_BODY_EN } from "./tale-body";
 
 const BASE = "/proto/tale";
 // Her own code, in the order the original file ran it. `true` = has an
-// English build (*.en.js); the prototype screens mock the Korean product UI.
+// English build (*.en.js), loaded when the site is in EN.
 const SCRIPTS: [string, boolean][] = [
   ["flow-data", true],
   ["flow-view", true],
-  ["proto", false],
+  ["proto", true],
   ["glue", true],
   ["spec", true],
 ];
