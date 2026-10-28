@@ -43,7 +43,7 @@ RESUME = {
                 "org": "Independent clients &amp; Komma Marketing Agency — Vancouver, BC",
                 "items": [
                     "<b>Tale Studio (AI video studio) — service renewal:</b> re-architected the end-to-end pipeline (Producer → Writer → Artist → Storyboard), wrote the step-by-step process and flow charts, built a single-file interactive prototype with a developer handoff spec, designed the UI in Figma, and created the Lumi guide character in 17 animated states.",
-                    "<b>Websites:</b> planned and designed sites for wellness, hospitality, and commerce clients — including a B2B wholesale site for 1AM VAPE (Canada) — owning IA, user flows, and UI, delivered on WordPress, Shopify, and Next.js.",
+                    "<b>Websites:</b> planned and designed sites for wellness, hospitality, and commerce clients — including a B2B wholesale site for 1AM VAPE (Canada) and the Woo Commercial website — owning IA, user flows, and UI, delivered on WordPress, Shopify, and Next.js.",
                     "<b>Brand, print &amp; content:</b> logo and identity design, brochures, and marketing content — including an AI-produced brand film for 1AM VAPE, from concept to edit.",
                     "Validate interactions with AI-assisted prototypes before handoff, so developers receive working flows rather than static screens.",
                 ],
@@ -104,7 +104,7 @@ RESUME = {
                 "org": "개인 클라이언트 및 Komma 마케팅 에이전시 — Vancouver, BC",
                 "items": [
                     "<b>테일 스튜디오(AI 영상 제작 서비스) 리뉴얼:</b> 프로듀서 → 작가 → 아티스트 → 스토리보드로 이어지는 서비스 전체 구조를 재설계하고 단계별 프로세스와 플로우 차트를 작성. 단일 파일 인터랙티브 프로토타입과 개발 핸드오프 문서를 제작하고, Figma로 UI를 디자인했으며 가이드 캐릭터 ‘루미’를 17가지 상태로 제작.",
-                    "<b>웹사이트 제작:</b> 웰니스·외식·커머스 등 다양한 업종의 웹사이트를 기획·디자인 — 캐나다 B2B 도매 사이트 1AM VAPE 포함. 정보 구조, 사용자 동선, UI 디자인을 담당하고 WordPress, Shopify, Next.js로 구축.",
+                    "<b>웹사이트 제작:</b> 웰니스·외식·커머스 등 다양한 업종의 웹사이트를 기획·디자인 — 캐나다 B2B 도매 사이트 1AM VAPE, Woo Commercial 웹사이트 포함. 정보 구조, 사용자 동선, UI 디자인을 담당하고 WordPress, Shopify, Next.js로 구축.",
                     "<b>브랜딩 · 브로슈어 · 콘텐츠:</b> 로고·아이덴티티 디자인, 브로슈어 등 인쇄물, 마케팅 콘텐츠 제작 — 1AM VAPE 브랜드 필름을 기획부터 AI 생성·편집까지 직접 제작.",
                     "AI 기반 프로토타이핑으로 인터랙션을 사전 검증해, 정적 화면이 아닌 실제로 동작하는 흐름으로 개발자에게 전달.",
                 ],

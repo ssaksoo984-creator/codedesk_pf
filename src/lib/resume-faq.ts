@@ -24,8 +24,8 @@ export const RESUME_FAQ: FaqItem[] = [
     id: "now",
     q: { ko: "요즘 어떤 작업을 해요?", en: "What is she working on now?" },
     a: {
-      ko: "2023년부터 밴쿠버에서 프리랜서 UI/UX · 브랜드 디자이너로 일하고 있어요. AI 영상 서비스 테일 스튜디오 리뉴얼을 맡았고, 그 외에도 다양한 웹사이트 제작, 브로슈어, 브랜딩, 콘텐츠 제작을 함께 하고 있어요.",
-      en: "Since 2023 she's been a freelance UI/UX & brand designer in Vancouver — leading the Tale Studio (AI video) renewal, plus a steady mix of website builds, brochures, branding and content production.",
+      ko: "2023년부터 밴쿠버에서 프리랜서 UI/UX · 브랜드 디자이너로 일하고 있어요. AI 영상 서비스 테일 스튜디오 리뉴얼을 맡았고, 그 외에도 1AM VAPE, Woo Commercial 등 다양한 웹사이트 제작, 브로슈어, 브랜딩, 콘텐츠 제작을 함께 하고 있어요.",
+      en: "Since 2023 she's been a freelance UI/UX & brand designer in Vancouver — leading the Tale Studio (AI video) renewal, plus a steady mix of website builds (1AM VAPE, Woo Commercial and more), brochures, branding and content production.",
     },
     links: [{ label: { ko: "테일 스튜디오 보기", en: "See Tale Studio" }, href: "/work/09" }],
   },
