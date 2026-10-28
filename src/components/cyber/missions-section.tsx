@@ -1,7 +1,6 @@
 "use client";
 
 import { useLocale } from "@/components/site-header/locale-context";
-import { LatestCarousel } from "./latest-carousel";
 import { SectionHeader, useRevealChildren } from "./primitives";
 import { SectorMap } from "./sector-map";
 import { InfectedGlobe } from "./infected-globe";
@@ -29,7 +28,7 @@ export function MissionsSection() {
             </>
           }
         />
-        <div className="mb-14 grid gap-8 lg:grid-cols-[280px_1fr] lg:gap-20">
+        <div className="grid gap-8 lg:grid-cols-[280px_1fr] lg:gap-20">
           <div data-reveal className="flex flex-col gap-8">
             <p className="text-[15px] leading-relaxed text-white/60">{COPY.lead[locale]}</p>
             <InfectedGlobe />
@@ -38,7 +37,6 @@ export function MissionsSection() {
             <SectorMap />
           </div>
         </div>
-        <LatestCarousel />
       </div>
     </section>
   );

@@ -1,0 +1,908 @@
+.tale-wb{
+  --bg: #f3f5f8; --surface: #ffffff; --ink: #18202b; --mut: #5c6878; --line: #d6dce4;
+  --accent: #2f5bd3; --accent-soft: #e4ebfb;
+  --hl: #e5212d; --hl2: #ff8a4c; --yes: #1f8a5b; --no: #6b7684; --back: #c4462b; --lock: #a86a00; --ai: #6b4fc8; --new: #0f7c8a;
+  --w-bg: #fbfbfc; --w-panel: #ffffff; --w-line: #dfe3e8; --w-ink: #1d232c; --w-mut: #707a87; --w-acc: #6b4fc8; --w-pri: #18202b; --w-pri-ink: #ffffff; --w-warn: #c4462b;
+  --font: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.tale-wb{
+  --bg: #11151b; --surface: #181e26; --ink: #e6eaf0; --mut: #97a2b1; --line: #2b3440;
+  --accent: #7d9cf2; --accent-soft: #1f2a44;
+  --hl: #ff4d57; --hl2: #ffa06b; --yes: #4cc28d; --no: #8e99a8; --back: #f08066; --lock: #e3a93a; --ai: #a993f0; --new: #4fc0cd;
+  --w-bg: #151a21; --w-panel: #1b222b; --w-line: #2e3743; --w-ink: #e3e7ed; --w-mut: #8f9aa8; --w-acc: #a993f0; --w-pri: #e6eaf0; --w-pri-ink: #11151b; --w-warn: #f08066;
+  color-scheme: dark }
+.tale-wb{
+  --bg: #11151b; --surface: #181e26; --ink: #e6eaf0; --mut: #97a2b1; --line: #2b3440;
+  --accent: #7d9cf2; --accent-soft: #1f2a44;
+  --hl: #ff4d57; --hl2: #ffa06b; --yes: #4cc28d; --no: #8e99a8; --back: #f08066; --lock: #e3a93a; --ai: #a993f0; --new: #4fc0cd;
+  --w-bg: #151a21; --w-panel: #1b222b; --w-line: #2e3743; --w-ink: #e3e7ed; --w-mut: #8f9aa8; --w-acc: #a993f0; --w-pri: #e6eaf0; --w-pri-ink: #11151b; --w-warn: #f08066;
+  color-scheme: dark }
+.tale-wb *{ box-sizing: border-box }
+.tale-wb{ background: var(--bg); color: var(--ink); font: 14px/1.55 var(--font); margin: 0 }
+.tale-wb .mono{ font-family: var(--mono) }
+.tale-wb .legend{ display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--mut); align-items: center }
+.tale-wb .legend i{ display: inline-block; width: 14px; height: 10px; vertical-align: -1px; margin-right: 5px; border: 1.5px solid var(--mut); border-radius: 2px }
+.tale-wb .legend .lg-dec{ transform: rotate(45deg) scale(.8); border-radius: 1px }
+.tale-wb .legend .lg-ai{ border-color: var(--ai); background: color-mix(in srgb, var(--ai) 18%, transparent) }
+.tale-wb .legend .lg-modal{ border-style: double; border-width: 3px }
+.tale-wb .legend .lg-back{ border: 0; border-top: 2px dashed var(--back); height: 0; width: 22px }
+.tale-wb .legend .lg-new{ border-color: var(--new); border-style: dashed }
+.tale-wb .flow-box{ overflow: auto; max-height: calc(100vh - 120px); padding: 12px }
+@media (max-width: 1100px){.tale-wb .flow-box{ max-height: 70vh }}
+.tale-wb .flow-box svg{ max-width: none !important; height: auto }
+.tale-wb .stage{ padding: 6px 0 14px; border-bottom: 1px solid var(--line) }
+.tale-wb .stage:last-child{ border-bottom: 0 }
+.tale-wb .stage h3{ margin: 0 0 6px; font-size: 14px; position: sticky; left: 0; width: max-content; max-width: 100%; background: var(--surface); padding-right: 8px }
+.tale-wb .stage h3 small{ font-weight: 400; color: var(--mut); font-size: 12px; margin-left: 4px }
+.tale-wb .stage .tbd{ font-size: 11px; font-weight: 500; color: var(--lock); border: 1px dashed var(--lock); border-radius: 99px; padding: 0 7px }
+.tale-wb .stage-svg{ display: flex; justify-content: center; min-width: max-content }
+.tale-wb .flow-box .node{ cursor: pointer }
+.tale-wb .flow-box .node.is-sel rect, .tale-wb .flow-box .node.is-sel polygon, .tale-wb .flow-box .node.is-sel path{ stroke: url(#hl-red) !important; stroke-width: 4px !important; stroke-dasharray: none !important }
+.tale-wb .flow-box .node.is-sel{ filter: drop-shadow(0 0 6px color-mix(in srgb, var(--hl) 70%, transparent)); animation: hlpulse 1.6s ease-in-out infinite }
+@keyframes hlpulse{ 50% { filter: drop-shadow(0 0 12px color-mix(in srgb, var(--hl) 90%, transparent)) } }
+@media (prefers-reduced-motion: reduce){.tale-wb .flow-box .node.is-sel{ animation: none }}
+.tale-wb .flow-box .node:focus-visible{ outline: none }
+.tale-wb .flow-box .node:focus-visible rect, .tale-wb .flow-box .node:focus-visible polygon{ stroke: var(--accent) !important; stroke-width: 3px !important }
+.tale-wb .zoom{ display: flex; gap: 4px }
+.tale-wb .btn{ font: inherit; font-size: 12.5px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 6px; padding: 4px 10px; cursor: pointer }
+.tale-wb .btn:hover{ border-color: var(--accent) }
+.tale-wb .btn:focus-visible{ outline: 2px solid var(--accent); outline-offset: 2px }
+.tale-wb .loading{ color: var(--mut); padding: 24px }
+.tale-wb .device{ overflow: auto; border-top: 1px solid var(--line); background: var(--bg) }
+.tale-wb .screen{ position: relative; min-width: 0; min-height: 640px; background: var(--w-bg); color: var(--w-ink); font-size: 13px }
+.tale-wb .w-bar{ display: flex; align-items: center; gap: 14px; padding: 8px 14px; border-bottom: 1px solid var(--w-line); background: var(--w-panel) }
+.tale-wb .w-logo{ font-size: 13px }
+.tale-wb .w-rail{ display: flex; gap: 4px; flex: 1 }
+.tale-wb .w-rail span{ white-space: nowrap; font-size: 12px; padding: 2px 9px; border-radius: 99px; color: var(--w-mut) }
+.tale-wb .w-rail .on{ background: var(--w-pri); color: var(--w-pri-ink) }
+.tale-wb .w-rail .done{ color: var(--w-ink) }
+.tale-wb .w-rail .done::before{ content: "✓ "; font-size: 10px; color: var(--yes) }
+.tale-wb .w-meta{ display: flex; gap: 8px; font-size: 12px; color: var(--w-mut) }
+.tale-wb .w-lock{ color: var(--lock); font-weight: 500 }
+.tale-wb .w-studio{ display: grid; grid-template-columns: minmax(0, 1fr) 230px; min-height: 480px }
+.tale-wb .w-main{ padding: 16px 18px; display: grid; gap: 12px; align-content: start; min-width: 0 }
+.tale-wb .w-chat{ border-left: 1px solid var(--w-line); background: var(--w-panel); display: grid; grid-template-rows: auto 1fr auto }
+.tale-wb .w-chat.is-locked{ opacity: .45 }
+.tale-wb .w-chat-h{ font-size: 12px; font-weight: 600; padding: 10px 12px; border-bottom: 1px solid var(--w-line) }
+.tale-wb .w-chat-b{ padding: 10px 12px; display: grid; gap: 8px; align-content: start }
+.tale-wb .w-msg{ font-size: 12.5px; background: var(--w-bg); border: 1px solid var(--w-line); border-radius: 8px; padding: 7px 9px }
+.tale-wb .w-msg b{ display: block; font-size: 11px; color: var(--w-acc) }
+.tale-wb .w-chat-in{ display: flex; gap: 6px; align-items: center; padding: 8px; border-top: 1px solid var(--w-line); font-size: 12px; color: var(--w-mut) }
+.tale-wb .w-chat-in span{ flex: 1 }
+.tale-wb .w-entry{ max-width: 620px; margin: 0 auto; padding: 28px 20px; display: grid; gap: 14px }
+.tale-wb .w-entry h3, .tale-wb .w-title h3{ margin: 0; font-size: 18px }
+.tale-wb .w-title{ display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap }
+.tale-wb .w-ta{ border: 1px solid var(--w-line); background: var(--w-panel); border-radius: 8px; padding: 12px; min-height: 76px }
+.tale-wb .w-ta.sm{ min-height: 0; padding: 8px 10px }
+.tale-wb .w-file{ display: flex; justify-content: space-between; align-items: center; gap: 10px; border: 1px dashed var(--w-line); border-radius: 8px; padding: 10px 12px }
+.tale-wb .w-q{ display: grid; gap: 6px }
+.tale-wb .w-q-t{ font-weight: 600; font-size: 13px }
+.tale-wb .w-q-t small{ font-weight: 400; color: var(--w-mut); margin-left: 6px }
+.tale-wb .w-opts{ display: flex; flex-wrap: wrap; gap: 6px }
+.tale-wb .w-opt{ font: inherit; font-size: 12.5px; text-align: left; border: 1px solid var(--w-line); background: var(--w-panel); color: var(--w-ink); border-radius: 7px; padding: 6px 10px; cursor: pointer; display: grid }
+.tale-wb .w-opt small{ color: var(--w-mut); font-size: 11px }
+.tale-wb .w-opt em{ font-style: normal; font-size: 10px; color: var(--w-acc); font-weight: 600 }
+.tale-wb .w-opt.on{ border-color: var(--w-pri); box-shadow: inset 0 0 0 1px var(--w-pri) }
+.tale-wb .w-foot{ display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap }
+.tale-wb .w-mut{ color: var(--w-mut); font-size: 12px }
+.tale-wb .w-note{ color: var(--w-mut); font-size: 12px; margin: 0 }
+.tale-wb .w-btn{ font: inherit; font-size: 12.5px; border: 1px solid var(--w-line); background: var(--w-panel); color: var(--w-ink); border-radius: 7px; padding: 6px 12px; cursor: pointer; white-space: nowrap }
+.tale-wb .w-btn.sm{ font-size: 11.5px; padding: 3px 8px }
+.tale-wb .w-btn.pri{ background: var(--w-pri); color: var(--w-pri-ink); border-color: var(--w-pri) }
+.tale-wb .w-btn.acc{ background: var(--w-acc); color: #fff; border-color: var(--w-acc) }
+.tale-wb .w-btn.warn{ color: var(--w-warn); border-color: var(--w-warn) }
+.tale-wb .w-btn.ghost{ border-style: dashed; color: var(--w-mut) }
+.tale-wb .w-btn:disabled{ opacity: .4; cursor: not-allowed }
+.tale-wb .w-btn:focus-visible, .tale-wb .w-opt:focus-visible{ outline: 2px solid var(--accent); outline-offset: 2px }
+.tale-wb .w-link{ font: inherit; font-size: 12px; background: none; border: 0; color: var(--w-acc); text-decoration: underline; cursor: pointer; padding: 0; justify-self: start }
+.tale-wb .w-chip{ font-size: 12px; background: var(--w-bg); border: 1px solid var(--w-line); border-radius: 99px; padding: 2px 9px }
+.tale-wb .w-banner, .tale-wb .w-diag{ border: 1px solid var(--w-line); background: var(--w-panel); border-radius: 8px; padding: 9px 12px; font-size: 12.5px }
+.tale-wb .w-diag b{ color: var(--w-acc); margin-right: 6px }
+.tale-wb .w-prose-tools{ display: flex; gap: 6px; flex-wrap: wrap }
+.tale-wb .w-prose, .tale-wb .w-editor{ border: 1px solid var(--w-line); background: var(--w-panel); border-radius: 8px; padding: 12px 14px; display: grid; gap: 8px; line-height: 1.7 }
+.tale-wb .w-prose p, .tale-wb .w-editor p{ margin: 0 }
+.tale-wb .w-prose span, .tale-wb .w-editor span{ font-family: var(--mono); font-size: 11px; color: var(--w-mut); margin-right: 8px }
+.tale-wb .w-editor{ outline: none; border-color: var(--w-acc) }
+.tale-wb .w-back{ position: absolute; inset: 0; background: color-mix(in srgb, var(--w-ink) 35%, transparent); display: grid; place-items: center; padding: 16px; z-index: 2 }
+.tale-wb .w-modal{ background: var(--w-panel); border: 1px solid var(--w-line); border-radius: 12px; padding: 18px; width: min(420px, 100%); display: grid; gap: 12px; box-shadow: 0 12px 40px rgb(0 0 0 / .25) }
+.tale-wb .w-modal.wide{ width: min(560px, 100%) }
+.tale-wb .w-modal h4{ margin: 0; font-size: 15px }
+.tale-wb .w-modal p{ margin: 0 }
+.tale-wb .w-acts{ display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap }
+.tale-wb .w-list{ margin: 0; display: grid; gap: 0; border: 1px solid var(--w-line); border-radius: 8px; overflow: hidden }
+.tale-wb .w-list div{ display: grid; grid-template-columns: 9.5em 1fr; gap: 10px; padding: 7px 10px; border-top: 1px solid var(--w-line); font-size: 12.5px }
+.tale-wb .w-list div:first-child{ border-top: 0 }
+.tale-wb .w-list dt{ color: var(--w-mut) }
+.tale-wb .w-list dd{ margin: 0 }
+.tale-wb .w-read{ display: flex; flex-wrap: wrap; gap: 8px; align-items: center }
+.tale-wb .w-proto-tabs{ display: flex; flex-wrap: wrap; gap: 4px; align-items: center; font-size: 11px; color: var(--w-mut); border-top: 1px dashed var(--w-line); padding-top: 8px }
+.tale-wb .w-tab{ font: inherit; font-family: var(--mono); font-size: 11px; border: 1px solid var(--w-line); background: none; color: var(--w-mut); border-radius: 5px; padding: 1px 6px; cursor: pointer }
+.tale-wb .w-tab.on{ color: var(--w-ink); border-color: var(--w-ink) }
+.tale-wb .w-variants{ display: grid; gap: 6px }
+.tale-wb .w-var{ font: inherit; font-size: 12.5px; text-align: left; border: 1px solid var(--w-line); background: var(--w-bg); color: var(--w-ink); border-radius: 8px; padding: 8px 10px; cursor: pointer }
+.tale-wb .w-var b{ margin-right: 8px }
+.tale-wb .w-var.on{ border-color: var(--w-pri) }
+.tale-wb .w-busy{ position: absolute; inset: 0; z-index: 3; background: color-mix(in srgb, var(--w-bg) 78%, transparent); backdrop-filter: blur(2px); display: grid; place-items: center; padding: 16px; cursor: progress }
+.tale-wb .w-busy-card{ background: var(--w-panel); border: 1px solid var(--w-line); border-radius: 14px; padding: 24px 26px; display: grid; gap: 10px; justify-items: center; text-align: center; width: min(400px, 100%); cursor: default }
+.tale-wb .w-busy-card h4{ margin: 0; font-size: 16px }
+.tale-wb .w-busy-card p{ margin: 0; color: var(--w-mut); font-size: 12.5px }
+.tale-wb .w-spin{ width: 38px; height: 38px; border-radius: 50%; border: 4px solid var(--w-line); border-top-color: var(--w-acc); animation: spin 1s linear infinite }
+@keyframes spin{ to { transform: rotate(1turn) } }
+@media (prefers-reduced-motion: reduce){.tale-wb .w-spin{ animation: none; border-top-color: var(--w-acc) }}
+.tale-wb .w-steps{ margin: 0; padding: 0; list-style: none; display: grid; gap: 3px; font-size: 12px; color: var(--w-mut); justify-self: stretch; text-align: left }
+.tale-wb .w-steps li::before{ content: "○ "; }
+.tale-wb .w-steps .done::before{ content: "● "; color: var(--yes) }
+.tale-wb .w-steps .cur{ color: var(--w-ink); font-weight: 600 }
+.tale-wb .w-steps .cur::before{ content: "◐ "; color: var(--w-acc) }
+.tale-wb .w-cards{ display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px }
+.tale-wb .w-card{ border: 1px solid var(--w-line); background: var(--w-panel); border-radius: 9px; padding: 10px; display: grid; gap: 6px; align-content: start; min-width: 0 }
+.tale-wb .w-card b small{ font-weight: 400; color: var(--w-mut); font-size: 11px }
+.tale-wb .w-card p{ margin: 0; font-size: 12px; color: var(--w-mut) }
+.tale-wb .w-states{ margin: 0; padding-left: 16px; font-size: 11.5px }
+.tale-wb .w-card-acts{ display: flex; gap: 4px; flex-wrap: wrap }
+.tale-wb .w-img{ aspect-ratio: 9 / 12; max-width: 100%; border-radius: 6px; background: linear-gradient(135deg, #ffb4a2, #8aa6ff); display: grid; place-items: center; color: #fff; font-weight: 600; text-shadow: 0 1px 3px rgb(0 0 0 / .4) }
+.tale-wb .w-img.bg{ aspect-ratio: 16 / 10; background: linear-gradient(135deg, #b8d4ff, #ffd2b3) }
+.tale-wb .w-img.horror{ background: linear-gradient(135deg, #3a2b4a, #8a1f2e) }
+.tale-wb .w-styles{ display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px }
+.tale-wb .w-sty{ font: inherit; font-size: 12px; border: 1px solid var(--w-line); background: var(--w-panel); color: var(--w-ink); border-radius: 8px; padding: 6px; display: grid; gap: 4px; cursor: pointer }
+.tale-wb .w-sty i{ display: block; height: 34px; border-radius: 5px }
+.tale-wb .w-sty.on{ border-color: var(--w-pri); box-shadow: inset 0 0 0 1px var(--w-pri) }
+.tale-wb .w-stybar{ display: flex; gap: 10px; align-items: center; border: 1px solid var(--w-line); background: var(--w-panel); border-radius: 8px; padding: 7px 10px }
+.tale-wb .w-stybar i{ width: 26px; height: 18px; border-radius: 4px }
+.tale-wb .w-stybar .w-btn{ margin-left: auto }
+.tale-wb .w-tools{ display: flex; gap: 8px; align-items: center; flex-wrap: wrap }
+.tale-wb .w-rt{ border: 1px solid var(--w-line); background: var(--w-panel); border-radius: 8px; padding: 9px 12px; display: grid; gap: 5px }
+.tale-wb .w-rt-h{ display: flex; gap: 8px; align-items: baseline; font-size: 12px }
+.tale-wb .w-rt-h b{ font-size: 18px; font-variant-numeric: tabular-nums }
+.tale-wb .w-rt-bar{ height: 6px; border-radius: 99px; background: var(--w-line); overflow: hidden }
+.tale-wb .w-rt-bar i{ display: block; height: 100%; background: var(--lock) }
+.tale-wb .w-tbd{ font-size: 11px; font-weight: 500; color: var(--lock); border: 1px dashed var(--lock); border-radius: 99px; padding: 0 7px; vertical-align: 3px }
+.tale-wb .w-shots{ display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px }
+.tale-wb .w-shot{ border: 1px solid var(--w-line); background: var(--w-panel); border-radius: 8px; padding: 7px; display: grid; gap: 4px }
+.tale-wb .w-shot small{ color: var(--w-mut); font-size: 11px }
+.tale-wb .w-fr{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px }
+.tale-wb .w-fr i{ aspect-ratio: 9 / 16; border-radius: 3px; background: repeating-linear-gradient(45deg, var(--w-line) 0 4px, transparent 4px 8px); border: 1px solid var(--w-line) }
+.tale-wb .w-shot-c{ display: flex; justify-content: space-between; font-size: 12px; font-variant-numeric: tabular-nums }
+.tale-wb .w-line{ display: flex; gap: 8px; align-items: center; border: 1px solid var(--w-line); border-radius: 7px; padding: 6px 8px }
+.tale-wb .w-line span{ flex: 1 }
+.tale-wb .lower{ display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px }
+.tale-wb .box{ background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; min-width: 0 }
+.tale-wb .box ul{ margin: 0; padding-left: 18px; display: grid; gap: 6px }
+.tale-wb .box a, .tale-wb .linkbtn{ color: var(--accent); background: none; border: 0; font: inherit; padding: 0; cursor: pointer; text-decoration: underline; text-underline-offset: 2px }
+.tale-wb .export{ display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 10px }
+.tale-wb .export textarea{ width: 100%; min-height: 90px; font: 12px var(--mono); background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 8px }
+.tale-wb .w-in, .tale-wb .w-chat-in input, .tale-wb .w-main select, .tale-wb .w-modal select{ font: inherit; font-size: 12.5px; border: 1px solid var(--w-line); background: var(--w-panel); color: var(--w-ink); border-radius: 7px; padding: 6px 9px; min-width: 0 }
+.tale-wb .w-in{ width: 100% }
+.tale-wb .w-chat-in input{ flex: 1 }
+.tale-wb .w-in:focus, .tale-wb .w-ta:focus, .tale-wb .w-chat-in input:focus, .tale-wb select:focus{ outline: 2px solid var(--accent); outline-offset: 1px }
+.tale-wb textarea.w-ta{ width: 100%; font: inherit; color: var(--w-ink); resize: vertical; line-height: 1.6 }
+.tale-wb .w-x{ font: inherit; border: 0; background: none; color: var(--w-mut); cursor: pointer; padding: 0 2px; margin-left: 4px; font-size: 14px; line-height: 1 }
+.tale-wb .w-x:hover{ color: var(--w-warn) }
+.tale-wb .w-samples{ display: flex; flex-wrap: wrap; gap: 4px; align-items: center }
+.tale-wb .w-samples .w-mut{ margin-right: 4px; font-size: 11px }
+.tale-wb .w-btn.w-link{ border: 0; background: none; color: var(--w-acc); text-decoration: underline; padding: 0; justify-self: start }
+.tale-wb .w-opt.sm{ padding: 2px 8px; font-size: 11.5px }
+.tale-wb .w-msg.me{ background: color-mix(in srgb, var(--w-acc) 10%, var(--w-panel)); border-color: color-mix(in srgb, var(--w-acc) 30%, var(--w-line)) }
+.tale-wb .w-msg.me b{ color: var(--w-mut) }
+.tale-wb .w-chat-b{ max-height: 420px; overflow: auto }
+.tale-wb .w-banner.warn{ border-color: var(--back); color: var(--w-ink) }
+.tale-wb .w-prog{ width: 100%; height: 6px; background: var(--w-line); border-radius: 99px; overflow: hidden }
+.tale-wb .w-prog i{ display: block; height: 100%; background: var(--w-acc); transition: width .5s }
+.tale-wb .w-tone{ color: var(--w-acc) !important; font-size: 11.5px !important }
+.tale-wb .w-dl{ color: var(--w-ink) !important }
+.tale-wb .w-card.is-new, .tale-wb .w-shot.is-new{ border-color: var(--new); box-shadow: inset 0 0 0 1px var(--new) }
+.tale-wb .w-fr.drawn i{ background: linear-gradient(160deg, color-mix(in srgb, var(--w-acc) 25%, var(--w-panel)), var(--w-panel)) }
+.tale-wb .w-rt.over .w-rt-bar i{ background: var(--back) }
+.tale-wb .w-warn-t{ color: var(--back); font-size: 12px; font-weight: 600 }
+.tale-wb .w-line{ flex-wrap: wrap }
+.tale-wb .w-line .w-in{ flex: 1; width: auto }
+@media (max-width: 760px){.tale-wb .w-studio{ grid-template-columns: minmax(0, 1fr) }
+.tale-wb .w-chat{ border-left: 0; border-top: 1px solid var(--w-line) }
+.tale-wb .w-styles{ grid-template-columns: repeat(3, minmax(0, 1fr)) }
+.tale-wb .w-bar{ flex-wrap: wrap }
+.tale-wb .w-rail{ order: 3; flex-basis: 100%; overflow-x: auto }}
+.tale-wb a.btn{ text-decoration: none; display: inline-block }
+.tale-wb .w-studio{ grid-template-columns: minmax(0, 1fr) 280px }
+.tale-wb .w-panel{ border: 1px solid var(--w-line); background: var(--w-panel); border-radius: 10px; padding: 12px 14px; display: grid; gap: 10px }
+.tale-wb .w-panel-h{ display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap }
+.tale-wb .w-panel-h b{ font-size: 13px }
+.tale-wb .w-msg.card{ border-color: var(--w-acc); display: grid; gap: 8px }
+.tale-wb .w-card-t{ font-weight: 600; font-size: 13px }
+.tale-wb .w-msg.card .w-q-t{ font-size: 12px }
+.tale-wb .w-msg.card .w-opt{ padding: 4px 8px; font-size: 11.5px }
+.tale-wb .w-sugg{ display: flex; flex-wrap: wrap; gap: 4px; padding: 6px 8px 0; border-top: 1px solid var(--w-line) }
+.tale-wb .w-sugg .w-tab{ font-family: inherit; font-size: 11.5px; padding: 2px 8px; border-radius: 99px }
+.tale-wb .w-prose.picking{ border-color: var(--w-acc) }
+.tale-wb .w-para button{ font: inherit; text-align: left; width: 100%; background: none; border: 1px dashed transparent; border-radius: 6px; padding: 4px 6px; color: var(--w-ink); cursor: pointer; line-height: 1.7 }
+.tale-wb .w-para button:hover{ border-color: var(--w-line) }
+.tale-wb .w-para.sel button{ border: 1px solid var(--w-acc); background: color-mix(in srgb, var(--w-acc) 10%, transparent) }
+.tale-wb .w-note.pick{ color: var(--w-acc) }
+.tale-wb .w-var-p{ display: block; margin-top: 4px; font-size: 12px }
+.tale-wb .w-var-p i{ font-style: normal; font-family: var(--mono); font-size: 10.5px; color: var(--w-mut); margin-right: 6px }
+.tale-wb .seg-plan{ display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden }
+.tale-wb .seg-plan button{ font: inherit; font-size: 12.5px; border: 0; background: var(--surface); color: var(--mut); padding: 5px 12px; cursor: pointer }
+.tale-wb .seg-plan button + button{ border-left: 1px solid var(--line) }
+.tale-wb .seg-plan button[aria-pressed="true"]{ background: var(--ink); color: var(--surface) }
+.tale-wb .seg-plan button:focus-visible{ outline: 2px solid var(--accent); outline-offset: -2px }
+.tale-wb .w-chat, .tale-wb .w-chat > *{ min-width: 0 }
+.tale-wb .w-chat-in input{ width: 0; flex: 1 1 auto }
+.tale-wb .w-entry.wide{ max-width: 780px }
+.tale-wb .w-grp{ display: grid; gap: 10px; border-top: 1px solid var(--w-line); padding-top: 12px }
+.tale-wb .w-grp-h{ font-size: 12px; font-weight: 600; color: var(--w-mut); letter-spacing: .02em }
+.tale-wb .w-grp-h small{ font-weight: 400; margin-left: 6px }
+.tale-wb .w-grp.lock .w-grp-h{ color: var(--lock) }
+.tale-wb .w-levels{ display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; border: 1px solid var(--w-line); border-radius: 9px; overflow: hidden }
+.tale-wb .w-lv{ font: inherit; text-align: left; border: 0; border-left: 1px solid var(--w-line); background: var(--w-panel); color: var(--w-ink); padding: 8px 10px; cursor: pointer; display: grid; gap: 2px; align-content: start; min-width: 0 }
+.tale-wb .w-lv:first-child{ border-left: 0 }
+.tale-wb .w-lv b{ font-size: 12.5px }
+.tale-wb .w-lv b em{ font-style: normal; font-size: 10px; color: var(--w-acc); margin-left: 2px }
+.tale-wb .w-lv small{ font-size: 11px; color: var(--w-mut) }
+.tale-wb .w-lv-n{ font-family: var(--mono); font-size: 10.5px; color: var(--w-mut) }
+.tale-wb .w-lv.on{ background: color-mix(in srgb, var(--w-acc) 12%, var(--w-panel)); box-shadow: inset 0 -3px 0 var(--w-acc) }
+.tale-wb .w-lv.on .w-lv-n{ color: var(--w-acc) }
+.tale-wb .w-lv:disabled{ opacity: .4; cursor: not-allowed }
+.tale-wb .w-lv:focus-visible{ outline: 2px solid var(--accent); outline-offset: -2px }
+.tale-wb .w-lv-d{ display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 12px; background: var(--w-bg); border: 1px dashed var(--w-line); border-radius: 8px; padding: 7px 10px }
+.tale-wb .w-lv-d i{ font-style: normal; color: var(--w-mut); margin-right: 6px; font-size: 11px }
+@media (max-width: 560px){.tale-wb .w-levels{ grid-template-columns: repeat(2, minmax(0, 1fr)) }
+.tale-wb .w-lv:nth-child(3){ border-left: 0 }
+.tale-wb .w-lv:nth-child(n+3){ border-top: 1px solid var(--w-line) }}
+.tale-wb .w-dock-info{ display: grid; gap: 6px; font-size: 12.5px; color: var(--ink) }
+.tale-wb .w-dock-info p{ margin: 0 }
+.tale-wb .w-dock-info ul{ margin: 0; padding-left: 16px; color: var(--mut) }
+.tale-wb .w-dock-info .open li{ color: var(--lock) }
+.tale-wb .w-chatstage{ max-width: 760px; margin: 0 auto; padding: 16px 18px 20px; display: grid; gap: 12px; min-height: 560px; grid-template-rows: auto 1fr auto }
+.tale-wb .w-thread{ display: grid; gap: 10px; align-content: start }
+.tale-wb .w-b{ display: grid; gap: 4px; max-width: 88%; justify-self: start; background: var(--w-panel); border: 1px solid var(--w-line); border-radius: 12px 12px 12px 4px; padding: 9px 12px; font-size: 13px }
+.tale-wb .w-b > b{ font-size: 11px; color: var(--w-acc) }
+.tale-wb .w-b.me{ justify-self: end; background: color-mix(in srgb, var(--w-acc) 12%, var(--w-panel)); border-color: color-mix(in srgb, var(--w-acc) 30%, var(--w-line)); border-radius: 12px 12px 4px 12px }
+.tale-wb .w-b .w-list{ margin-top: 6px }
+.tale-wb .w-qr{ display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px }
+.tale-wb .w-qr.col{ display: grid }
+.tale-wb .w-opt.lv{ display: grid; gap: 1px }
+.tale-wb .w-opt.lv b{ font-size: 12.5px }
+.tale-wb .w-opt.lv b em{ font-style: normal; font-size: 10px; color: var(--w-acc) }
+.tale-wb .w-opt:disabled{ opacity: .4; cursor: not-allowed }
+.tale-wb .w-sum{ display: flex; flex-wrap: wrap; gap: 6px; position: sticky; top: 0; background: var(--w-bg); padding-bottom: 6px; z-index: 1 }
+.tale-wb .w-sum-c{ font: inherit; font-size: 12px; border: 1px solid var(--w-line); background: var(--w-panel); color: var(--w-ink); border-radius: 99px; padding: 3px 10px; cursor: pointer; display: inline-flex; gap: 6px; align-items: baseline }
+.tale-wb .w-sum-c i{ font-style: normal; color: var(--w-mut); font-size: 11px }
+.tale-wb .w-sum-c:disabled{ cursor: default; color: var(--w-mut) }
+.tale-wb .w-sum-c.cur{ border-color: var(--w-acc) }
+.tale-wb .w-sum-c.on:hover{ border-color: var(--w-pri) }
+.tale-wb .w-cin{ display: flex; gap: 6px; align-items: center; border: 1px solid var(--w-line); background: var(--w-panel); border-radius: 12px; padding: 8px }
+.tale-wb .w-cin input{ flex: 1; min-width: 0; font: inherit; font-size: 13px; border: 0; background: none; color: var(--w-ink); padding: 4px 6px }
+.tale-wb .w-cin input:focus{ outline: none }
+.tale-wb .w-cin:focus-within{ outline: 2px solid var(--accent); outline-offset: 1px }
+.tale-wb .w-cin.first{ display: grid }
+.tale-wb .w-cin.first textarea{ border: 0; background: none; padding: 4px 6px }
+.tale-wb .w-cin.first textarea:focus{ outline: none }
+.tale-wb .w-cin-row{ display: flex; flex-wrap: wrap; gap: 6px; align-items: center }
+.tale-wb .w-stepper{ list-style: none; margin: 0; padding: 0; display: flex; gap: 6px; font-size: 12px }
+.tale-wb .w-stepper li{ padding: 2px 10px; border-radius: 99px; border: 1px solid var(--w-line); color: var(--w-mut) }
+.tale-wb .w-stepper li.on{ background: var(--w-pri); color: var(--w-pri-ink); border-color: var(--w-pri) }
+.tale-wb .w-stepper li.done{ color: var(--w-ink) }
+.tale-wb .w-count{ font-weight: 400; font-size: 11.5px; color: var(--w-mut); margin-left: 8px; font-variant-numeric: tabular-nums }
+.tale-wb .w-count.short{ color: var(--back) }
+.tale-wb .w-err{ margin: 0; color: var(--back); font-size: 12.5px; background: color-mix(in srgb, var(--back) 8%, var(--w-panel)); border: 1px solid color-mix(in srgb, var(--back) 40%, var(--w-line)); border-radius: 7px; padding: 7px 10px }
+.tale-wb .w-err::before{ content: "⚠ " }
+.tale-wb .w-err-t{ color: var(--back) }
+.tale-wb .w-drop{ display: grid; gap: 4px; justify-items: center; text-align: center; border: 2px dashed var(--w-line); border-radius: 10px; padding: 18px; cursor: pointer; background: var(--w-bg) }
+.tale-wb .w-drop:hover, .tale-wb .w-drop:focus-within{ border-color: var(--w-acc) }
+.tale-wb .w-tab.bad{ border-style: dashed; color: var(--back) }
+.tale-wb .w-why{ margin: 2px 0 0; font-size: 11.5px; color: var(--w-acc) }
+.tale-wb .w-ex{ display: grid; gap: 6px; justify-self: stretch }
+.tale-wb .w-ex-h{ font-size: 11.5px; color: var(--w-mut); font-weight: 600 }
+.tale-wb .w-ex-c{ font: inherit; text-align: left; border: 1px solid var(--w-line); background: var(--w-panel); color: var(--w-ink); border-radius: 9px; padding: 8px 12px; cursor: pointer; display: grid; gap: 2px }
+.tale-wb .w-ex-c b{ font-size: 11.5px; color: var(--w-acc) }
+.tale-wb .w-ex-c span{ font-size: 12.5px }
+.tale-wb .w-ex-c:hover, .tale-wb .w-ex-c:focus-visible{ border-color: var(--w-acc); outline: none }
+.tale-wb .w-guides{ display: flex; flex-wrap: wrap; gap: 4px; align-items: center }
+.tale-wb .w-guides .w-tab{ font-family: inherit; font-size: 11.5px; border-radius: 99px; padding: 2px 9px }
+.tale-wb .w-guides .w-count{ margin-left: auto }
+.tale-wb .w-quote{ margin: 6px 0 0; font-size: 12px; border-left: 3px solid var(--w-line); padding-left: 8px; color: var(--w-mut) }
+.tale-wb .w-opt em{ display: block }
+.tale-wb .w-levels{ grid-template-columns: repeat(3, minmax(0, 1fr)) }
+@media (max-width: 560px){.tale-wb .w-levels{ grid-template-columns: minmax(0, 1fr) }
+.tale-wb .w-lv{ border-left: 0; border-top: 1px solid var(--w-line) }
+.tale-wb .w-lv:first-child{ border-top: 0 }}
+.tale-wb .w-tbar{ display: flex; flex-wrap: wrap; gap: 6px; align-items: center; border-bottom: 1px solid var(--w-line); padding-bottom: 10px }
+.tale-wb .w-tbar-sp{ flex: 1 }
+.tale-wb .w-popwrap{ position: relative }
+.tale-wb .w-cchip{ font: inherit; font-size: 12.5px; display: inline-flex; gap: 6px; align-items: baseline; border: 1px solid var(--w-line); background: var(--w-panel); color: var(--w-ink); border-radius: 99px; padding: 4px 10px; cursor: pointer }
+.tale-wb .w-cchip i{ font-style: normal; font-size: 11px; color: var(--w-mut) }
+.tale-wb .w-cchip span{ font-size: 10px; color: var(--w-mut) }
+.tale-wb .w-cchip em{ font-style: normal; font-size: 10px; color: var(--w-acc); font-weight: 600 }
+.tale-wb .w-cchip.diff{ border-color: var(--w-acc); background: color-mix(in srgb, var(--w-acc) 10%, var(--w-panel)) }
+.tale-wb .w-cchip.open, .tale-wb .w-cchip:hover{ border-color: var(--w-pri) }
+.tale-wb .w-cchip:focus-visible{ outline: 2px solid var(--accent); outline-offset: 2px }
+.tale-wb .w-pop{ position: absolute; z-index: 5; top: calc(100% + 4px); left: 0; min-width: 190px; max-height: 300px; overflow: auto; background: var(--w-panel); border: 1px solid var(--w-line); border-radius: 10px; box-shadow: 0 10px 30px rgb(0 0 0 / .18); padding: 4px; display: grid }
+.tale-wb .w-popo{ font: inherit; font-size: 12.5px; text-align: left; border: 0; background: none; color: var(--w-ink); border-radius: 6px; padding: 6px 9px; cursor: pointer; display: grid; grid-template-columns: 1fr auto; gap: 0 8px }
+.tale-wb .w-popo small{ grid-column: 1; font-size: 11px; color: var(--w-mut) }
+.tale-wb .w-popo em{ grid-column: 2; grid-row: 1; font-style: normal; font-size: 10px; color: var(--w-mut) }
+.tale-wb .w-popo:hover, .tale-wb .w-popo:focus-visible{ background: var(--w-bg); outline: none }
+.tale-wb .w-popo.on{ background: color-mix(in srgb, var(--w-acc) 12%, var(--w-panel)); font-weight: 600 }
+.tale-wb .w-btn.glow{ box-shadow: 0 0 0 3px color-mix(in srgb, var(--w-acc) 30%, transparent) }
+.tale-wb .w-cond{ font-size: 12.5px; color: var(--w-ink) }
+.tale-wb .w-cond i{ font-style: normal; font-size: 11px; color: var(--w-mut); margin-right: 6px }
+.tale-wb .w-popwrap.right .w-rwp{ right: 0; left: auto }
+.tale-wb .w-rwp{ position: absolute; z-index: 5; top: calc(100% + 6px); right: 0; width: min(440px, 80vw); background: var(--w-panel); border: 1px solid var(--w-line); border-radius: 12px; box-shadow: 0 12px 34px rgb(0 0 0 / .2); padding: 14px; display: grid; gap: 10px }
+.tale-wb .w-rwp .w-opt{ padding: 4px 9px; font-size: 12px }
+.tale-wb .w-rwp .w-opt em{ font-style: normal; font-size: 9.5px; color: var(--w-mut); font-weight: 400 }
+.tale-wb .w-qr .w-btn.on{ border-color: var(--w-acc); color: var(--w-acc) }
+.tale-wb .w-chatstage .w-cin.first{ position: sticky; bottom: 0; display: grid; gap: 6px; padding: 8px 10px; box-shadow: 0 -8px 16px var(--w-bg) }
+.tale-wb .w-cin-main{ display: flex; gap: 8px; align-items: flex-end }
+.tale-wb .w-cin-main textarea{ flex: 1; min-width: 0; font: inherit; font-size: 13.5px; line-height: 1.5; border: 0; background: none; color: var(--w-ink); padding: 6px 4px; resize: none; max-height: 7.5em }
+.tale-wb .w-cin-main textarea:focus{ outline: none }
+.tale-wb .w-cin.first .w-cin-row{ border-top: 1px solid var(--w-line); padding-top: 6px; font-size: 12px }
+.tale-wb .w-btn.w-icon{ padding: 2px 8px; font-size: 13px; line-height: 1.4 }
+.tale-wb .w-chatstage{ display: flex; flex-direction: column }
+.tale-wb .w-chatstage .w-thread{ flex: 1 }
+.tale-wb .w-chatstage{ min-height: max(520px, calc(100vh - 175px)) }
+.tale-wb .w-sys{ justify-self: center; font-size: 11.5px; color: var(--w-mut); border: 1px dashed var(--w-line); border-radius: 99px; padding: 3px 12px; text-align: center }
+.tale-wb .w-b.doc, .tale-wb .w-b.card{ max-width: 100%; justify-self: stretch }
+.tale-wb .w-b.card{ border-color: var(--w-acc) }
+.tale-wb .w-b.card > b{ color: var(--w-acc) }
+.tale-wb .w-card-t{ font-weight: 600 }
+.tale-wb .w-doc{ margin-top: 8px; border: 1px solid var(--w-line); background: var(--w-bg); border-radius: 10px; padding: 12px 14px; display: grid; gap: 8px; line-height: 1.7 }
+.tale-wb .w-doc h4{ margin: 0; font-size: 14px }
+.tale-wb .w-doc p{ margin: 0 }
+.tale-wb .w-doc p > span, .tale-wb .w-doc .w-para span{ font-family: var(--mono); font-size: 11px; color: var(--w-mut); margin-right: 8px }
+.tale-wb .w-doc.picking{ border-color: var(--w-acc) }
+.tale-wb .w-qr.sugg{ margin: 0 }
+.tale-wb .w-cin.is-locked{ opacity: .5 }
+.tale-wb .w-qr.sugg .w-tab{ font-family: inherit; font-size: 12px; border-radius: 99px; padding: 3px 10px }
+.tale-wb .w-cin.pick{ display: grid; gap: 6px; border-color: var(--w-acc) }
+.tale-wb .w-cin-chips{ display: flex; flex-wrap: wrap; gap: 4px; align-items: center; font-size: 12px }
+.tale-wb .w-chip.pick{ font: inherit; font-size: 11.5px; cursor: pointer; border-color: var(--w-acc); color: var(--w-acc); background: color-mix(in srgb, var(--w-acc) 10%, var(--w-panel)) }
+.tale-wb .w-cin.pick .w-cin-main input{ flex: 1; min-width: 0; font: inherit; font-size: 13px; border: 0; background: none; color: var(--w-ink); padding: 4px 6px }
+.tale-wb .w-cin.pick .w-cin-main input:focus{ outline: none }
+.tale-wb .w-chat .w-cin.pick{ margin: 8px; border: 1px solid var(--w-acc); border-radius: 10px; padding: 6px }
+.tale-wb .w-qr.col .w-btn small{ color: var(--w-mut); margin-left: 6px; font-size: 11px }
+.tale-wb .w-qr.col .w-btn{ text-align: left }
+.tale-wb .w-rows{ list-style: none; margin: 0; padding: 0; border: 1px solid var(--w-line); border-radius: 10px; background: var(--w-panel); overflow: hidden }
+.tale-wb .w-row{ display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 12px; border-top: 1px solid var(--w-line) }
+.tale-wb .w-row:first-child{ border-top: 0 }
+.tale-wb .w-row.is-new{ box-shadow: inset 3px 0 0 var(--new) }
+.tale-wb .w-row-b{ display: grid; gap: 3px; min-width: 0 }
+.tale-wb .w-row-b b small{ font-weight: 400; color: var(--w-mut); font-size: 11px }
+.tale-wb .w-row-b p{ margin: 0; font-size: 12px; color: var(--w-mut) }
+.tale-wb .w-row-st{ display: flex; flex-wrap: wrap; gap: 4px }
+.tale-wb .w-row-st span{ font-size: 11px; border: 1px solid var(--w-line); border-radius: 99px; padding: 0 7px; color: var(--w-ink) }
+.tale-wb .w-row-a{ display: flex; gap: 4px }
+.tale-wb .w-rows:not(:has(.w-th)) .w-row{ grid-template-columns: minmax(0, 1fr) auto }
+.tale-wb .w-th{ width: 46px; height: 60px; border-radius: 6px; display: grid; place-items: center; color: #fff; font-size: 12px; font-weight: 600; text-shadow: 0 1px 3px rgb(0 0 0 / .45); position: relative; flex: none }
+.tale-wb .w-th.bg{ width: 72px; height: 46px }
+.tale-wb .w-th i{ position: absolute; right: 3px; bottom: 2px; font-style: normal; font-size: 9px; font-weight: 500; font-family: var(--mono) }
+.tale-wb .w-th.empty{ background: repeating-linear-gradient(45deg, var(--w-line) 0 4px, transparent 4px 8px); color: var(--w-mut); text-shadow: none; font-size: 9.5px; font-weight: 400; text-align: center; border: 1px solid var(--w-line) }
+.tale-wb .w-stybar .w-tbar-sp{ flex: 1 }
+.tale-wb .w-stybar .w-btn{ margin-left: 0 }
+.tale-wb .w-sty small{ font-size: 10px; color: var(--w-acc) }
+.tale-wb .w-vers{ list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; max-height: 420px; overflow: auto }
+.tale-wb .w-vers li{ display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 10px; align-items: center; border: 1px solid var(--w-line); border-radius: 9px; padding: 8px 10px }
+.tale-wb .w-vers li.on{ border-color: var(--w-acc) }
+.tale-wb .w-vers-h{ display: flex; gap: 8px; align-items: baseline; grid-column: 1 }
+.tale-wb .w-vers-h b{ font-family: var(--mono) }
+.tale-wb .w-vers-h span{ font-size: 12px; color: var(--w-mut) }
+.tale-wb .w-vers-h em{ font-style: normal; font-size: 10.5px; color: var(--w-acc); font-weight: 600 }
+.tale-wb .w-vers-t{ display: flex; gap: 4px; flex-wrap: wrap; grid-column: 1 }
+.tale-wb .w-vers .w-th{ width: 30px; height: 40px; font-size: 9px }
+.tale-wb .w-vers .w-th.bg{ width: 48px; height: 32px }
+.tale-wb .w-vers li > .w-btn{ grid-column: 2; grid-row: 1 / span 2 }
+.tale-wb .w-ohist{ list-style: none; margin: 0; padding: 0; display: flex; gap: 8px; flex-wrap: wrap }
+.tale-wb .w-ohist li{ display: grid; gap: 3px; justify-items: center; font-size: 10.5px; color: var(--w-mut) }
+.tale-wb .w-ohist li.on span{ color: var(--w-acc); font-weight: 600 }
+.tale-wb .w-ohist li.off .w-th{ opacity: .4 }
+@media (max-width: 560px){.tale-wb .w-row{ grid-template-columns: auto minmax(0, 1fr) }
+.tale-wb .w-row-a{ grid-column: 2 }}
+.tale-wb .seg-plan.sm button{ font-size: 11.5px; padding: 3px 8px }
+.tale-wb .w-rail button{ font: inherit; font-size: 12px; padding: 2px 9px; border-radius: 99px; color: var(--w-mut); background: none; border: 0; cursor: pointer; white-space: nowrap }
+.tale-wb .w-rail button:hover{ color: var(--w-ink); background: var(--w-bg) }
+.tale-wb .w-rail button.on{ background: var(--w-pri); color: var(--w-pri-ink) }
+.tale-wb .w-rail button.done{ color: var(--w-ink) }
+.tale-wb .w-rail button.done::before{ content: "✓ "; font-size: 10px; color: var(--yes) }
+.tale-wb .w-rail button:focus-visible{ outline: 2px solid var(--accent); outline-offset: 1px }
+.tale-wb .w-acards{ display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px }
+.tale-wb .w-acard{ border: 1px solid var(--w-line); background: var(--w-panel); border-radius: 10px; overflow: hidden; display: grid; align-content: start }
+.tale-wb .w-acard.is-new{ border-color: var(--new) }
+.tale-wb .w-acard .w-th.big{ width: 100%; height: auto; aspect-ratio: 3 / 4; border-radius: 0; font-size: 15px }
+.tale-wb .w-acard.bg .w-th.big{ aspect-ratio: 16 / 10 }
+.tale-wb .w-acard .w-th.big i{ font-size: 10px; right: 6px; bottom: 4px }
+.tale-wb .w-acard-b{ padding: 8px 10px 10px; display: grid; gap: 5px; justify-items: start }
+.tale-wb .w-acard-b b small{ font-weight: 400; color: var(--w-mut); font-size: 11px }
+.tale-wb [hidden]{ display: none !important }
+.tale-wb .w-th{ text-shadow: 0 1px 2px rgb(0 0 0 / .7), 0 0 8px rgb(0 0 0 / .45) }
+.tale-wb .w-refs{ display: flex; flex-wrap: wrap; gap: 4px; align-items: center }
+.tale-wb .w-ref{ position: relative; width: 38px; height: 38px; border-radius: 6px; background: linear-gradient(135deg, #c9b8a6, #7d8aa3); color: #fff; font-size: 8.5px; display: grid; place-items: end start; padding: 2px 3px; overflow: hidden; text-shadow: 0 1px 2px rgb(0 0 0 / .6) }
+.tale-wb .w-ref .w-x{ position: absolute; top: 0; right: 1px; color: #fff; font-size: 12px; margin: 0 }
+.tale-wb .w-ref.add{ background: none; border: 1px dashed var(--w-line); color: var(--w-mut); font-size: 16px; place-items: center; cursor: pointer; text-shadow: none }
+.tale-wb .w-ref.add:hover, .tale-wb .w-ref.add:focus-within{ border-color: var(--w-acc); color: var(--w-acc) }
+.tale-wb .w-row-ref{ display: flex; gap: 8px; align-items: center; margin-top: 2px }
+.tale-wb .w-row-ref > i{ font-style: normal; font-size: 11px; color: var(--w-mut) }
+.tale-wb .w-acard-img{ padding: 0; border: 0; background: none; cursor: zoom-in; display: block; width: 100% }
+.tale-wb .w-acard-img:focus-visible{ outline: 2px solid var(--accent); outline-offset: -2px }
+.tale-wb .w-dt-h{ display: flex; gap: 8px; align-items: center; flex-wrap: wrap; border: 1px solid var(--w-line); border-radius: 9px; padding: 8px 10px }
+.tale-wb .w-dt-h b{ font-size: 14px }
+.tale-wb .w-dt-h .w-in{ width: auto; flex: 1 }
+.tale-wb .w-tabs{ display: inline-flex; gap: 4px }
+.tale-wb .w-tabs button{ font: inherit; font-size: 11.5px; border: 1px solid var(--w-line); background: none; color: var(--w-mut); border-radius: 99px; padding: 2px 9px; cursor: pointer }
+.tale-wb .w-tabs button.on{ background: var(--w-pri); color: var(--w-pri-ink); border-color: var(--w-pri) }
+.tale-wb .w-dt-img{ position: relative }
+.tale-wb .w-dt-img .w-th.big{ width: 100%; height: auto; aspect-ratio: 16 / 7; font-size: 22px; border-radius: 10px }
+.tale-wb .w-dt-cap{ position: absolute; left: 8px; bottom: 8px; font-size: 11px; color: #fff; background: rgb(0 0 0 / .55); border-radius: 99px; padding: 2px 9px }
+.tale-wb .w-traits{ display: grid; gap: 6px }
+.tale-wb .w-trait-g{ display: flex; flex-wrap: wrap; gap: 4px; align-items: center }
+.tale-wb .w-trait-g > i{ font-style: normal; font-size: 11px; color: var(--w-mut); width: 5.5em }
+.tale-wb .w-chipbtn{ font: inherit; font-size: 11.5px; border: 1px solid var(--w-line); background: var(--w-panel); color: var(--w-ink); border-radius: 99px; padding: 2px 9px; cursor: pointer }
+.tale-wb .w-chipbtn.on{ border-color: var(--w-acc); color: var(--w-acc); background: color-mix(in srgb, var(--w-acc) 10%, var(--w-panel)) }
+.tale-wb .w-chipbtn:focus-visible{ outline: 2px solid var(--accent); outline-offset: 1px }
+.tale-wb .w-build{ margin: 4px 0 0; font-size: 12px; background: var(--w-bg); border: 1px dashed var(--w-line); border-radius: 7px; padding: 6px 9px }
+.tale-wb .w-build i{ font-style: normal; color: var(--w-mut); font-size: 11px; margin-right: 6px }
+.tale-wb .w-modal.wide{ max-height: calc(100vh - 140px); overflow: auto }
+.tale-wb .w-fbar{ display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; justify-content: space-between }
+.tale-wb .w-fbar-note{ font-size: 11.5px }
+.tale-wb .w-miss b{ color: var(--w-ink) }
+.tale-wb .w-miss .w-card-acts{ margin-top: 6px }
+.tale-wb .w-modes{ display: grid; grid-template-columns: 1fr 1fr; gap: 6px }
+.tale-wb .w-mode{ font: inherit; text-align: left; border: 1px solid var(--w-line); background: var(--w-panel); color: var(--w-ink); border-radius: 9px; padding: 8px 10px; cursor: pointer; display: grid; gap: 2px }
+.tale-wb .w-mode small{ font-size: 11px; color: var(--w-mut) }
+.tale-wb .w-mode.on{ border-color: var(--w-acc); box-shadow: inset 0 0 0 1px var(--w-acc) }
+.tale-wb .w-mode:disabled{ opacity: .45; cursor: not-allowed }
+.tale-wb .w-target{ margin: 4px 0 0; font-size: 12px; background: var(--w-bg); border: 1px dashed var(--w-line); border-radius: 7px; padding: 6px 9px }
+.tale-wb .w-target i{ font-style: normal; color: var(--w-mut); font-size: 11px; margin-right: 6px }
+.tale-wb .w-tag-no{ font-size: 10.5px; border: 1px solid var(--w-line); border-radius: 99px; padding: 0 6px; color: var(--w-mut); white-space: nowrap }
+.tale-wb .w-wt{ display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 14px; align-items: start }
+@media (max-width: 760px){.tale-wb .w-wt{ grid-template-columns: 1fr }}
+.tale-wb .w-wt-p{ position: relative; display: grid; gap: 6px }
+.tale-wb .w-tgprose p{ line-height: 2.05 }
+.tale-wb .w-tg{ font: inherit; font-size: inherit; color: var(--w-ink); border-radius: 4px; padding: 0 3px; margin: 0 1px; cursor: pointer; border: 1px solid transparent; line-height: 1.5 }
+.tale-wb .w-tg.char{ background: color-mix(in srgb, var(--accent) 14%, transparent); border-color: color-mix(in srgb, var(--accent) 40%, transparent) }
+.tale-wb .w-tg.place{ background: color-mix(in srgb, var(--new) 14%, transparent); border-color: color-mix(in srgb, var(--new) 40%, transparent) }
+.tale-wb .w-tg.sug{ background: transparent; border: 1.5px dashed var(--w-warn); color: var(--w-warn) }
+.tale-wb .w-tg.sel{ box-shadow: 0 0 0 2px var(--w-pri) }
+.tale-wb .w-tg:focus-visible{ outline: 2px solid var(--accent); outline-offset: 1px }
+.tale-wb .w-note .w-tg{ cursor: default; font-size: 11px }
+.tale-wb .w-sugbox{ position: sticky; top: 0; z-index: 2; border: 1px solid var(--w-warn); background: var(--w-panel); border-radius: 8px; padding: 10px 12px; display: grid; gap: 8px; font-size: 12.5px; box-shadow: 0 6px 18px rgb(0 0 0 / .12) }
+.tale-wb .w-wt-l{ border: 1px solid var(--w-line); background: var(--w-panel); border-radius: 8px; padding: 10px 12px; display: grid; gap: 8px }
+.tale-wb .w-ents{ list-style: none; margin: 0; padding: 0; display: grid; gap: 4px }
+.tale-wb .w-ents li{ display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 2px 6px; padding: 5px 6px; border-radius: 6px; font-size: 12.5px }
+.tale-wb .w-ents li.on{ background: var(--accent-soft) }
+.tale-wb .w-ents label{ display: flex; align-items: center; gap: 6px; cursor: pointer; min-width: 0 }
+.tale-wb .w-ents label small{ color: var(--w-mut); font-size: 11px }
+.tale-wb .w-ents .w-tg{ cursor: inherit }
+.tale-wb .w-ents li > .w-btn{ grid-column: 2; grid-row: 1 }
+.tale-wb .w-ents li.edit{ display: grid; grid-template-columns: 1fr; gap: 4px }
+.tale-wb .w-alias{ grid-column: 1 / -1; grid-row: 2; padding-left: 22px; color: var(--w-mut); font-size: 11px }
+.tale-wb .w-modal.xl{ width: min(900px, 100%) }
+.tale-wb .w-modal .w-wt{ grid-template-columns: minmax(0, 1fr) 240px }
+@media (max-width: 760px){.tale-wb .w-modal .w-wt{ grid-template-columns: 1fr }}
+.tale-wb .w-ents label small{ white-space: nowrap }
+.tale-wb .w-pickbar{ display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; border: 1px dashed var(--w-line); border-radius: 8px; padding: 8px 10px; font-size: 12.5px }
+.tale-wb .w-pickbar .w-tg{ cursor: default; background: var(--accent-soft) }
+.tale-wb .w-ent-n{ display: flex; align-items: center; gap: 6px; min-width: 0 }
+.tale-wb .w-ent-n small{ color: var(--w-mut); font-size: 11px; white-space: nowrap }
+.tale-wb .w-ent-ed{ grid-column: 1 / -1; display: flex; gap: 6px; align-items: center }
+.tale-wb .w-ent-ed .w-in{ flex: 1; min-width: 0 }
+.tale-wb .w-ents li.edit > .w-alias{ padding-left: 0 }
+.tale-wb .w-tgprose ::selection{ background: color-mix(in srgb, var(--accent) 30%, transparent) }
+.tale-wb .w-histbtn{ position: absolute; top: 8px; right: 8px; display: inline-flex; align-items: center; gap: 3px; border: 1px solid var(--w-line); background: var(--w-panel); color: var(--w-ink); border-radius: 99px; padding: 5px 8px; cursor: pointer; font: inherit; font-size: 11px }
+.tale-wb .w-histbtn i{ font-style: normal; color: var(--w-mut) }
+.tale-wb .w-histbtn.on{ border-color: var(--w-pri); box-shadow: inset 0 0 0 1px var(--w-pri) }
+.tale-wb .w-histbtn:disabled{ opacity: .45; cursor: not-allowed }
+.tale-wb .w-histbtn:focus-visible{ outline: 2px solid var(--accent); outline-offset: 2px }
+.tale-wb .w-histpop{ position: absolute; top: 44px; right: 8px; z-index: 3; width: min(360px, calc(100% - 16px)); background: var(--w-panel); border: 1px solid var(--w-line); border-radius: 10px; padding: 10px; display: grid; gap: 8px; box-shadow: 0 10px 30px rgb(0 0 0 / .2) }
+.tale-wb .w-tag-new{ font-size: 10.5px; border: 1px solid var(--new); border-radius: 99px; padding: 0 6px; color: var(--new); white-space: nowrap }
+.tale-wb .w-fold-h{ all: unset; cursor: pointer; font-size: 12.5px; font-weight: 600; color: var(--w-ink); display: flex; gap: 6px; align-items: baseline }
+.tale-wb .w-fold-h small{ font-weight: 400; color: var(--w-mut); font-size: 11px }
+.tale-wb .w-fold-h:focus-visible{ outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px }
+.tale-wb .w-picpick .w-opt{ justify-items: center; gap: 4px; padding: 8px }
+.tale-wb .w-picpick .w-th{ width: 96px; height: 64px }
+.tale-wb .w-agrps{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px }
+@media (max-width: 760px){.tale-wb .w-agrps{ grid-template-columns: 1fr }}
+.tale-wb .w-agrp{ border: 1px solid var(--w-line); border-radius: 12px; background: var(--w-panel); min-width: 0 }
+.tale-wb .w-agrp.wide{ grid-column: 1 / -1 }
+.tale-wb .w-agrp.is-new{ box-shadow: 0 0 0 2px var(--new) }
+.tale-wb .w-agrp:hover{ border-color: var(--accent) }
+.tale-wb .w-agh{ display: flex; align-items: center; gap: 8px; padding: 8px 10px 8px 12px; border-bottom: 1px solid var(--w-line); flex-wrap: wrap; font-size: 13.5px }
+.tale-wb .w-role{ font-size: 10.5px; padding: 0 6px; border-radius: 4px; border: 1px solid var(--w-line); color: var(--w-mut) }
+.tale-wb .w-refcnt{ font-size: 11px; color: var(--w-mut) }
+.tale-wb .w-agcells{ display: flex; gap: 12px; padding: 12px; align-items: flex-start; flex-wrap: wrap }
+.tale-wb .w-gcell{ all: unset; box-sizing: border-box; width: 110px; flex: none; min-width: 0; cursor: pointer; border-radius: 10px; padding: 4px; margin: -4px; display: grid; gap: 3px }
+.tale-wb .w-gcell.main{ width: 148px }
+.tale-wb .w-agrp.bg .w-gcell.main{ width: 190px }
+.tale-wb .w-gcell:hover{ background: var(--w-bg); box-shadow: 0 0 0 1px var(--w-line) }
+.tale-wb .w-gcell:hover .w-gimg{ box-shadow: 0 0 0 2px var(--accent) }
+.tale-wb .w-gcell:focus-visible{ outline: 2px solid var(--accent); outline-offset: 2px }
+.tale-wb .w-gimg{ position: relative; border-radius: 9px; overflow: hidden; display: block }
+.tale-wb .w-gimg .w-th.big{ width: 100%; height: auto; aspect-ratio: 1 / 1; border-radius: 0; font-size: 14px }
+.tale-wb .w-agrp.bg .w-gimg .w-th.big{ aspect-ratio: 16 / 10 }
+.tale-wb .w-gname{ font-size: 12px; display: flex; gap: 5px; align-items: center }
+.tale-wb .w-gname b{ font-weight: 600 }
+.tale-wb .w-gdesc{ font-size: 11px; color: var(--w-mut); line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.tale-wb .w-gvars{ flex: 1; min-width: 0; border-left: 2px solid var(--w-line); padding-left: 12px }
+.tale-wb .w-gvl{ font-size: 10.8px; color: var(--w-mut); margin-bottom: 7px }
+.tale-wb .w-gvrow{ display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-start }
+.tale-wb .w-gadd{ width: 104px; aspect-ratio: 1 / 1; border: 1px dashed var(--w-line); background: transparent; border-radius: 9px; color: var(--accent); font: inherit; font-size: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer }
+.tale-wb .w-gadd.solo{ width: 60px; flex-direction: column; gap: 2px; font-size: 11px }
+.tale-wb .w-gadd:hover{ border-color: var(--accent) }
+.tale-wb .w-sc{ display: grid; gap: 8px }
+.tale-wb .w-sc-h{ display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 13px; padding-top: 4px; border-top: 1px solid var(--w-line) }
+.tale-wb .w-sc-h .w-mut{ font-size: 11.5px }
+.tale-wb .w-sc-empty{ margin: 0; font-size: 12px }
+.tale-wb .w-scchip{ font-size: 11px; border: 1px solid var(--w-line); border-radius: 99px; padding: 0 7px; color: var(--w-mut) }
+.tale-wb .w-shots{ grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)) }
+.tale-wb .w-shot{ position: relative }
+.tale-wb .w-shot.chg{ background: color-mix(in srgb, var(--lock) 14%, var(--w-panel)); box-shadow: inset 3px 0 0 var(--lock) }
+.tale-wb .w-shot-c{ align-items: center; gap: 6px }
+.tale-wb .w-shot-c span:nth-child(2){ margin-right: auto }
+.tale-wb .w-fr i{ aspect-ratio: 16 / 10; position: relative }
+.tale-wb .w-fr i em{ position: absolute; left: 3px; bottom: 1px; font-style: normal; font-size: 9px; color: var(--w-mut) }
+.tale-wb .w-fr.cand i{ outline: 2px solid var(--new); outline-offset: -2px }
+.tale-wb .w-fr.none{ display: grid; place-items: center; aspect-ratio: 16 / 4; border: 1px dashed var(--w-line); border-radius: 4px; font-size: 11px; color: var(--w-mut) }
+.tale-wb .w-at{ color: var(--accent); font-weight: 600 }
+.tale-wb .w-chips{ display: flex; flex-wrap: wrap; gap: 3px }
+.tale-wb .w-chips span{ font-size: 10.5px; border: 1px solid var(--w-line); border-radius: 4px; padding: 0 5px; color: var(--w-mut) }
+.tale-wb .w-cand{ display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 11px; color: var(--new) }
+.tale-wb .w-sbmenu{ position: absolute; right: 6px; bottom: 40px; z-index: 2; display: grid; gap: 4px; background: var(--w-panel); border: 1px solid var(--w-line); border-radius: 8px; padding: 6px; box-shadow: 0 8px 20px rgb(0 0 0 / .18) }
+.tale-wb .w-script{ margin: 0; padding: 0; list-style: none; display: grid; gap: 6px }
+.tale-wb .w-script li{ border: 1px solid var(--w-line); border-radius: 8px; padding: 7px 10px; display: grid; grid-template-columns: auto 1fr auto; gap: 2px 10px; align-items: baseline; font-size: 12.5px }
+.tale-wb .w-script li p{ grid-column: 2; margin: 0 }
+.tale-wb .w-script li .w-btn{ grid-column: 3; grid-row: 1 }
+.tale-wb .w-2grp{ display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: center }
+.tale-wb .w-2grp button{ font: inherit; text-align: left; border: 1px solid var(--w-line); background: var(--w-panel); color: var(--w-ink); border-radius: 8px; padding: 8px 10px; display: grid; gap: 2px; cursor: pointer }
+.tale-wb .w-2grp button.on{ border-color: var(--w-acc); box-shadow: inset 0 0 0 1px var(--w-acc) }
+.tale-wb .w-2grp button:disabled{ opacity: .45; cursor: not-allowed }
+.tale-wb .w-2grp small{ font-size: 10.5px; color: var(--w-mut) }
+.tale-wb .w-2grp i{ font-style: normal; font-size: 11px; color: var(--w-mut) }
+.tale-wb .w-whos{ display: flex; flex-wrap: wrap; gap: 6px }
+.tale-wb .w-who{ display: inline-flex; gap: 4px; align-items: center }
+.tale-wb .w-who select{ font: inherit; font-size: 11.5px; border: 1px solid var(--w-line); background: var(--w-panel); color: var(--w-ink); border-radius: 6px; padding: 3px 5px }
+.tale-wb .w-dmode{ justify-self: start }
+.tale-wb .w-drawpad{ border: 1px dashed var(--w-line); border-radius: 8px; aspect-ratio: 16 / 6; display: grid; place-content: center; text-align: center; gap: 4px; font-size: 12px; padding: 10px }
+.tale-wb .w-drawpad small{ color: var(--w-mut); font-size: 11px }
+.tale-wb .w-fr{ grid-template-columns: repeat(3, minmax(0, 1fr)) }
+.tale-wb .w-fr i{ min-width: 0; width: auto }
+.tale-wb .w-rail button.done.open::before{ content: "" }
+.tale-wb .w-rtmini{ font-size: 12px; color: var(--w-mut); font-variant-numeric: tabular-nums; margin-left: 8px }
+.tale-wb .w-rtmini b{ color: var(--w-ink) }
+.tale-wb .w-fr{ grid-template-columns: repeat(2, minmax(0, 1fr)) }
+.tale-wb .w-fr.drawn i{ display: grid; place-items: center; color: #fff; text-shadow: 0 1px 3px rgb(0 0 0 / .5); font-size: 12px; border: 0 }
+.tale-wb .w-fr.drawn i em{ color: #fff; opacity: .9 }
+.tale-wb .w-modal.xxl{ width: min(1080px, 100%); max-height: calc(100vh - 80px); overflow: auto }
+.tale-wb .w-adet{ display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 22px; align-items: start }
+@media (max-width: 760px){.tale-wb .w-adet{ grid-template-columns: 1fr }
+.tale-wb .w-adview{ position: static }}
+.tale-wb .w-adview{ position: sticky; top: 0; display: flex; flex-direction: column; gap: 8px }
+.tale-wb .w-advh{ display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 13.5px }
+.tale-wb .w-advh .w-histbtn{ position: static }
+.tale-wb .w-adv16{ position: relative; aspect-ratio: 16 / 9; border-radius: 10px; overflow: hidden; border: 1px solid var(--w-line) }
+.tale-wb .w-adv16 .w-th.big{ width: 100%; height: 100%; aspect-ratio: auto; border-radius: 0; font-size: 24px }
+.tale-wb .w-adv16 .w-histpop{ top: 8px }
+.tale-wb .w-advf{ display: flex; align-items: center; gap: 10px; flex-wrap: wrap; min-height: 28px; font-size: 12px }
+.tale-wb .w-adr{ display: flex; flex-direction: column; gap: 4px; min-width: 0 }
+.tale-wb .w-rglab{ font-size: 12px; font-weight: 600; margin: 12px 0 4px }
+.tale-wb .w-rglab:first-child{ margin-top: 0 }
+.tale-wb .w-rglab small{ font-weight: 400; font-size: 11px }
+.tale-wb .w-dbox{ border: 1px solid var(--w-line); border-radius: 10px; padding: 9px 11px; display: flex; flex-direction: column; gap: 5px; background: var(--w-bg) }
+.tale-wb .w-dbox.off{ opacity: .55 }
+.tale-wb .w-dbox.var{ margin-top: 6px; border-color: var(--w-acc); background: var(--w-panel) }
+.tale-wb .w-dk{ display: flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 10px; letter-spacing: .04em; color: var(--w-mut) }
+.tale-wb .w-dlock{ font-family: var(--font); font-size: 10px; border: 1px solid var(--w-line); border-radius: 4px; padding: 0 5px }
+.tale-wb .w-dv{ font-size: 12.5px; line-height: 1.6 }
+.tale-wb .w-pen{ min-width: 26px; padding: 2px 6px }
+.tale-wb .w-edrow{ display: flex; align-items: center; gap: 6px; justify-content: flex-end; font-size: 11.5px }
+.tale-wb .w-edrow > span{ margin-right: auto }
+.tale-wb .w-vtag{ font-size: 9.5px; padding: 1px 6px; border-radius: 20px; border: 1px solid var(--w-acc); color: var(--w-acc) }
+.tale-wb .w-wst{ font-size: 10.5px; border: 1px solid var(--w-line); border-radius: 5px; padding: 0 6px; color: var(--w-mut) }
+.tale-wb .w-wst.warn{ border-color: var(--lock); color: var(--lock) }
+.tale-wb .w-vlist{ display: flex; flex-direction: column; border: 1px solid var(--w-line); border-radius: 10px; overflow: hidden }
+.tale-wb .w-vrow{ display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-top: 1px solid var(--w-line) }
+.tale-wb .w-vrow:first-child{ border-top: 0 }
+.tale-wb .w-vrow.on{ background: var(--accent-soft) }
+.tale-wb .w-vrow .w-th{ width: 44px; height: 44px; border-radius: 8px; flex: none }
+.tale-wb .w-vrm{ flex: 1; min-width: 0 }
+.tale-wb .w-vrn{ display: flex; gap: 6px; align-items: center; flex-wrap: wrap; font-size: 12.5px }
+.tale-wb .w-vrd{ font-size: 11.5px; color: var(--w-mut); white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.tale-wb .w-vrow.on .w-vrd{ white-space: normal }
+.tale-wb .w-vra{ display: flex; gap: 4px; flex: none }
+.tale-wb .w-vview{ font-size: 11px; color: var(--w-acc) }
+.tale-wb .w-vaddf{ border: 1px dashed var(--w-line); border-radius: 10px; padding: 10px 11px; display: flex; flex-direction: column; gap: 8px; margin-top: 6px }
+.tale-wb .w-refadd{ width: 100%; margin-top: 6px; border-style: dashed !important; color: var(--accent) !important }
+.tale-wb .w-usechips{ display: flex; flex-wrap: wrap; gap: 5px }
+.tale-wb .w-usecard{ display: grid; grid-template-columns: 130px minmax(0, 1fr); gap: 11px; border-radius: 10px; padding: 9px; background: var(--w-bg); margin-top: 6px; font-size: 12px }
+.tale-wb .w-usecard .w-fr{ grid-template-columns: 1fr }
+.tale-wb .w-afnote{ margin-right: auto; font-size: 12px }
+.tale-wb .w-afnote b{ color: var(--lock) }
+.tale-wb .w-wrnote{ margin: 0 0 10px; font-size: 12px; border: 1px solid var(--w-line); border-radius: 8px; padding: 7px 10px; background: var(--w-bg) }
+.tale-wb .w-rgrefs{ display: flex; flex-direction: column; gap: 6px }
+.tale-wb .w-rgref{ display: flex; align-items: center; gap: 10px; border: 1px solid var(--w-line); background: var(--w-bg); border-radius: 9px; padding: 6px 10px; font-size: 12.5px; cursor: pointer }
+.tale-wb .w-rgref .w-th{ width: 34px; height: 40px }
+.tale-wb .w-rgref em{ display: block; font-style: normal; font-size: 11px; color: var(--w-mut) }
+.tale-wb .w-shot[role="button"]{ cursor: pointer }
+.tale-wb .w-shot[role="button"]:hover{ border-color: var(--accent) }
+.tale-wb .w-shot[role="button"]:focus-visible{ outline: 2px solid var(--accent); outline-offset: 2px }
+.tale-wb .w-sw{ display: inline-block; width: 10px; height: 10px; border-radius: 50%; border: 1px solid rgb(0 0 0 / .25); vertical-align: -1px; margin-right: 4px }
+.tale-wb .w-dl-ic{ padding: 4px 8px; display: inline-flex; align-items: center }
+.tale-wb .w-dd{ position: relative }
+.tale-wb .w-dd-b{ width: 100%; display: flex; align-items: center; gap: 6px; font: inherit; font-size: 13px; text-align: left; border: 1px solid var(--w-line); background: var(--w-panel); color: var(--w-ink); border-radius: 8px; padding: 7px 10px; cursor: pointer }
+.tale-wb .w-dd.open .w-dd-b{ border-color: var(--w-pri); box-shadow: 0 0 0 1px var(--w-pri) }
+.tale-wb .w-dd-l{ position: absolute; z-index: 5; top: calc(100% + 4px); left: 0; min-width: 100%; width: max-content; max-width: min(460px, 80vw); max-height: 300px; overflow: auto; background: var(--w-panel); border: 1px solid var(--w-line); border-radius: 10px; padding: 6px; box-shadow: 0 12px 30px rgb(0 0 0 / .25); display: grid }
+.tale-wb .w-dd-l button{ all: unset; box-sizing: border-box; display: flex; align-items: baseline; gap: 8px; padding: 7px 10px; border-radius: 6px; cursor: pointer; font-size: 13px }
+.tale-wb .w-dd-l button:hover, .tale-wb .w-dd-l button:focus-visible{ background: var(--w-bg) }
+.tale-wb .w-dd-l button b{ min-width: 52px }
+.tale-wb .w-dd-l button small{ color: var(--w-mut); font-size: 12px }
+.tale-wb .w-dd-l button em{ margin-left: auto; font-style: normal; padding-left: 12px }
+.tale-wb .w-dd-d{ display: block; color: var(--w-mut); font-size: 11.5px; margin-top: 3px }
+.tale-wb .w-grid2{ display: grid; grid-template-columns: 1fr 1fr; gap: 12px }
+.tale-wb .w-light{ display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 12px; align-items: start; border: 1px solid var(--w-line); border-radius: 10px; padding: 10px }
+.tale-wb .w-light-pv{ display: grid; gap: 4px; justify-items: center; font-size: 11px; color: var(--w-mut); text-align: center }
+.tale-wb .w-lp{ width: 100px; height: 100px; border-radius: 10px; display: block }
+.tale-wb .w-light-f{ display: grid; gap: 8px }
+.tale-wb .w-light input[type="range"]{ width: 100%; accent-color: var(--w-pri) }
+.tale-wb .w-tempbar{ display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px; margin-top: 5px }
+.tale-wb .w-tempbar i{ height: 8px; border-radius: 3px; border: 1px solid rgb(0 0 0 / .12) }
+.tale-wb .w-tempbar i.on{ outline: 2px solid var(--w-pri); outline-offset: 1px }
+.tale-wb .w-addshot{ display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0; border-top: 1px solid var(--w-line); margin: 0 -18px }
+@media (max-width: 760px){.tale-wb .w-addshot{ grid-template-columns: 1fr }
+.tale-wb .w-grid2{ grid-template-columns: 1fr }}
+.tale-wb .w-apos{ padding: 12px 18px; border-right: 1px solid var(--w-line); max-height: 62vh; overflow: auto; display: grid; gap: 2px; align-content: start }
+.tale-wb .w-acont{ padding: 12px 18px; display: grid; gap: 10px; align-content: start; max-height: 62vh; overflow: auto }
+.tale-wb .w-apos-sc{ display: flex; gap: 8px; font-size: 13px; margin-top: 8px; min-width: 0 }
+.tale-wb .w-apos-sc span, .tale-wb .w-apos-sh span{ color: var(--w-mut); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0 }
+.tale-wb .w-apos-sh{ display: flex; gap: 8px; font-size: 12.5px; padding: 4px 0 4px 14px; min-width: 0 }
+.tale-wb .w-apos-sh b{ font-weight: 500; white-space: nowrap }
+.tale-wb .w-slot{ all: unset; box-sizing: border-box; margin-left: 14px; padding: 2px 10px; font-size: 11px; color: transparent; border: 1px dashed transparent; border-radius: 8px; cursor: pointer; text-align: center; min-height: 10px }
+.tale-wb .w-slot:hover, .tale-wb .w-slot:focus-visible{ color: var(--w-mut); border-color: var(--w-line) }
+.tale-wb .w-slot.on{ color: var(--yes); border-color: var(--yes); padding: 10px; background: color-mix(in srgb, var(--yes) 8%, transparent) }
+.tale-wb .w-box{ border: 1px solid var(--w-line); border-radius: 10px; padding: 10px 12px; display: grid; gap: 10px }
+.tale-wb .w-box .w-rglab{ margin: 0 }
+.tale-wb .w-agent-hint{ margin: 0; font-size: 12px; color: var(--w-acc) }
+.tale-wb .w-frm{ position: relative; display: grid; place-items: center; color: #fff; text-shadow: 0 1px 3px rgb(0 0 0 / .5); font-style: normal; font-size: 12px; border-radius: 3px; aspect-ratio: 16 / 10; min-width: 0 }
+.tale-wb .w-frm em{ position: absolute; left: 4px; bottom: 2px; font-style: normal; font-size: 9px; color: #fff; opacity: .9 }
+.tale-wb .w-frm.big{ aspect-ratio: 16 / 9; font-size: 20px; border-radius: 8px; width: 100% }
+.tale-wb .w-frm.big em{ font-size: 11px; left: 8px; bottom: 6px }
+.tale-wb .w-sbv{ display: grid; place-items: center; background: var(--w-bg) }
+.tale-wb .w-sbv .w-frm.big{ height: 100%; border-radius: 0 }
+.tale-wb .w-sbthumbs{ display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px }
+.tale-wb .w-sbthumbs button{ padding: 0; border: 2px solid transparent; border-radius: 6px; background: none; cursor: pointer; display: grid }
+.tale-wb .w-sbthumbs button.on{ border-color: var(--w-pri) }
+.tale-wb .w-cmp{ border: 1px solid var(--w-line); border-radius: 10px; padding: 10px 12px; display: grid; gap: 8px }
+.tale-wb .w-cmp + .w-cmp{ margin-top: 8px }
+.tale-wb .w-cmp-h{ display: flex; gap: 8px; align-items: baseline; font-size: 13px }
+.tale-wb .w-cmp-row{ display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px; align-items: center }
+.tale-wb .w-cmp-row small{ display: block; font-size: 11px; color: var(--w-mut); margin-bottom: 4px }
+.tale-wb .w-cmp-row .w-new-t{ color: var(--new); font-weight: 600 }
+.tale-wb .w-cmp-f{ display: grid; grid-template-columns: 1fr 1fr; gap: 6px }
+.tale-wb .w-cmp-ar{ font-size: 20px; color: var(--w-mut) }
+@media (max-width: 760px){.tale-wb .w-cmp-row{ grid-template-columns: 1fr }
+.tale-wb .w-cmp-ar{ transform: rotate(90deg); justify-self: center }}
+.tale-wb .w-frm{ overflow: hidden; isolation: isolate }
+.tale-wb .w-frm-bg{ position: absolute; inset: 0; z-index: -1 }
+.tale-wb .w-frm b{ position: relative }
+.tale-wb .w-marks{ position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none }
+.tale-wb .w-marks.live{ pointer-events: auto; touch-action: none; cursor: crosshair }
+.tale-wb .w-canvas.tool-memo .w-marks.live{ cursor: text }
+.tale-wb .w-canvas.tool-erase .w-marks.live{ cursor: not-allowed }
+.tale-wb .w-canvas.tool-erase .w-mk-del{ cursor: pointer }
+.tale-wb .w-canvas.tool-erase .w-mk-del:hover{ opacity: .45 }
+.tale-wb .w-canvas{ position: relative }
+.tale-wb .w-drawbar{ display: flex; align-items: center; gap: 6px; flex-wrap: wrap }
+.tale-wb .w-drawbar .w-btn.on{ border-color: var(--w-pri); box-shadow: inset 0 0 0 1px var(--w-pri) }
+.tale-wb .w-drawc{ display: inline-flex; gap: 4px; margin-left: 4px }
+.tale-wb .w-drawc button{ width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--w-panel); box-shadow: 0 0 0 1px var(--w-line); cursor: pointer; padding: 0 }
+.tale-wb .w-drawc button.on{ box-shadow: 0 0 0 2px var(--w-pri) }
+.tale-wb .w-drawmemo{ display: flex; gap: 6px; align-items: center; flex-wrap: wrap }
+.tale-wb .w-drawmemo .w-in{ flex: 1; min-width: 160px }
+.tale-wb .w-read{ margin: 0; padding: 0; list-style: none; display: grid; gap: 4px; font-size: 12.5px }
+.tale-wb .w-read li{ display: flex; gap: 6px; border: 1px solid var(--w-line); border-radius: 7px; padding: 5px 8px; background: var(--w-bg) }
+.tale-wb .w-read i{ font-style: normal }
+.tale-wb .w-chips span{ max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.tale-wb .w-memo-in{ position: absolute; z-index: 3; display: flex; gap: 4px; transform: translate(-4px, -50%); background: var(--w-panel); border: 1px solid var(--w-pri); border-radius: 8px; padding: 4px; box-shadow: 0 6px 16px rgb(0 0 0 / .25) }
+.tale-wb .w-memo-in .w-in{ width: 200px; padding: 4px 7px; font-size: 12px }
+.tale-wb .w-drawend{ display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap; font-size: 12px }
+.tale-wb .w-fixbox{ border: 1px solid var(--w-line); border-radius: 10px; padding: 10px 12px; display: grid; gap: 10px }
+.tale-wb .w-dmode{ display: grid; gap: 4px; font-size: 11.5px }
+.tale-wb .w-seg{ display: inline-flex; flex-wrap: wrap; gap: 0; border: 1px solid var(--w-line); border-radius: 8px; overflow: hidden; justify-self: start }
+.tale-wb .w-seg button{ font: inherit; font-size: 12.5px; border: 0; border-right: 1px solid var(--w-line); background: var(--w-panel); color: var(--w-ink); padding: 6px 11px; cursor: pointer }
+.tale-wb .w-seg button:last-child{ border-right: 0 }
+.tale-wb .w-seg button[aria-pressed="true"]{ background: var(--w-pri); color: var(--w-pri-ink) }
+.tale-wb .w-seg.tw-wrap{ border: 0; gap: 5px; overflow: visible }
+.tale-wb .w-seg.tw-wrap button{ border: 1px solid var(--w-line); border-radius: 7px; padding: 5px 10px }
+.tale-wb .w-fixrow{ display: grid; gap: 5px }
+.tale-wb .w-fk{ font-size: 12.5px; font-weight: 600 }
+.tale-wb .w-fk em{ font-style: normal; font-weight: 400; color: var(--w-mut); font-size: 11px; margin-left: 6px }
+.tale-wb .w-step{ display: inline-flex; align-items: center; gap: 0; border: 1px solid var(--w-line); border-radius: 8px; overflow: hidden; justify-self: start }
+.tale-wb .w-step button{ font: inherit; width: 32px; height: 30px; border: 0; background: var(--w-bg); cursor: pointer; color: var(--w-ink) }
+.tale-wb .w-step b{ min-width: 48px; text-align: center; font-size: 13px; font-variant-numeric: tabular-nums }
+.tale-wb .w-memol{ display: grid; gap: 5px }
+.tale-wb .w-memol .w-rglab{ margin: 0 }
+.tale-wb .w-mrow{ display: flex; align-items: center; gap: 8px; border: 1px solid var(--w-line); border-radius: 8px; padding: 5px 8px; font-size: 12.5px }
+.tale-wb .w-mrow span{ flex: 1 }
+.tale-wb .w-mk2{ font: inherit; font-size: 11px; border-radius: 5px; padding: 1px 7px; cursor: pointer; border: 1px solid }
+.tale-wb .w-mk2.cam{ background: #dfe8ff; color: #3f6fe8; border-color: #3f6fe8 }
+.tale-wb .w-mk2.obj{ background: #fff2b8; color: #9a7316; border-color: #c99a2e }
+.tale-wb .w-edfoot{ display: flex; align-items: center; gap: 8px; flex-wrap: wrap }
+.tale-wb .w-edhint{ font-size: 12px; color: var(--w-mut) }
+.tale-wb .w-dirlayer{ position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none }
+.tale-wb .w-ro{ position: relative }
+.tale-wb .w-memo-in select{ font: inherit; font-size: 12px; border: 1px solid var(--w-line); border-radius: 6px; background: var(--w-panel); color: var(--w-ink); padding: 3px 4px }
+.tale-wb .w-busy.soft{ place-items: start center; background: color-mix(in srgb, var(--w-bg) 30%, transparent); backdrop-filter: none; padding-top: 70px }
+.tale-wb .w-busy-card.wide{ width: min(620px, 100%); justify-items: stretch; text-align: left; box-shadow: 0 16px 40px rgb(0 0 0 / .18) }
+.tale-wb .w-boot-h{ display: flex; gap: 12px; align-items: center }
+.tale-wb .w-boot-bar{ display: grid; gap: 4px; font-size: 12px; color: var(--w-mut) }
+.tale-wb .w-boot-bar b{ color: var(--w-ink) }
+.tale-wb .w-boot-shots span{ display: inline-flex; gap: 3px; margin-left: 8px; vertical-align: middle }
+.tale-wb .w-boot-shots i{ width: 14px; height: 9px; border-radius: 2px; background: var(--w-line) }
+.tale-wb .w-boot-shots i.on{ background: var(--w-acc) }
+.tale-wb .w-shot.boot{ opacity: .75; cursor: progress }
+.tale-wb .w-spin.sm{ width: 12px; height: 12px; border-width: 2px; display: inline-block; vertical-align: -2px }
+.tale-wb .w-busy-card .w-btn.ghost{ justify-self: start }
+.tale-wb .tw-wrap{ padding: 20px 20px 48px; max-width: 1680px; margin: 0 auto; display: grid; gap: 18px }
+.tale-wb h1{ font-size: 22px; margin: 0; letter-spacing: -.01em; text-wrap: balance }
+.tale-wb h2{ font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--mut); margin: 0 0 10px; font-weight: 600 }
+.tale-wb .top{ display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; justify-content: space-between }
+.tale-wb .top p{ margin: 4px 0 0; color: var(--mut); max-width: 70ch }
+.tale-wb .plans{ display: grid; gap: 10px }
+.tale-wb .plans-h{ display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center }
+.tale-wb .plans-b{ display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px }
+.tale-wb .plan{ background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; min-width: 0; font-size: 13px }
+.tale-wb .plan b{ display: block; margin-bottom: 2px }
+.tale-wb .plan span{ color: var(--mut) }
+.tale-wb .plan.on{ border-color: var(--hl); box-shadow: inset 0 0 0 1px var(--hl) }
+.tale-wb .principles{ display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px }
+.tale-wb .pr{ background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; min-width: 0 }
+.tale-wb .pr b{ display: block; font-size: 13px }
+.tale-wb .pr span{ color: var(--mut); font-size: 12.5px }
+.tale-wb .split{ display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 16px; align-items: start }
+.tale-wb .split.proto-first{ grid-template-columns: minmax(0, 1.35fr) minmax(360px, 1fr) }
+.tale-wb .split.proto-first.closed{ grid-template-columns: minmax(0, 1fr) auto }
+.tale-wb .split.proto-first.closed .flow-pane{ display: none }
+.tale-wb .flow-pane{ position: sticky; top: 12px }
+.tale-wb .flow-pane .flow-box{ max-height: calc(100vh - 170px) }
+.tale-wb .legend.in-pane{ padding: 8px 14px 0; font-size: 11.5px; gap: 6px 12px }
+.tale-wb .flow-open{ writing-mode: vertical-rl; font: inherit; font-size: 13px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 10px; padding: 14px 8px; cursor: pointer; align-self: start }
+.tale-wb .desc-pane > .pane{ border-radius: 10px }
+@media (max-width: 1100px){.tale-wb .split.proto-first{ grid-template-columns: minmax(0, 1fr) }
+.tale-wb .flow-pane{ position: static }}
+.tale-wb .seq{ display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 10px; font-size: 13px }
+.tale-wb .seq b{ border: 1px solid var(--line); background: var(--surface); border-radius: 7px; padding: 3px 10px }
+.tale-wb .seq span{ color: var(--mut); border: 1px dashed var(--line); border-radius: 7px; padding: 3px 10px }
+.tale-wb .seq i{ font-style: normal; color: var(--mut) }
+.tale-wb .seq p{ flex-basis: 100%; margin: 4px 0 0; font-size: 12.5px; color: var(--mut); max-width: 110ch }
+.tale-wb .seq p b{ border: 0; background: none; padding: 0; color: var(--ink) }
+.tale-wb .sec-h{ margin: 8px 0 0; font-size: 16px }
+.tale-wb .sec-h small{ font-weight: 400; color: var(--mut); font-size: 12.5px; margin-left: 8px }
+@media (max-width: 1100px){.tale-wb .split{ grid-template-columns: minmax(0, 1fr) }}
+.tale-wb .pane{ background: var(--surface); border: 1px solid var(--line); border-radius: 10px; min-width: 0 }
+.tale-wb .pane-h{ display: flex; gap: 8px; align-items: center; justify-content: space-between; padding: 10px 14px; border-bottom: 1px solid var(--line); flex-wrap: wrap }
+.tale-wb .pane-h b{ font-size: 13px }
+.tale-wb .side{ display: grid; gap: 16px; position: sticky; top: env(safe-area-inset-top, 0px) }
+@media (max-width: 1100px){.tale-wb .side{ position: static }}
+.tale-wb .info{ padding: 14px 16px; display: grid; gap: 10px }
+.tale-wb .info-h{ display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center }
+.tale-wb .info-h h3{ margin: 0; font-size: 18px }
+.tale-wb .tag{ font-size: 11.5px; border-radius: 99px; padding: 1px 8px; border: 1px solid var(--line); color: var(--mut); white-space: nowrap }
+.tale-wb .tag.t-ai{ color: var(--ai); border-color: var(--ai) }
+.tale-wb .tag.t-new{ color: var(--new); border-color: var(--new) }
+.tale-wb .tag.t-change{ color: var(--accent); border-color: var(--accent) }
+.tale-wb .tag.t-lock{ color: var(--lock); border-color: var(--lock) }
+.tale-wb .info p{ margin: 0; max-width: 72ch }
+.tale-wb .info ul{ margin: 0; padding-left: 18px }
+.tale-wb .info .sub{ font-size: 12px; font-weight: 600; color: var(--mut); margin-top: 2px }
+.tale-wb .info .removed li{ text-decoration: line-through; text-decoration-color: var(--back); color: var(--mut) }
+.tale-wb .info .open li{ color: var(--lock) }
+.tale-wb .next{ display: flex; flex-wrap: wrap; gap: 6px }
+.tale-wb .next .btn{ display: inline-flex; gap: 6px; align-items: center }
+.tale-wb .next .k-yes{ border-color: var(--yes) }
+.tale-wb .next .k-no{ border-style: dashed }
+.tale-wb .next .k-back{ border-color: var(--back); color: var(--back) }
+.tale-wb .fix{ font-size: 12.5px; color: var(--mut) }
+.tale-wb .fix b{ color: var(--yes); font-weight: 600 }
+.tale-wb .review{ display: flex; flex-wrap: wrap; gap: 6px; align-items: center; border-top: 1px solid var(--line); padding-top: 10px }
+.tale-wb .review label{ font-size: 12px; color: var(--mut) }
+.tale-wb .review .seg{ display: flex; gap: 4px }
+.tale-wb .review .seg button[aria-pressed="true"]{ background: var(--accent-soft); border-color: var(--accent) }
+.tale-wb .review textarea{ width: 100%; min-height: 54px; font: inherit; font-size: 13px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); padding: 6px 8px; resize: vertical }
+.tale-wb{ --dv-keep: #6b7684; --dv-chg: #a86a00; --dv-mv: var(--accent); --dv-new: var(--new); --dv-del: var(--back); --dv-split: var(--ai) }
+.tale-wb .dev{ margin: 28px 0 8px; padding: 22px 22px 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px }
+.tale-wb .dev h2{ margin: 0 0 4px; font-size: 19px }
+.tale-wb .dev h3{ margin: 26px 0 10px; font-size: 15.5px }
+.tale-wb .dev h4{ margin: 18px 0 8px; font-size: 14px; display: flex; gap: 8px; align-items: baseline }
+.tale-wb .dev h4 .mono{ font-size: 12px; color: var(--mut); font-weight: 400 }
+.tale-wb .dv-head p, .tale-wb .dv-sub{ margin: 0; color: var(--mut); font-size: 13px; max-width: 72ch }
+.tale-wb .dv-flow{ display: grid; gap: 10px }
+.tale-wb .dv-lane{ display: grid; grid-template-columns: 56px minmax(0, 1fr); align-items: center; gap: 8px }
+.tale-wb .dv-lab{ font-size: 12.5px; font-weight: 600; color: var(--mut) }
+.tale-wb .dv-row{ display: flex; align-items: center; gap: 4px; overflow-x: auto; padding: 2px 0 6px }
+.tale-wb .dv-box{ flex: 0 0 auto; min-width: 104px; padding: 8px 10px; border: 1.25px solid var(--line); border-radius: 8px; text-align: center; background: var(--surface) }
+.tale-wb .dv-box b{ display: block; font-size: 13px }
+.tale-wb .dv-box span{ display: block; font-size: 11.5px; color: var(--mut) }
+.tale-wb .dv-box.dv-acc{ border: 2px solid var(--accent); background: var(--accent-soft) }
+.tale-wb .dv-box.dv-bad{ border: 2px solid var(--hl); background: color-mix(in srgb, var(--hl) 10%, var(--surface)) }
+.tale-wb .dv-box.dv-out{ border-style: dashed }
+.tale-wb .dv-arr{ font-style: normal; color: var(--mut); flex: 0 0 auto }
+.tale-wb .dv-note{ margin: 4px 0 0 64px; font-size: 12.5px; color: var(--mut) }
+.tale-wb .dv-note b{ color: var(--ink) }
+.tale-wb .dv-id{ font: 500 11.5px var(--mono); padding: 1px 6px; margin: 1px 3px 1px 0; border: 1px solid var(--line); border-radius: 5px; background: var(--bg); color: var(--accent); cursor: pointer }
+.tale-wb .dv-id:hover, .tale-wb .dv-id:focus-visible{ border-color: var(--accent); outline: none; background: var(--accent-soft) }
+.tale-wb .dv-map{ display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 12px }
+.tale-wb .dv-col{ background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 12px; display: grid; gap: 8px; align-content: start }
+.tale-wb .dv-col-h b{ display: block; font-size: 14px }
+.tale-wb .dv-col-h span{ font-size: 11.5px; color: var(--mut) }
+.tale-wb .dv-chip{ text-align: left; font: inherit; color: var(--ink); background: var(--surface); border: 1.25px solid var(--line); border-radius: 8px; padding: 7px 10px; cursor: pointer; display: grid; gap: 1px }
+.tale-wb .dv-chip em{ font-style: normal; font-size: 11px; font-weight: 600; color: var(--mut) }
+.tale-wb .dv-chip b{ font-size: 13px }
+.tale-wb .dv-chip span{ font-size: 11.5px; color: var(--mut) }
+.tale-wb .dv-chip:hover, .tale-wb .dv-chip:focus-visible{ outline: 2px solid var(--accent); outline-offset: 1px }
+.tale-wb .dv-c-mv{ border: 2px solid var(--dv-mv); background: var(--accent-soft) }
+.tale-wb .dv-c-mv em{ color: var(--dv-mv) }
+.tale-wb .dv-c-new{ border-style: dashed }
+.tale-wb .dv-c-new em{ color: var(--dv-new) }
+.tale-wb .dv-c-chg em{ color: var(--dv-chg) }
+.tale-wb .dv-c-keep{ border-color: color-mix(in srgb, var(--line) 70%, transparent) }
+.tale-wb .dv-c-split{ border: 2px solid var(--dv-split) }
+.tale-wb .dv-c-split em{ color: var(--dv-split) }
+.tale-wb .dv-gone{ margin-top: 12px; border: 1.25px dashed var(--dv-del); border-radius: 10px; padding: 10px 14px }
+.tale-wb .dv-gone b{ font-size: 13.5px }
+.tale-wb .dv-gone ul{ margin: 6px 0 0; padding-left: 18px; columns: 2; column-gap: 28px; font-size: 12.5px }
+.tale-wb .dv-tw{ overflow-x: auto; border: 1px solid var(--line); border-radius: 10px }
+.tale-wb .dv-t{ width: 100%; border-collapse: collapse; font-size: 12.5px; min-width: 860px }
+.tale-wb .dv-t th{ text-align: left; font-weight: 600; color: var(--mut); background: var(--bg); padding: 8px 10px; border-bottom: 1px solid var(--line); white-space: nowrap }
+.tale-wb .dv-t td{ padding: 8px 10px; border-top: 1px solid var(--line); vertical-align: top }
+.tale-wb .dv-t td:nth-child(1){ width: 15% }
+.tale-wb .dv-t td:nth-child(2){ width: 17% }
+.tale-wb .dv-t td:nth-child(3){ width: 33% }
+.tale-wb .dv-t td:nth-child(4){ width: 9%; white-space: nowrap }
+.tale-wb .dv-t td:nth-child(5){ width: 17% }
+.tale-wb .dv-ids{ white-space: normal }
+.tale-wb .dv-st{ display: inline-block; font-size: 11.5px; font-weight: 600; padding: 1px 7px; border-radius: 999px; border: 1px solid currentColor; white-space: nowrap }
+.tale-wb .dv-keep{ color: var(--dv-keep) }
+.tale-wb .dv-chg{ color: var(--dv-chg) }
+.tale-wb .dv-mv{ color: var(--dv-mv) }
+.tale-wb .dv-new{ color: var(--dv-new) }
+.tale-wb .dv-del{ color: var(--dv-del) }
+.tale-wb .dv-hold{ color: var(--mut) }
+.tale-wb .dv-ren{ color: var(--ink) }
+.tale-wb .dv-split{ color: var(--dv-split) }
+.tale-wb .dv-files{ padding-left: 18px; font-size: 13px }
+.tale-wb .dv-files li{ margin: 4px 0 }
+.tale-wb .dv-in{ margin-top: 14px; padding-top: 10px; border-top: 1px dashed var(--line) }
+.tale-wb .dv-in-r{ margin: 8px 0; padding: 8px 10px; background: var(--bg); border-radius: 8px; font-size: 12.5px }
+.tale-wb .dv-in-ba{ display: grid; grid-template-columns: 44px 1fr; gap: 6px; margin-top: 3px }
+.tale-wb .dv-in-ba span{ color: var(--mut) }
+.tale-wb .dv-g{ color: var(--mut); font-size: 11.5px }
+.tale-wb .dv-jump{ font-size: 12.5px; color: var(--accent) }
+@media (max-width: 900px){.tale-wb .dv-map{ grid-template-columns: repeat(2, minmax(0, 1fr)) }
+.tale-wb .dv-gone ul{ columns: 1 }
+.tale-wb .dv-note{ margin-left: 0 }}
+@media (max-width: 520px){.tale-wb .dv-map{ grid-template-columns: minmax(0, 1fr) }
+.tale-wb .dv-lane{ grid-template-columns: minmax(0, 1fr) }
+.tale-wb .dev{ padding: 16px 14px 6px }}
+.tale-wb .tt-nav{ display: flex; gap: 4px; margin: 4px 0 16px; border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 30; background: var(--bg); padding-top: 6px }
+.tale-wb .tt-nav button{ font: 600 14px var(--font); color: var(--mut); background: none; border: 0; border-bottom: 2.5px solid transparent; padding: 10px 16px 9px; cursor: pointer; margin-bottom: -1px }
+.tale-wb .tt-nav button[aria-selected="true"]{ color: var(--ink); border-bottom-color: var(--accent) }
+.tale-wb .tt-nav button:focus-visible{ outline: 2px solid var(--accent); outline-offset: -2px; border-radius: 6px }
+.tale-wb .tt-off{ position: absolute !important; left: -12000px !important; top: 0 !important; width: 1100px !important; visibility: hidden !important }
+.tale-wb[data-tt="flow"] #mainSplit, .tale-wb[data-tt="spec"] #mainSplit{ grid-template-columns: minmax(0, 1fr) !important }
+.tale-wb[data-tt="flow"] #flowOpen, .tale-wb[data-tt="flow"] #flowClose, .tale-wb[data-tt="spec"] #flowOpen{ display: none !important }
+.tale-wb[data-tt="spec"] #mainSplit{ position: absolute !important; left: -12000px !important; top: 0 !important; width: 1100px !important; visibility: hidden !important; display: block !important }
+.tale-wb[data-tt="flow"] .flow-pane{ display: block !important; position: static }
+.tale-wb[data-tt="flow"] .flow-pane .flow-box{ max-height: calc(100vh - 230px); min-height: 520px }
+.tale-wb[data-tt="flow"] section[aria-label="화면 목업"]{ display: none }
+.tale-wb[data-tt="spec"] .desc-pane, .tale-wb[data-tt="spec"] .sec-h, .tale-wb[data-tt="spec"] .plans, .tale-wb[data-tt="spec"] section[aria-label="원칙"]{ display: none }
+.tale-wb[data-tt="flow"] #devSpec, .tale-wb[data-tt="proto"] #devSpec{ display: none }
+.tale-wb[data-tt="spec"] .dev{ margin-top: 0 }
+.tale-wb .dv-toproto{ display: none; margin-bottom: 6px }
+.tale-wb[data-tt="flow"] .dv-toproto{ display: inline-block }
+.tale-wb[data-tt="proto"] .dv-in:not(:has(.dv-in-r)){ display: none }
+.tale-wb #pageTop{display:none}
+.tale-wb .tw-wrap{padding-top:8px;max-width:none}
+@media (min-width:760px){.tale-wb .split.proto-first:not(.closed){grid-template-columns:minmax(0,1.25fr) minmax(300px,1fr)!important}
+.tale-wb .flow-pane{position:sticky!important;top:8px}
+.tale-wb .flow-pane .flow-box{max-height:calc(100vh - 150px)!important}}
+.tale-wb{--font:var(--font-pretendard),"Pretendard",system-ui,sans-serif;--mono:"JetBrains Mono",ui-monospace,monospace;
+--bg:#070b14;--surface:#0c1220;--line:#1f2a3a;--accent:#00f0ff;--accent-soft:#0b2a33;
+background:var(--bg);color:var(--ink);font:14px/1.55 var(--font);border:1px solid rgba(0,240,255,.25)}
+.tale-wb .tw-wrap{max-width:none;margin:0;padding:12px}
+.tale-wb #pageTop{display:none}
+.tale-wb .tt-nav{position:sticky;top:64px;z-index:5}
