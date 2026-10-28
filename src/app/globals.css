@@ -496,3 +496,22 @@ html[lang="ko"] .ko-safe * {
   object-fit: contain !important;
   object-position: center !important;
 }
+
+/* slow parallax-ish breathing on the restored-world backdrop */
+@keyframes world-drift {
+  from {
+    transform: scale(1.04) translateX(-0.6%);
+  }
+  to {
+    transform: scale(1.08) translateX(0.6%);
+  }
+}
+.world-drift {
+  transform-origin: 50% 100%;
+  animation: world-drift 24s ease-in-out infinite alternate;
+}
+@media (prefers-reduced-motion: reduce) {
+  .world-drift {
+    animation: none;
+  }
+}
