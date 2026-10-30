@@ -236,7 +236,7 @@ export function WorkDetailClient({ project, prev, next }: WorkDetailClientProps)
               {project.links?.map((l) => (
                 <a
                   key={l.url}
-                  href={l.url}
+                  href={locale === "en" && l.urlEn ? l.urlEn : l.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="notch-sm inline-flex items-center gap-2 border border-neon/50 px-6 py-3.5 font-mono text-xs uppercase tracking-[0.2em] text-neon transition-colors hover:bg-neon hover:text-ink"

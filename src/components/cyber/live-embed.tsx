@@ -20,8 +20,20 @@ const COPY = {
  * floating HUD. "Full screen" opens it over the whole site (nothing on top
  * of it); on touch screens that's what a tap does, since an inline iframe
  * would also swallow the page's scroll. */
-export function LiveEmbed({ src, label, height = 760 }: { src: string; label: { ko: string; en: string }; height?: number }) {
+export function LiveEmbed({
+  src: srcKo,
+  srcEn,
+  label,
+  height = 760,
+}: {
+  src: string;
+  /** English build of the same prototype, used when the site is in EN. */
+  srcEn?: string;
+  label: { ko: string; en: string };
+  height?: number;
+}) {
   const { locale } = useLocale();
+  const src = locale === "en" && srcEn ? srcEn : srcKo;
   const ref = useRef<HTMLDivElement | null>(null);
   const [near, setNear] = useState(false);
   const [full, setFull] = useState(false);
