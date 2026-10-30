@@ -34,7 +34,7 @@ export function MissionsSection() {
             <InfectedGlobe />
           </div>
           <div data-reveal>
-            <SectorMap />
+            <SectorMap tapPreview />
           </div>
         </div>
       </div>
