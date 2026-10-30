@@ -7,7 +7,6 @@ import { VISIBLE_WORK_PROJECTS, type WorkProject } from "@/lib/work-content";
 import { useRestored } from "@/lib/mission-progress";
 import { useLocale } from "@/components/site-header/locale-context";
 import { Chip, useRevealChildren } from "./primitives";
-import { MissionPreview, useTapPreview } from "./mission-preview";
 
 const FILTERS = ["All", "Built by Me", "Brand & Identity", "Public", "Business", "Systems & Tools"] as const;
 type Filter = (typeof FILTERS)[number];
@@ -54,7 +53,7 @@ export function MissionCover({ project, className }: { project: WorkProject; cla
   );
 }
 
-function MissionCard({ project, featured, onTap }: { project: WorkProject; featured?: boolean; onTap?: (e: React.MouseEvent) => void }) {
+function MissionCard({ project, featured }: { project: WorkProject; featured?: boolean }) {
   const { locale } = useLocale();
   const restored = useRestored().includes(project.index);
   const num = missionNumber(project);
@@ -63,7 +62,6 @@ function MissionCard({ project, featured, onTap }: { project: WorkProject; featu
     <Link prefetch={false}
       href={`/work/${project.index}`}
       data-reveal
-      onClick={onTap}
       className={clsx(
         "group relative flex flex-col border border-white/10 bg-ink/70 backdrop-blur-sm transition-colors duration-300 hover:border-neon/60",
         featured && "md:col-span-2 md:grid md:grid-cols-[1.25fr_1fr]"
@@ -149,7 +147,6 @@ export function MissionBrowser({ limit, showArchiveLink }: { limit?: number; sho
   const { locale } = useLocale();
   const [filter, setFilter] = useState<Filter>("All");
   const ref = useRevealChildren<HTMLDivElement>();
-  const { preview, intercept, close } = useTapPreview();
 
   const list = useMemo(() => {
     const all = filter === "All" ? VISIBLE_WORK_PROJECTS : VISIBLE_WORK_PROJECTS.filter((p) => (p.tags ?? []).includes(filter));
@@ -179,11 +176,10 @@ export function MissionBrowser({ limit, showArchiveLink }: { limit?: number; sho
 
       <div key={filter} className="grid gap-5 md:grid-cols-2 md:gap-6">
         {list.map((p, i) => (
-          <MissionCard key={p.index} project={p} featured={filter === "All" && i === 0} onTap={intercept(p)} />
+          <MissionCard key={p.index} project={p} featured={filter === "All" && i === 0} />
         ))}
       </div>
 
-      <MissionPreview project={preview} onClose={close} />
 
       {showArchiveLink && (
         <div className="mt-12 flex justify-center">

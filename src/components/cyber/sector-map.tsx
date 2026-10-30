@@ -22,9 +22,10 @@ function hash(n: number) {
 /** Network map of every project as a sector node. Red = still infected,
  * cyan = restored (visited). Lines connect each node to its two nearest
  * neighbours so the map reads as one connected world. Hovering a node shows
- * the project's thumbnail; on touch screens a tap opens a preview popup.
- * `collapsible` starts it folded behind an open/close header. */
-export function SectorMap({ collapsible }: { collapsible?: boolean }) {
+ * the project's thumbnail.
+ * `collapsible` starts it folded behind an open/close header; `tapPreview`
+ * (home) makes a touch tap open the preview popup instead of navigating. */
+export function SectorMap({ collapsible, tapPreview }: { collapsible?: boolean; tapPreview?: boolean }) {
   const { locale } = useLocale();
   const restored = useRestored();
   const [hover, setHover] = useState<string | null>(null);
@@ -135,7 +136,7 @@ export function SectorMap({ collapsible }: { collapsible?: boolean }) {
                 onMouseLeave={() => setHover(null)}
                 onFocus={() => setHover(p.index)}
                 onBlur={() => setHover(null)}
-                onClick={intercept(p)}
+                onClick={tapPreview ? intercept(p) : undefined}
                 aria-label={p.title[locale]}
               >
                 <g transform={`translate(${x} ${y})`} className="cursor-pointer">
