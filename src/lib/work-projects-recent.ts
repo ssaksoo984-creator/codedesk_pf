@@ -264,8 +264,48 @@ export const RECENT_PROJECTS: WorkProject[] = [
       en: "Express the library and AI symbols — book, bookmark, star — in two directions between public trust and approachability.",
     },
     cover: "/media/covers/10.webp",
-    links: [{ label: { ko: "챗봇 프로토타입 열기", en: "Open chatbot prototype" }, url: "/proto/nail-search/" }],
+    links: [{ label: { ko: "챗봇 프로토타입 열기", en: "Open chatbot prototype" }, url: "/proto/nail-search/", urlEn: "/proto/nail-search/en/" }],
     story: [
+      {
+        id: "chatbot",
+        label: { ko: "적용 · AI 의미기반 검색 챗봇", en: "Applied — AI semantic-search chatbot" },
+        title: {
+          ko: "키워드 대신 문장으로 묻고, 근거와 함께 답을 받는 도서관.",
+          en: "A library you ask in sentences — and that answers with its sources.",
+        },
+        body: [
+          {
+            ko: "TYPE-1 로고를 국회전자도서관 AI 의미기반 검색 화면에 적용했습니다. 로고 팔레트(네이비 · 로열 · 스카이)는 아껴 쓰고, 화면의 주인공은 질문과 답이 되도록 넓은 여백과 차분한 회색 위계를 잡았습니다.",
+            en: "The TYPE-1 mark is applied to the National Assembly e-library's AI semantic search. The logo palette (navy, royal, sky) is used sparingly so the question and the answer stay the heroes, set on generous space and a quiet grey hierarchy.",
+          },
+        ],
+        items: [
+          {
+            label: { ko: "추천 질문으로 시작", en: "Start from suggested questions" },
+            note: { ko: "빈 검색창 앞에서 막막하지 않도록, 문장형 질문 예시 카드와 '질문 잘하는 법' 팁을 첫 화면에 둡니다.", en: "Sentence-style example cards and a 'how to ask' tip sit on the first screen so a blank box never stalls anyone." },
+          },
+          {
+            label: { ko: "근거가 붙은 요약 답변", en: "Answers with numbered sources" },
+            note: { ko: "요약의 각 문단에 번호를 달아, 누르면 그 근거가 된 원문 자료로 바로 이어집니다. AI 답변의 신뢰를 원문으로 확인하게 했습니다.", en: "Each paragraph of the summary carries numbers that open the source documents behind it — trust is checked against the originals." },
+          },
+          {
+            label: { ko: "관련 자료 · 이어서 묻기", en: "Related material & follow-ups" },
+            note: { ko: "답변 아래 자료 유형(연구보고서 · 학술논문 · 단행본) 카드와 이어서 물어볼 질문을 붙여 탐색이 끊기지 않게 했습니다.", en: "Typed source cards (reports, papers, books) and follow-up prompts under each answer keep exploration going." },
+          },
+          {
+            label: { ko: "이용자별 자료 범위 안내", en: "Scope by user type" },
+            note: { ko: "이용 가이드에서 일반 이용자와 국회 직원이 검색할 수 있는 자료 범위를 구분해 보여 줍니다.", en: "The guide separates what the public and Assembly staff can each search." },
+          },
+        ],
+        embed: { src: "/proto/nail-search/", srcEn: "/proto/nail-search/en/", label: { ko: "NAIL AI 검색", en: "NAIL AI search" }, height: 780 },
+        columns: 2,
+        images: [
+          { src: "/media/home_work/nail/chatbot/n_home.webp", caption: { ko: "첫 화면 — 문장으로 묻는 검색창과 추천 질문", en: "Home — sentence search and suggested questions" } },
+          { src: "/media/home_work/nail/chatbot/n_answer.webp", caption: { ko: "답변 — 번호로 근거가 연결된 요약 · 관련 자료", en: "Answer — summary with numbered sources, related items" } },
+          { src: "/media/home_work/nail/chatbot/n_guide.webp", caption: { ko: "이용 가이드 — 시스템 소개 · 자료 유형 · 이용 방법", en: "Guide — about, source types, how to use" } },
+          { src: "/media/home_work/nail/chatbot/n_mobile.webp", caption: { ko: "모바일", en: "Mobile" }, fit: "contain", bg: "#eef3fc" },
+        ],
+      },
       {
         id: "type1",
         label: { ko: "디자인 1 · TYPE-1", en: "Design 1 · TYPE-1" },
@@ -324,46 +364,6 @@ export const RECENT_PROJECTS: WorkProject[] = [
           { hex: "#24B4F4", name: { ko: "스카이", en: "Sky" } },
           { hex: "#305ADA", name: { ko: "코발트", en: "Cobalt" } },
           { hex: "#9282F0", name: { ko: "라벤더", en: "Lavender" } },
-        ],
-      },
-      {
-        id: "chatbot",
-        label: { ko: "적용 · AI 의미기반 검색 챗봇", en: "Applied — AI semantic-search chatbot" },
-        title: {
-          ko: "키워드 대신 문장으로 묻고, 근거와 함께 답을 받는 도서관.",
-          en: "A library you ask in sentences — and that answers with its sources.",
-        },
-        body: [
-          {
-            ko: "TYPE-1 로고를 국회전자도서관 AI 의미기반 검색 화면에 적용했습니다. 로고 팔레트(네이비 · 로열 · 스카이)는 아껴 쓰고, 화면의 주인공은 질문과 답이 되도록 넓은 여백과 차분한 회색 위계를 잡았습니다.",
-            en: "The TYPE-1 mark is applied to the National Assembly e-library's AI semantic search. The logo palette (navy, royal, sky) is used sparingly so the question and the answer stay the heroes, set on generous space and a quiet grey hierarchy.",
-          },
-        ],
-        items: [
-          {
-            label: { ko: "추천 질문으로 시작", en: "Start from suggested questions" },
-            note: { ko: "빈 검색창 앞에서 막막하지 않도록, 문장형 질문 예시 카드와 '질문 잘하는 법' 팁을 첫 화면에 둡니다.", en: "Sentence-style example cards and a 'how to ask' tip sit on the first screen so a blank box never stalls anyone." },
-          },
-          {
-            label: { ko: "근거가 붙은 요약 답변", en: "Answers with numbered sources" },
-            note: { ko: "요약의 각 문단에 번호를 달아, 누르면 그 근거가 된 원문 자료로 바로 이어집니다. AI 답변의 신뢰를 원문으로 확인하게 했습니다.", en: "Each paragraph of the summary carries numbers that open the source documents behind it — trust is checked against the originals." },
-          },
-          {
-            label: { ko: "관련 자료 · 이어서 묻기", en: "Related material & follow-ups" },
-            note: { ko: "답변 아래 자료 유형(연구보고서 · 학술논문 · 단행본) 카드와 이어서 물어볼 질문을 붙여 탐색이 끊기지 않게 했습니다.", en: "Typed source cards (reports, papers, books) and follow-up prompts under each answer keep exploration going." },
-          },
-          {
-            label: { ko: "이용자별 자료 범위 안내", en: "Scope by user type" },
-            note: { ko: "이용 가이드에서 일반 이용자와 국회 직원이 검색할 수 있는 자료 범위를 구분해 보여 줍니다.", en: "The guide separates what the public and Assembly staff can each search." },
-          },
-        ],
-        embed: { src: "/proto/nail-search/", label: { ko: "NAIL AI 검색", en: "NAIL AI search" }, height: 780 },
-        columns: 2,
-        images: [
-          { src: "/media/home_work/nail/chatbot/n_home.webp", caption: { ko: "첫 화면 — 문장으로 묻는 검색창과 추천 질문", en: "Home — sentence search and suggested questions" } },
-          { src: "/media/home_work/nail/chatbot/n_answer.webp", caption: { ko: "답변 — 번호로 근거가 연결된 요약 · 관련 자료", en: "Answer — summary with numbered sources, related items" } },
-          { src: "/media/home_work/nail/chatbot/n_guide.webp", caption: { ko: "이용 가이드 — 시스템 소개 · 자료 유형 · 이용 방법", en: "Guide — about, source types, how to use" } },
-          { src: "/media/home_work/nail/chatbot/n_mobile.webp", caption: { ko: "모바일", en: "Mobile" }, fit: "contain", bg: "#eef3fc" },
         ],
       },
     ],

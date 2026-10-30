@@ -1,0 +1,647 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NAIL Semantic Search</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{
+  /* logo palette, used sparingly */
+  --navy:#1F398D; --royal:#0046E2; --sky:#2179F9;
+  /* UI roles */
+  --primary:#1F398D; --primary-hover:#192F78;
+  --accent:#2B5FD9;
+  --tint:#EEF3FC; --tint-2:#E1E9F9;
+  --ink:#141A2E; --ink-2:#3A4259; --ink-3:#6A7189; --ink-4:#A0A6B8;
+  --line:#E6E9F0; --line-2:#D9DEE8;
+  --surface:#FFFFFF; --bg:#F6F8FC;
+  --ok:#1F9D6B; --no:#D9534F;
+  --r-lg:16px; --r-md:12px; --r-sm:8px;
+  --sideW:232px; --sideMini:64px; --gap:12px;
+  --shadow:0 1px 2px rgba(20,26,46,.04),0 2px 8px -2px rgba(20,26,46,.06);
+  --shadow-hover:0 2px 4px rgba(20,26,46,.04),0 10px 24px -8px rgba(31,57,141,.16);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Pretendard Variable",Pretendard,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased;word-break:keep-all;letter-spacing:-.01em}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0;letter-spacing:inherit}
+svg{flex:none}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+::selection{background:rgba(43,95,217,.16)}
+
+/* very soft backdrop */
+.aurora{position:fixed;inset:0;z-index:-1;pointer-events:none;background:
+  radial-gradient(800px 420px at 85% -5%,rgba(33,121,249,.07),transparent 70%),
+  radial-gradient(700px 420px at 10% 105%,rgba(31,57,141,.05),transparent 70%),var(--bg)}
+.aurora i{display:none}
+
+/* ---------- layout ---------- */
+.app{display:flex;min-height:100vh}
+.side{position:fixed;top:var(--gap);bottom:var(--gap);left:var(--gap);width:var(--sideW);background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);display:flex;flex-direction:column;z-index:30;transition:width .22s ease, transform .22s ease;overflow:hidden}
+.main{flex:1;margin-left:calc(var(--sideW) + var(--gap));min-width:0;display:flex;flex-direction:column;min-height:100vh;transition:margin .22s ease}
+.app.collapsed .side{width:var(--sideMini)}
+.app.collapsed .main{margin-left:calc(var(--sideMini) + var(--gap))}
+
+.side-head{height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 10px 0 18px}
+.logo{display:block;line-height:0}
+.logo-full{width:112px;height:auto;display:block}
+.logo-mark{width:26px;height:26px;display:none}
+.icon-btn{width:32px;height:32px;border-radius:var(--r-sm);display:grid;place-items:center;color:var(--ink-3);transition:background .15s,color .15s}
+.icon-btn svg{width:18px;height:18px}
+.icon-btn:hover{background:var(--tint);color:var(--ink)}
+.side-nav{padding:4px 10px 10px}
+.nav-item{display:flex;align-items:center;gap:10px;height:38px;padding:0 12px;border-radius:10px;color:var(--ink-2);font-size:14px;white-space:nowrap;transition:background .15s,color .15s}
+.nav-item svg{width:18px;height:18px}
+.nav-item:hover{background:var(--tint);color:var(--ink)}
+.nav-item.primary{width:100%;background:var(--primary);color:#fff;font-weight:600}
+.nav-item.primary:hover{background:var(--primary-hover)}
+.side-label{font-size:11.5px;font-weight:600;color:var(--ink-4);padding:12px 22px 4px}
+.history{flex:1;overflow:auto;padding:0 10px 10px}
+.hist{display:block;width:100%;text-align:left;padding:8px 12px;border-radius:var(--r-sm);font-size:13.5px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:background .15s,color .15s}
+.hist:hover{background:var(--tint);color:var(--ink)}
+.hist.active{background:var(--tint);color:var(--navy);font-weight:600}
+.side-foot{padding:10px;border-top:1px solid var(--line)}
+.app.collapsed .txt,.app.collapsed .side-label,.app.collapsed .history,.app.collapsed .logo-full{display:none}
+.app.collapsed .logo-mark{display:block}
+.app.collapsed .side-head{height:auto;padding:16px 0 8px;flex-direction:column;gap:10px}
+.app.collapsed .nav-item{justify-content:center;padding:0}
+
+/* ---------- topbar ---------- */
+.top{position:sticky;top:0;z-index:10;height:64px;display:flex;align-items:center;gap:12px;padding:var(--gap) 28px 0;background:linear-gradient(var(--bg) 70%,rgba(246,248,252,0))}
+.top h1{margin:0;font-size:15px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.top h1:empty{display:none}
+.top .menu-btn{display:none}
+
+/* ---------- home ---------- */
+.home{flex:1;display:flex;flex-direction:column;align-items:center;padding:24px 28px 12px}
+.eyebrow{display:inline-flex;align-items:center;gap:6px;margin-top:56px;padding:4px 10px 4px 6px;border-radius:999px;background:var(--tint);font-size:12px;font-weight:600;color:var(--navy)}
+.eyebrow .spark{width:18px;height:18px;border-radius:50%;background:var(--surface);display:grid;place-items:center;color:var(--sky)}
+.hero{font-size:36px;line-height:1.25;font-weight:700;letter-spacing:-.03em;margin:14px 0 8px;text-align:center}
+.grad-text{color:var(--navy)}
+.sub{margin:0 0 28px;color:var(--ink-3);font-size:15px;text-align:center}
+.wrap{width:100%;max-width:1040px}
+.wrap-narrow{width:100%;max-width:720px}
+
+.search{position:relative;display:flex;align-items:center;background:var(--surface);border:1px solid var(--line-2);border-radius:var(--r-lg);box-shadow:var(--shadow);transition:border-color .15s, box-shadow .15s}
+.search:focus-within{border-color:var(--accent);box-shadow:0 0 0 4px rgba(43,95,217,.10)}
+.search textarea{flex:1;border:0;outline:0;resize:none;font:inherit;font-size:15px;line-height:1.5;padding:17px 0 17px 20px;background:transparent;color:var(--ink);max-height:160px}
+.search textarea::placeholder{color:var(--ink-4)}
+.search .go{width:38px;height:38px;margin:0 9px;border-radius:10px;display:grid;place-items:center;color:var(--ink-4);background:var(--tint);transition:background .15s,color .15s}
+.search .go svg{width:18px;height:18px}
+.search.has-text .go{background:var(--primary);color:#fff}
+.search.has-text .go:hover{background:var(--primary-hover)}
+.search.compact textarea{font-size:14px;padding:14px 0 14px 18px}
+.search.compact .go{width:34px;height:34px;margin:0 7px}
+.hint{font-size:12px;color:var(--ink-4);margin-top:10px;text-align:center}
+.hint kbd{font-family:inherit;font-size:10.5px;background:var(--surface);border:1px solid var(--line-2);border-radius:4px;padding:0 5px;color:var(--ink-3)}
+
+.sec-title{font-size:17px;font-weight:700;letter-spacing:-.02em;margin:0}
+.sec-row{display:flex;align-items:center;justify-content:space-between;margin:56px 0 14px}
+.link-btn{display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:500;color:var(--ink-3);padding:6px 10px;border-radius:var(--r-sm);transition:all .15s}
+.link-btn:hover{color:var(--accent);background:var(--tint)}
+
+.q-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.q-card{position:relative;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:16px;min-height:116px;display:flex;flex-direction:column;gap:12px;font-size:14px;line-height:1.55;color:var(--ink-2);transition:border-color .15s, box-shadow .15s, transform .15s}
+.q-card:hover{border-color:var(--tint-2);box-shadow:var(--shadow-hover);transform:translateY(-2px);color:var(--ink)}
+.q-ic{width:28px;height:28px;border-radius:var(--r-sm);display:grid;place-items:center;color:var(--sky);background:var(--tint)}
+.q-ic svg{width:14px;height:14px}
+.q-card .arrow{position:absolute;right:14px;top:18px;width:16px;height:16px;color:var(--accent);opacity:0;transition:opacity .15s}
+.q-card:hover .arrow{opacity:1}
+
+.guide{margin-top:14px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:24px;display:none}
+.guide.open{display:block;animation:fade .25s ease}
+.guide h3{display:flex;align-items:center;gap:6px;font-size:15px;margin:0 0 12px}
+.g-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.g-card{background:var(--bg);border-radius:var(--r-md);padding:16px 18px}
+.g-card h4{display:flex;align-items:center;gap:8px;font-size:14px;margin:0 0 8px}
+.num{width:20px;height:20px;border-radius:6px;background:var(--tint-2);color:var(--navy);font-size:11.5px;font-weight:700;display:grid;place-items:center;flex:none}
+.ex{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--ink-2);padding:2px 0 2px 28px}
+.ex svg{width:15px;height:15px}
+.ex button{text-align:left}
+.ex button:hover{color:var(--accent);text-decoration:underline;text-underline-offset:3px}
+.tips{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.tips > div{padding:14px 16px;background:var(--bg);border-radius:var(--r-md)}
+.tips h4{font-size:14px!important;gap:8px!important}
+.tips .ex{padding-left:0!important}
+.tips .num{width:20px;height:20px}
+
+.disclaimer{display:flex;align-items:center;justify-content:center;gap:5px;font-size:12px;color:var(--ink-4);padding:12px 0 14px;margin:0}
+.disclaimer svg{width:13px;height:13px}
+.disclaimer svg circle:first-child{fill:var(--ink-4)}
+
+/* ---------- chat ---------- */
+.chat{flex:1;display:none;flex-direction:column}
+.app.in-chat .home{display:none}
+.app.in-chat .chat{display:flex}
+.thread{flex:1;padding:8px 28px 20px;display:flex;flex-direction:column;align-items:center;gap:44px}
+.turn{width:100%;max-width:880px}
+.user-q{display:flex;justify-content:flex-end;margin:0 0 14px}
+.user-q span:last-child{max-width:70%;background:var(--tint);color:var(--ink);font-size:14.5px;font-weight:500;padding:10px 16px;border-radius:16px 16px 4px 16px}
+.user-q .badge{display:none}
+.turn:first-child .user-q{display:none}
+
+.ai-head{display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:13px}
+.ai-av{width:24px;height:24px;border-radius:7px;background:var(--tint);display:grid;place-items:center;color:var(--sky)}
+.ai-av svg{width:12px;height:12px}
+.ai-head b{color:var(--ink);font-weight:600}
+.ai-meta{color:var(--ink-4);font-size:12px}
+.ai-meta::before{content:"·";margin-right:6px}
+
+.progress{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px 24px;position:relative;overflow:hidden}
+.progress::before{content:"";position:absolute;left:0;top:0;height:2px;width:30%;background:var(--sky);opacity:.6;animation:bar 1.4s ease-in-out infinite}
+@keyframes bar{0%{left:-30%}100%{left:100%}}
+.step{display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--ink-4);padding:4px 0;transition:color .2s}
+.step .dot{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--line-2);display:grid;place-items:center}
+.step.run{color:var(--ink)}
+.step.run .dot{border-color:var(--accent);border-top-color:transparent;animation:spin .8s linear infinite}
+.step.done{color:var(--ink-3)}
+.step.done .dot{border-color:var(--ok);background:var(--ok)}
+.step.done .dot::after{content:"";width:6px;height:3px;border:1.5px solid #fff;border-top:0;border-right:0;transform:rotate(-45deg) translate(1px,-1px)}
+
+.answer{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:24px 28px 28px;font-size:15px;line-height:1.8;color:var(--ink-2);animation:fade .25s ease}
+.answer h2{font-size:18px;font-weight:700;letter-spacing:-.02em;color:var(--ink);margin:0 0 6px}
+.answer .lead{margin:0;color:var(--ink)}
+.answer hr{border:0;height:1px;background:var(--line);margin:22px 0}
+.answer h3{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700;color:var(--ink);margin:20px 0 4px}
+.answer h3:first-of-type{margin-top:0}
+.answer p{margin:0}
+.secs p{padding-left:28px}
+.cite{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;margin-left:4px;border-radius:5px;background:var(--tint);color:var(--accent);font-size:11px;font-weight:600;vertical-align:2px;line-height:1;transition:background .15s,color .15s}
+.cite:hover,.cite[aria-expanded=true]{background:var(--accent);color:#fff}
+.caret::after{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--sky);margin-left:5px;vertical-align:middle;animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.25}}
+
+.pop{position:absolute;z-index:40;width:360px;max-width:calc(100vw - 32px);background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:0 12px 32px -8px rgba(20,26,46,.18);padding:6px;animation:fade .15s ease}
+.pop a{display:flex;gap:10px;padding:10px;border-radius:var(--r-sm);color:inherit;text-decoration:none}
+.pop a:hover{background:var(--tint)}
+.pop .n{flex:none;width:18px;height:18px;border-radius:5px;background:var(--tint);color:var(--accent);font-size:10.5px;font-weight:600;display:grid;place-items:center;margin-top:1px}
+.pop b{display:block;font-size:13px;font-weight:600;color:var(--ink);line-height:1.45}
+.pop small{font-size:12px;color:var(--ink-3)}
+
+.block{margin-top:32px}
+.block-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.block-head h4{font-size:15px;font-weight:700;letter-spacing:-.02em;margin:0;display:flex;align-items:center;gap:6px}
+.block-head h4 .cnt{font-size:12px;font-weight:600;color:var(--ink-3)}
+.docs{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.doc{text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:14px;display:flex;flex-direction:column;gap:8px;min-height:120px;transition:border-color .15s, box-shadow .15s}
+.doc:hover{border-color:var(--tint-2);box-shadow:var(--shadow-hover)}
+.doc:hover .t{color:var(--accent)}
+.doc.flash{border-color:var(--accent);box-shadow:0 0 0 3px rgba(43,95,217,.14)}
+.doc .type{align-self:flex-start;font-size:11px;font-weight:600;border-radius:4px;padding:1px 6px;color:var(--accent);background:var(--tint)}
+.doc .type[data-k="Dissertation"]{color:#6B4FBB;background:#F2EEFB}
+.doc .type[data-k="Journal article"]{color:#227A84;background:#E8F5F6}
+.doc .type[data-k="Research report"]{color:var(--ink-2);background:#EEF0F4}
+.doc .t{font-size:13.5px;font-weight:600;color:var(--ink);line-height:1.5;flex:1;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;transition:color .15s}
+.doc .m{font-size:12px;color:var(--ink-4)}
+.docs .doc.more{display:none}
+.docs.expanded .doc.more{display:flex;animation:fade .25s ease}
+
+.sugg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sugg button{display:flex;align-items:center;gap:10px;text-align:left;font-size:13.5px;color:var(--ink-2);padding:10px 12px;border-radius:var(--r-md);background:var(--surface);border:1px solid var(--line);transition:border-color .15s,color .15s,background .15s}
+.sugg button .qi{color:var(--ink-4);width:16px;height:16px}
+.sugg button:hover{color:var(--accent);border-color:var(--tint-2);background:var(--tint)}
+.sugg button:hover .qi{color:var(--accent)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{height:30px;padding:0 12px;border-radius:999px;background:var(--surface);border:1px solid var(--line);font-size:13px;color:var(--ink-3);transition:all .15s}
+.chip:hover{background:var(--tint);border-color:var(--tint-2);color:var(--accent)}
+.actions{display:flex;justify-content:flex-end;gap:2px;margin-top:20px}
+.act{width:32px;height:32px;border-radius:var(--r-sm);display:grid;place-items:center;color:var(--ink-4);transition:all .15s}
+.act svg{width:16px;height:16px}
+.act:hover{background:var(--surface);color:var(--ink-2)}
+.act.on{background:var(--tint);color:var(--accent)}
+
+.composer{position:sticky;bottom:0;padding:20px 28px 0;background:linear-gradient(to top,var(--bg) 60%,rgba(246,248,252,0));display:flex;flex-direction:column;align-items:center}
+.composer .search{width:100%;max-width:880px}
+
+/* ---------- modal ---------- */
+.modal{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;background:rgba(20,26,46,.35);padding:24px}
+.modal.open{display:flex;animation:fade .2s ease}
+.dialog{width:100%;max-width:960px;max-height:calc(100vh - 48px);background:var(--surface);border-radius:var(--r-lg);overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 64px -16px rgba(20,26,46,.35)}
+.dialog-head{height:54px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 12px 0 24px;border-bottom:1px solid var(--line);color:var(--ink);font-size:15px;font-weight:700}
+.dialog-body{overflow:auto;padding:28px 32px 36px}
+.m-sec + .m-sec{margin-top:32px}
+.m-sec h3{display:flex;align-items:center;gap:8px;font-size:15px;margin:0 0 14px}
+.sq{width:4px;height:14px;border-radius:2px;background:var(--navy)}
+.sq::before,.sq::after{display:none}
+.m-intro{text-align:center;font-size:15px;font-weight:600;color:var(--navy);margin:0 0 14px;padding:14px;border-radius:var(--r-md);background:var(--tint)}
+.m-sec p{margin:0;color:var(--ink-2);line-height:1.8;font-size:14px}
+.users{display:grid;grid-template-columns:140px 1fr;gap:12px 24px;align-items:center}
+.u-tag{height:56px;border-radius:var(--r-md);background:var(--tint);color:var(--navy);font-size:14px;font-weight:700;display:grid;place-items:center}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.s-card{background:var(--bg);border-radius:var(--r-md);padding:18px}
+.s-card header{background:none!important;color:var(--ink);font-weight:700;font-size:14.5px;margin:12px 0 6px}
+.s-card .ic{width:36px;height:36px;border-radius:10px;background:var(--surface);color:var(--accent);display:grid;place-items:center;border:1px solid var(--line)}
+.s-card .ic svg{width:18px;height:18px}
+.s-card ul{margin:0;padding:0;list-style:none}
+.s-card li{position:relative;padding-left:12px;color:var(--ink-2);line-height:1.65;font-size:13.5px}
+.s-card li + li{margin-top:6px}
+.s-card li::before{content:"";position:absolute;left:0;top:9px;width:4px;height:4px;border-radius:50%;background:var(--ink-4)}
+.s-card .eg{font-size:12.5px;color:var(--ink-3);margin-top:8px!important}
+
+.toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,16px);opacity:0;background:var(--ink);color:#fff;font-size:13px;padding:9px 16px;border-radius:999px;transition:all .2s;z-index:60;pointer-events:none}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.scrim{display:none}
+
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ---------- responsive ---------- */
+@media (max-width:1100px){ .q-grid,.docs{grid-template-columns:repeat(2,1fr)} }
+@media (max-width:900px){
+  .side{transform:translateX(calc(-100% - 24px));width:var(--sideW)!important}
+  .app.drawer .side{transform:none;box-shadow:0 16px 48px rgba(20,26,46,.2)}
+  .app.drawer .scrim{display:block;position:fixed;inset:0;background:rgba(20,26,46,.25);z-index:25}
+  .main,.app.collapsed .main{margin-left:0}
+  .app.collapsed .txt,.app.collapsed .side-label{display:revert}
+  .app.collapsed .history,.app.collapsed .logo-full{display:block}
+  .app.collapsed .logo-mark{display:none}
+  .app.collapsed .side-head{height:64px;padding:0 10px 0 18px;flex-direction:row;justify-content:space-between}
+  .app.collapsed .nav-item{justify-content:flex-start;padding:0 12px}
+  .top{padding:8px 16px 0;height:56px}
+  .top .menu-btn{display:grid}
+  .home{padding:8px 16px}
+  .eyebrow{margin-top:24px}
+  .hero{font-size:26px}
+  .sub{font-size:14px;margin-bottom:20px}
+  .hint{display:none}
+  .sec-row{margin-top:36px}
+  .g-grid,.tips,.sugg,.users,.steps{grid-template-columns:1fr}
+  .guide{padding:16px}
+  .thread{padding:8px 16px}
+  .answer{padding:20px 18px}
+  .secs p{padding-left:0}
+  .user-q span:last-child{max-width:88%}
+  .composer{padding:16px 16px 0}
+  .dialog-body{padding:22px 18px}
+}
+@media (max-width:560px){
+  .q-grid,.docs{grid-template-columns:1fr}
+  .q-card{min-height:auto}
+}
+</style>
+</head>
+<body>
+<div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+<div class="app" id="app">
+  <aside class="side" id="side" aria-label="Sidebar">
+    <div class="side-head">
+      <a class="logo" href="#" data-act="home" aria-label="NAIL home"><svg class="logo-full" viewBox="0 0 281.36 116.49" role="img" aria-label="NAIL National Assembly AI Library"><g><g><path fill="#1f398d" d="M13.68,112.28h-2.39l-7.08-10.22h-.13v10.22H1.39v-14.96H3.81l7.06,10.23h.13v-10.23h2.68v14.96Z"/><path fill="#1f398d" d="M22.43,107.35c-.14,0-.35,.03-.62,.05-.51,.02-.98,.05-1.4,.08-.65,.05-1.15,.22-1.51,.49-.36,.27-.54,.64-.54,1.13,0,.32,.08,.59,.25,.81s.39,.39,.67,.5c.28,.11,.61,.17,.98,.16,.52,0,.98-.1,1.38-.31,.4-.21,.71-.49,.92-.84,.22-.36,.33-.74,.33-1.16l-.02-3.59c0-.37-.08-.68-.23-.95-.15-.27-.38-.46-.69-.59s-.68-.2-1.12-.2c-.57,0-1.04,.12-1.4,.36-.36,.24-.59,.56-.69,.97h-2.56c.07-.64,.3-1.21,.7-1.72,.4-.51,.94-.9,1.63-1.19,.69-.29,1.48-.43,2.39-.43,.8,0,1.54,.12,2.23,.36,.69,.24,1.25,.65,1.69,1.23s.66,1.33,.67,2.26v7.51h-2.52v-1.55h-.08c-.27,.52-.68,.95-1.24,1.28-.55,.33-1.24,.5-2.07,.5-.72,0-1.37-.13-1.93-.39-.57-.26-1.01-.64-1.34-1.15-.33-.51-.49-1.12-.49-1.84,0-1.16,.39-2,1.17-2.51,.78-.52,1.78-.82,3.02-.9,.33-.02,.7-.04,1.1-.07,.4-.02,.79-.04,1.17-.06,.24,0,.49-.01,.73-.02l.02,1.74c-.26,.02-.46,.04-.6,.05Z"/><path fill="#1f398d" d="M33.57,103.08h-6.43v-2.03h6.43v2.03Zm-2.2-4.71v10.54c0,.34,.05,.6,.16,.79s.24,.32,.42,.4c.18,.08,.39,.11,.64,.11,.1,0,.23,0,.38,0s.29-.01,.44-.02l.33-.03v2.16c-.44,.08-.94,.11-1.49,.11-.67,0-1.28-.12-1.81-.35-.53-.23-.95-.58-1.25-1.03-.3-.46-.45-1.03-.45-1.72v-10.97h2.63Z"/><path fill="#1f398d" d="M36.16,99.25c-.23-.13-.41-.3-.55-.52-.14-.21-.21-.45-.21-.71s.07-.5,.21-.72c.14-.22,.32-.39,.55-.52,.23-.12,.49-.18,.76-.18s.53,.06,.76,.18c.23,.12,.42,.3,.56,.52,.14,.22,.21,.46,.21,.72s-.07,.5-.21,.71c-.14,.21-.33,.39-.56,.52-.23,.13-.49,.2-.75,.2-.28,0-.54-.07-.77-.2Zm-.54,1.8h2.62v11.22h-2.62v-11.22Z"/><path fill="#1f398d" d="M42.83,111.77c-.81-.48-1.44-1.16-1.88-2.03-.44-.87-.66-1.88-.66-3.03s.22-2.16,.66-3.04c.44-.88,1.07-1.55,1.88-2.04,.81-.48,1.76-.72,2.84-.72s2.03,.24,2.84,.72c.81,.48,1.44,1.16,1.87,2.04,.43,.87,.65,1.89,.65,3.04s-.22,2.16-.65,3.03-1.06,1.55-1.87,2.03c-.81,.48-1.76,.72-2.84,.72s-2.03-.24-2.84-.72Zm4.33-1.86c.41-.32,.71-.77,.91-1.32,.2-.56,.3-1.19,.3-1.89s-.1-1.33-.3-1.89c-.2-.56-.5-1-.91-1.33-.41-.33-.9-.49-1.47-.49s-1.1,.16-1.51,.49-.72,.77-.93,1.33c-.2,.56-.31,1.19-.31,1.89,0,.7,.11,1.33,.31,1.89,.2,.56,.51,1,.93,1.32,.41,.32,.92,.49,1.51,.49s1.06-.16,1.47-.49Z"/><path fill="#1f398d" d="M55.74,112.28h-2.62v-11.22h2.51v1.9h.12c.27-.64,.69-1.14,1.26-1.5,.57-.36,1.27-.54,2.09-.54s1.46,.16,2.03,.49c.58,.33,1.02,.81,1.33,1.45s.47,1.4,.47,2.28v7.15h-2.62v-6.75c0-.5-.09-.92-.26-1.28-.17-.36-.42-.63-.75-.83-.33-.19-.72-.29-1.18-.29s-.88,.1-1.24,.3c-.36,.2-.64,.49-.84,.88-.2,.39-.3,.85-.3,1.38v6.58Z"/><path fill="#1f398d" d="M71.55,107.35c-.14,0-.35,.03-.63,.05-.51,.02-.98,.05-1.39,.08-.65,.05-1.15,.22-1.51,.49-.36,.27-.54,.64-.54,1.13,0,.32,.08,.59,.25,.81s.39,.39,.67,.5c.28,.11,.61,.17,.98,.16,.52,0,.98-.1,1.37-.31,.4-.21,.71-.49,.93-.84,.22-.36,.33-.74,.33-1.16l-.02-3.59c0-.37-.08-.68-.23-.95-.15-.27-.38-.46-.69-.59-.31-.13-.68-.2-1.12-.2-.57,0-1.04,.12-1.39,.36-.36,.24-.59,.56-.69,.97h-2.56c.07-.64,.3-1.21,.7-1.72,.4-.51,.94-.9,1.63-1.19s1.48-.43,2.39-.43c.8,0,1.54,.12,2.23,.36,.69,.24,1.25,.65,1.69,1.23,.44,.58,.66,1.33,.67,2.26v7.51h-2.52v-1.55h-.08c-.27,.52-.68,.95-1.24,1.28s-1.24,.5-2.07,.5c-.72,0-1.37-.13-1.93-.39-.56-.26-1.01-.64-1.34-1.15-.33-.51-.49-1.12-.49-1.84,0-1.16,.39-2,1.17-2.51,.78-.52,1.78-.82,3.02-.9,.33-.02,.7-.04,1.1-.07,.4-.02,.79-.04,1.17-.06,.24,0,.49-.01,.73-.02l.02,1.74c-.26,.02-.46,.04-.6,.05Z"/><path fill="#1f398d" d="M79.74,112.28h-2.62v-14.96h2.62v14.96Z"/><path fill="#1f398d" d="M86.44,112.28l5.27-14.96h3.32l5.27,14.96h-2.87l-4-11.9h-.12l-4,11.9h-2.86Zm10.86-5.87v2.16h-7.89v-2.16h7.89Z"/><path fill="#1f398d" d="M107.53,103.24c-.34-.24-.79-.37-1.34-.38-.37,0-.71,.06-1,.17-.3,.11-.53,.27-.7,.48-.17,.2-.25,.43-.25,.69,0,.3,.13,.55,.38,.76,.25,.21,.66,.38,1.22,.51l1.91,.41c1.05,.23,1.84,.59,2.36,1.1,.52,.5,.78,1.15,.79,1.94,0,.7-.21,1.32-.59,1.86s-.95,.96-1.67,1.26c-.72,.3-1.56,.45-2.52,.45s-1.76-.13-2.45-.4c-.69-.27-1.24-.66-1.64-1.17-.4-.51-.65-1.12-.74-1.84h2.68c.08,.47,.31,.83,.67,1.07,.36,.24,.85,.35,1.47,.35,.42,0,.79-.04,1.11-.16,.32-.11,.56-.27,.73-.46s.25-.44,.25-.72c0-.32-.13-.59-.39-.81-.26-.21-.67-.38-1.23-.51l-1.81-.37c-1.03-.21-1.82-.59-2.36-1.12s-.81-1.2-.81-2c0-.69,.19-1.29,.56-1.81,.37-.52,.91-.92,1.59-1.2,.68-.28,1.48-.42,2.39-.42s1.64,.14,2.3,.41c.66,.27,1.17,.66,1.55,1.16,.37,.5,.59,1.09,.66,1.77h-2.49c-.09-.43-.31-.76-.65-1.01Z"/><path fill="#1f398d" d="M118.64,103.24c-.34-.24-.79-.37-1.34-.38-.37,0-.71,.06-1,.17-.3,.11-.53,.27-.7,.48s-.25,.43-.25,.69c0,.3,.13,.55,.38,.76,.26,.21,.66,.38,1.22,.51l1.91,.41c1.05,.23,1.84,.59,2.36,1.1,.52,.5,.78,1.15,.79,1.94,0,.7-.2,1.32-.59,1.86-.39,.54-.94,.96-1.67,1.26-.72,.3-1.56,.45-2.52,.45s-1.76-.13-2.45-.4c-.69-.27-1.24-.66-1.64-1.17-.4-.51-.65-1.12-.74-1.84h2.68c.08,.47,.3,.83,.67,1.07,.36,.24,.85,.35,1.47,.35,.42,0,.79-.04,1.11-.16,.32-.11,.57-.27,.73-.46,.17-.2,.25-.44,.25-.72,0-.32-.13-.59-.39-.81-.26-.21-.67-.38-1.23-.51l-1.81-.37c-1.03-.21-1.82-.59-2.36-1.12s-.81-1.2-.81-2c0-.69,.19-1.29,.56-1.81s.91-.92,1.59-1.2c.69-.28,1.48-.42,2.39-.42s1.64,.14,2.3,.41,1.17,.66,1.55,1.16,.59,1.09,.66,1.77h-2.49c-.09-.43-.31-.76-.65-1.01Z"/><path fill="#1f398d" d="M126.11,111.79c-.82-.47-1.45-1.14-1.89-2-.44-.87-.66-1.88-.66-3.05s.22-2.17,.67-3.05c.44-.89,1.07-1.57,1.86-2.05,.8-.48,1.73-.72,2.79-.72,.95,0,1.81,.2,2.58,.61,.77,.41,1.39,1.03,1.85,1.88,.46,.85,.69,1.9,.69,3.16v.83h-9.19v-1.79h6.67c0-.5-.12-.96-.33-1.36-.21-.4-.51-.72-.9-.94-.39-.23-.84-.34-1.34-.34-.54,0-1.01,.13-1.43,.38-.41,.25-.74,.6-.97,1.03s-.35,.9-.36,1.41v1.53c0,.65,.12,1.22,.36,1.68,.24,.47,.58,.83,1.01,1.08s.93,.38,1.51,.38c.37,0,.71-.05,1.01-.16,.3-.1,.55-.24,.76-.41s.37-.37,.49-.6h2.58c-.16,.65-.46,1.21-.89,1.7-.44,.49-1,.86-1.67,1.12-.68,.26-1.45,.39-2.31,.39-1.12,0-2.08-.23-2.9-.7Z"/><path fill="#1f398d" d="M136.05,101.05h2.51v1.9h.12c.24-.64,.63-1.14,1.17-1.5,.54-.36,1.18-.54,1.93-.54,.5,0,.95,.08,1.35,.24,.41,.16,.75,.4,1.03,.7,.28,.31,.5,.67,.64,1.1h.11c.17-.41,.41-.77,.73-1.09,.32-.31,.71-.55,1.16-.71,.45-.17,.95-.25,1.48-.25,.69,0,1.3,.15,1.83,.44,.53,.29,.94,.73,1.23,1.31,.29,.58,.44,1.28,.44,2.1v7.52h-2.64v-7.13c0-.67-.18-1.17-.53-1.51-.35-.34-.82-.51-1.4-.51-.42,0-.78,.09-1.09,.27-.3,.18-.53,.43-.7,.75-.16,.32-.25,.69-.25,1.11v7.02h-2.57v-7.24c0-.38-.08-.71-.23-1.01-.15-.29-.37-.52-.66-.67-.29-.15-.61-.23-.99-.23s-.74,.1-1.05,.29-.56,.47-.75,.82-.28,.76-.28,1.21v6.83h-2.62v-11.22Z"/><path fill="#1f398d" d="M154.45,97.31h2.62v5.59h.11s.03-.05,.04-.08c.01-.03,.03-.05,.04-.08,.19-.34,.4-.63,.66-.89,.25-.26,.58-.48,.99-.66s.9-.27,1.48-.27c.87,0,1.66,.22,2.37,.67,.7,.44,1.26,1.1,1.66,1.98,.41,.88,.61,1.91,.61,3.12s-.2,2.24-.6,3.12c-.4,.87-.95,1.54-1.66,1.99s-1.5,.69-2.38,.69c-.58,0-1.08-.09-1.49-.28-.42-.19-.75-.42-1.01-.68-.26-.27-.48-.57-.66-.9,0-.02-.02-.04-.03-.05,0-.01-.02-.03-.03-.05h-.17v1.77h-2.57v-14.96Zm2.89,11.26c.21,.55,.51,.98,.91,1.28,.4,.31,.87,.46,1.43,.46s1.05-.16,1.45-.47c.4-.31,.71-.74,.91-1.29,.21-.55,.31-1.18,.31-1.9s-.1-1.33-.3-1.87c-.2-.54-.5-.97-.91-1.27-.41-.3-.9-.45-1.47-.45s-1.04,.15-1.44,.44-.69,.71-.9,1.25c-.21,.54-.31,1.17-.31,1.9s.11,1.37,.31,1.92Z"/><path fill="#1f398d" d="M169.76,112.28h-2.62v-14.96h2.62v14.96Z"/><path fill="#1f398d" d="M172.51,116.44v-2.12c.19,.01,.57,.03,1.12,.04,.26,0,.48-.03,.66-.08,.18-.04,.35-.16,.51-.34,.16-.18,.31-.46,.44-.84l.24-.6-4.07-11.46h2.79l2.59,8.47h.12l2.59-8.47h2.81l-4.51,12.58c-.33,.94-.81,1.65-1.45,2.13-.64,.48-1.47,.73-2.49,.73-.68-.01-1.14-.03-1.36-.05Z"/><path fill="#1f398d" d="M188.14,112.28l5.27-14.96h3.32l5.27,14.96h-2.87l-4-11.9h-.12l-4,11.9h-2.86Zm10.86-5.87v2.16h-7.89v-2.16h7.89Z"/><path fill="#1f398d" d="M206.49,112.28h-2.69v-14.96h2.69v14.96Z"/><path fill="#1f398d" d="M214.32,97.31h2.69v12.7h6.61v2.26h-9.3v-14.96Z"/><path fill="#1f398d" d="M226.21,99.25c-.23-.13-.41-.3-.55-.52-.14-.21-.21-.45-.21-.71s.07-.5,.21-.72c.14-.22,.32-.39,.55-.52s.48-.18,.76-.18,.53,.06,.76,.18,.42,.3,.56,.52c.14,.22,.21,.46,.21,.72s-.07,.5-.21,.71-.33,.39-.56,.52-.49,.2-.75,.2c-.28,0-.54-.07-.77-.2Zm-.54,1.8h2.62v11.22h-2.62v-11.22Z"/><path fill="#1f398d" d="M230.95,97.31h2.62v5.59h.11s.03-.05,.04-.08c.01-.03,.03-.05,.04-.08,.19-.34,.4-.63,.66-.89,.25-.26,.58-.48,.99-.66s.9-.27,1.48-.27c.87,0,1.66,.22,2.37,.67,.7,.44,1.26,1.1,1.66,1.98,.41,.88,.61,1.91,.61,3.12s-.2,2.24-.6,3.12-.95,1.54-1.66,1.99-1.5,.69-2.38,.69c-.58,0-1.08-.09-1.49-.28s-.75-.42-1.01-.68c-.25-.27-.47-.57-.66-.9,0-.02-.01-.04-.03-.05,0-.01-.02-.03-.03-.05h-.17v1.77h-2.57v-14.96Zm2.89,11.26c.21,.55,.51,.98,.91,1.28s.87,.46,1.43,.46,1.05-.16,1.45-.47c.4-.31,.71-.74,.91-1.29,.21-.55,.31-1.18,.31-1.9s-.1-1.33-.3-1.87c-.2-.54-.5-.97-.91-1.27-.41-.3-.9-.45-1.47-.45s-1.04,.15-1.44,.44-.69,.71-.9,1.25-.31,1.17-.31,1.9,.1,1.37,.31,1.92Z"/><path fill="#1f398d" d="M243.62,101.05h2.54v1.87h.12c.19-.64,.54-1.14,1.04-1.5s1.07-.54,1.72-.54c.48,0,.8,.03,.96,.07v2.43c-.14-.05-.33-.09-.56-.11-.23-.03-.45-.04-.67-.04-.48,0-.92,.1-1.3,.31-.38,.21-.68,.5-.9,.87s-.33,.79-.33,1.26v6.6h-2.62v-11.22Z"/><path fill="#1f398d" d="M257.47,107.35c-.14,0-.35,.03-.62,.05-.51,.02-.98,.05-1.4,.08-.65,.05-1.15,.22-1.51,.49-.36,.27-.54,.64-.54,1.13,0,.32,.08,.59,.25,.81s.39,.39,.67,.5c.28,.11,.61,.17,.98,.16,.52,0,.98-.1,1.38-.31,.4-.21,.71-.49,.92-.84,.22-.36,.33-.74,.33-1.16l-.02-3.59c0-.37-.08-.68-.23-.95s-.38-.46-.69-.59-.68-.2-1.12-.2c-.57,0-1.04,.12-1.39,.36-.36,.24-.59,.56-.69,.97h-2.56c.07-.64,.3-1.21,.7-1.72,.4-.51,.94-.9,1.63-1.19s1.48-.43,2.39-.43c.8,0,1.54,.12,2.23,.36,.69,.24,1.25,.65,1.69,1.23s.66,1.33,.67,2.26v7.51h-2.52v-1.55h-.08c-.27,.52-.68,.95-1.24,1.28s-1.24,.5-2.07,.5c-.72,0-1.37-.13-1.93-.39-.56-.26-1.01-.64-1.34-1.15-.33-.51-.49-1.12-.49-1.84,0-1.16,.39-2,1.17-2.51,.78-.52,1.78-.82,3.02-.9,.33-.02,.7-.04,1.1-.07,.4-.02,.79-.04,1.17-.06,.24,0,.49-.01,.73-.02l.02,1.74c-.26,.02-.46,.04-.6,.05Z"/><path fill="#1f398d" d="M263.03,101.05h2.54v1.87h.12c.19-.64,.54-1.14,1.04-1.5s1.07-.54,1.72-.54c.48,0,.8,.03,.96,.07v2.43c-.14-.05-.33-.09-.56-.11-.23-.03-.45-.04-.67-.04-.48,0-.92,.1-1.3,.31-.38,.21-.68,.5-.9,.87s-.33,.79-.33,1.26v6.6h-2.62v-11.22Z"/><path fill="#1f398d" d="M271.56,116.44v-2.12c.19,.01,.57,.03,1.12,.04,.26,0,.48-.03,.66-.08s.35-.16,.51-.34c.16-.18,.31-.46,.44-.84l.24-.6-4.07-11.46h2.79l2.59,8.47h.12l2.59-8.47h2.81l-4.51,12.58c-.33,.94-.81,1.65-1.45,2.13-.64,.48-1.46,.73-2.49,.73-.68-.01-1.14-.03-1.36-.05Z"/></g></g><g><g><polygon fill="#2179f9" points="212.19 0 185.87 0 185.87 79.91 199.03 72.25 212.19 79.91 212.19 0"/><path fill="#1f398d" d="M78.98,79.91V0h-26.4V36.96L26.33,0H0V79.91m26.01,0V42.95l26.25,36.96"/><polygon fill="#1f398d" points="252.31 52.58 252.31 0 225.99 0 225.99 79.42 225.99 79.42 225.99 79.91 278.64 79.91 278.64 52.58 252.31 52.58"/><path fill="#0046e2" d="M92.78,79.91h34.36l-1.16-2.31c-1.72-3.42-4.49-6.2-7.92-7.91l-12.85-6.43,.68-.34h-13.12v16.99Z"/><path fill="#0046e2" d="M158.95,62.91l.68,.34-12.85,6.43c-3.42,1.72-6.2,4.49-7.92,7.91l-1.16,2.31h34.36v-16.99h-13.12Z"/><path fill="#2179f9" d="M172.07,54.19h0v-.1h-.07L132.42,0l-39.58,54.09h-.07v.09h0s0,.01,0,.01v8.72h13.12l12.17-6.09c3.42-1.72,6.2-4.49,7.92-7.91l6.44-12.84,6.44,12.84c1.72,3.42,4.49,6.2,7.92,7.91l12.17,6.09h13.12v-8.72Z"/></g></g></svg><svg class="logo-mark" viewBox="90 -2 84 84" aria-hidden="true"><path fill="#0046e2" d="M92.78,79.91h34.36l-1.16-2.31c-1.72-3.42-4.49-6.2-7.92-7.91l-12.85-6.43,.68-.34h-13.12v16.99Z"/><path fill="#0046e2" d="M158.95,62.91l.68,.34-12.85,6.43c-3.42,1.72-6.2,4.49-7.92,7.91l-1.16,2.31h34.36v-16.99h-13.12Z"/><path fill="#2179f9" d="M172.07,54.19h0v-.1h-.07L132.42,0l-39.58,54.09h-.07v.09h0s0,.01,0,.01v8.72h13.12l12.17-6.09c3.42-1.72,6.2-4.49,7.92-7.91l6.44-12.84,6.44,12.84c1.72,3.42,4.49,6.2,7.92,7.91l12.17,6.09h13.12v-8.72Z"/></svg></a>
+      <button class="icon-btn" id="toggleSide" aria-label="Collapse sidebar" title="Collapse sidebar (Ctrl+B)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16"/></svg>
+      </button>
+    </div>
+    <nav class="side-nav">
+      <button class="nav-item primary" data-act="home" title="New search">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 11v6M9 14h6"/></svg>
+        <span class="txt">New search</span>
+      </button>
+    </nav>
+    <div class="side-label">Recent searches</div>
+    <div class="history" id="history"></div>
+    <div class="side-foot">
+      <button class="nav-item" data-act="help" title="Help" style="width:100%">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5v.4"/><circle cx="12" cy="17" r=".6" fill="currentColor"/></svg>
+        <span class="txt">How to use</span>
+      </button>
+    </div>
+  </aside>
+  <div class="scrim" data-act="closeDrawer"></div>
+
+  <main class="main">
+    <header class="top" id="top">
+      <button class="icon-btn menu-btn" data-act="openDrawer" aria-label="Open menu">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+      <h1 id="title"></h1>
+    </header>
+
+    <!-- HOME -->
+    <section class="home" id="home">
+      <span class="eyebrow"><span class="spark"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c.6 6 4 9.4 10 10-6 .6-9.4 4-10 10-.6-6-4-9.4-10-10 6-.6 9.4-4 10-10z"/></svg></span>National Assembly Library · AI semantic search</span>
+      <h2 class="hero">What can I <span class="grad-text">help you find?</span></h2>
+      <p class="sub">Ask in sentences instead of keywords. Answers come with their sources.</p>
+      <div class="wrap-narrow">
+        <form class="search" data-form>
+          <textarea rows="1" placeholder="Ask your question in a sentence." aria-label="Search query"></textarea>
+          <button class="go" type="submit" aria-label="Search">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7.5"/><path d="m20.5 20.5-4-4"/></svg>
+          </button>
+        </form>
+        <p class="hint"><kbd>Enter</kbd> search · <kbd>Shift</kbd>+<kbd>Enter</kbd> new line · <kbd>/</kbd> jump to search</p>
+      </div>
+
+      <div class="wrap">
+        <div class="sec-row">
+          <h3 class="sec-title">Suggested questions</h3>
+          <button class="link-btn" id="guideToggle" aria-expanded="false">
+            💡 How to ask well
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+        </div>
+        <div class="q-grid" id="qGrid"></div>
+
+        <div class="guide" id="guide">
+          <h3>💡 A guide to questions that find better sources</h3>
+          <div class="g-grid" id="gGrid"></div>
+          <h3 style="margin-top:36px">💡 Tips to widen your results</h3>
+          <div class="tips" id="tips"></div>
+        </div>
+      </div>
+      <div style="flex:1"></div>
+      <p class="disclaimer"><svg width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#6B7280"/><path d="M12 7v6" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="16.5" r="1.3" fill="#fff"/></svg>AI answers can contain mistakes. Please check important points against the original sources.</p>
+    </section>
+
+    <!-- CHAT -->
+    <section class="chat" id="chat">
+      <div class="thread" id="thread"></div>
+      <div class="composer">
+        <form class="search compact" data-form>
+          <textarea rows="1" placeholder="Type your question." aria-label="Follow-up question"></textarea>
+          <button class="go" type="submit" aria-label="Search">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7.5"/><path d="m20.5 20.5-4-4"/></svg>
+          </button>
+        </form>
+        <p class="disclaimer"><svg width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#6B7280"/><path d="M12 7v6" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="16.5" r="1.3" fill="#fff"/></svg>AI answers can contain mistakes. Please check important points against the original sources.</p>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- HELP MODAL -->
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div class="dialog">
+    <div class="dialog-head"><span id="mTitle">How to use</span>
+      <button class="icon-btn" data-act="closeHelp" aria-label="Close"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </div>
+    <div class="dialog-body">
+      <section class="m-sec">
+        <h3><span class="sq"></span>About the service</h3>
+        <p class="m-intro">✨ The National Assembly Library now <b>‘understands’ and ‘answers’ your questions</b> ✨</p>
+        <p>Moving beyond keyword matching, it reads the <b>meaning</b> and <b>context</b> of your question to find the best-fitting material. Ask in sentences, as you would a reference librarian. It distils the key points from a vast collection and shows the source documents behind them.</p>
+      </section>
+      <section class="m-sec">
+        <h3><span class="sq"></span>Material available</h3>
+        <div class="users">
+          <div class="u-tag">Public users</div>
+          <p>Full texts of public-policy material — social issues and bills, research reports, ministry reports and Assembly publications — searchable by meaning.</p>
+          <div class="u-tag">Assembly staff</div>
+          <p>For legislative work, every holding of the Assembly Library (laws, bills, minutes, domestic and international papers, expert reports, statistics) is searchable by meaning.</p>
+        </div>
+      </section>
+      <section class="m-sec">
+        <h3><span class="sq"></span>How it works</h3>
+        <div class="steps">
+          <div class="s-card"><span class="ic"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m13.5 6.5 4 4"/></svg></span>
+            <header style="background:#2896EF">① Ask</header>
+            <ul><li>Type what you’re looking for as a natural sentence.</li></ul>
+            <p class="eg">e.g. “Recent Assembly debate on environmental regulation”, “Latest policy reports on youth employment”</p>
+          </div>
+          <div class="s-card"><span class="ic"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5M8 11h6M11 8v6"/></svg></span>
+            <header style="background:var(--blue-500)">② Semantic search</header>
+            <ul><li>The AI analyses the meaning and intent of your question to find the most relevant material.</li><li>It also explores material connected by context, even when the keywords don’t match.</li></ul>
+          </div>
+          <div class="s-card"><span class="ic"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h11l5 5v9a1 1 0 0 1-1 1H4z"/><path d="M8 12h8M8 16h5"/></svg></span>
+            <header style="background:var(--navy-800)">③ Check answers & sources</header>
+            <ul><li>Each paragraph of the summary carries a <b>number</b>— tap it to see the source material.</li><li>Widen the topic with suggested questions and keywords to keep exploring.</li></ul>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+/* ---------------- mock data (프로토타입용 예시) ---------------- */
+const DOCS = {
+  d1:{type:'Book', t:'The Legislative Process: What We Should Know About the National Assembly', a:'Lim Jae-ju, Seo Deok-gyo', y:'2025'},
+  d2:{type:'Book', t:'Korean Legislative Process = Legislative process', a:'Lim Jong-hoon', y:'2021'},
+  d3:{type:'Dissertation', t:'Theory and Practice of the Legislative Process: Legal Issues and Real Cases', a:'Oh Seong-hee', y:'2016'},
+  d4:{type:'Book', t:'Introduction to Legisprudence', a:'Park Young-do', y:'2014'},
+  d5:{type:'Book', t:'Institutions and Processes of Good Government: Theory and Korean Cases', a:'Lee Hyun-woo, Noh Dae-myung', y:'2019'},
+  d6:{type:'Research report', t:'Data-driven Legislative Impact Analysis to Strengthen the Assembly’s Legislative Support', a:'National Assembly Research Service', y:'2023'},
+  d7:{type:'Journal article', t:'Committee-centred Legislature and the Effectiveness of Bill Review', a:'Kim Min-jung', y:'2022'},
+  d8:{type:'Research report', t:'Legislative and Policy Tasks for the Financial Soundness of Public Institutions', a:'Kim Jae-won', y:'2017'},
+};
+const ANSWERS = {
+  'Explain the National Assembly’s legislative process in detail': {
+    summary:'A bill goes through introduction, standing-committee review, a plenary vote, transfer to the government and promulgation. Bills are introduced by members of the Assembly or by the government and are examined in depth by the relevant standing committee. If the plenary session passes it — with a majority of members present and a majority of those present in favour — it goes to the government, and it takes effect as law once the government promulgates it. Under the separation of powers, this process is a key mechanism by which the legislature and the executive check and balance each other.',
+    sections:[
+      {h:'The legislative process, stage by stage', p:'Legislation moves through introduction, review, vote and promulgation, and each stage is closely tied to its political, economic and social context. Understanding the process in depth lets you grasp precisely why a law was made, what it says and what effect it has.', c:['d1','d5']},
+      {h:'Key questions in legislative-process research', p:'Legislative phenomena are analysed across fields, from the legislative process to the work of the Legislation and Judiciary Committee. Key questions include citizen participation in lawmaking, enforceability, political transparency, and how technology and the legislative system interact.', c:['d2','d3','d7']},
+      {h:'Where research and development are heading', p:'Legislative research is moving toward prediction and evaluation through data analysis, AI and social-science modelling. Studies that collect and analyse legislative data to predict a bill’s chances of passing or simulate its social impact give policymakers important information.', c:['d6']},
+      {h:'Getting the data', p:'Data on the legislative process is available from the Assembly’s bill information system, its meeting minutes, and ministries’ policy material.', c:['d4','d1']},
+    ],
+    docs:['d1','d2','d3','d4','d5','d6','d7','d8'],
+    sugg:['Explain who can introduce a bill','Find books that explain the core role of standing-committee review','Tell me why the Legislation and Judiciary Committee matters','Find material on how bills are voted on in the plenary session'],
+    kw:['Legislative process','Bill','National Assembly','Introduction/review/vote/promulgation','Standing committee/plenary','Government','Separation of powers','Legislation'],
+  }
+};
+function genericAnswer(q){
+  const stop=/^(what|which|how|why|who|is|are|was|were|the|a|an|of|to|in|on|for|about|me|my|i|show|find|tell|explain|any|there|do|does|did|want|this|that|and|or|with|related|material|some|can|could|would|please|어떤|것이|있을까|있어|싶어|찾고|알려줘|찾아줘|설명해줘|자세히|대해서|대한|관련된|관련|중|좀|수|있는|자료|어떻게|무엇인가요|되었을까)$/;
+  const kw=[...new Set(q.replace(/[?？.!,]/g,' ').split(/\s+/).map(w=>w.replace(/(에서는|에서|에게|으로|에는|에|은|는|이|가|을|를|의|와|과|로|도)$/,'')).filter(w=>w.length>1&&!stop.test(w)))].slice(0,5);
+  return {
+    summary:'I analysed the Assembly Library’s holdings related to your question by meaning and summarised the key points. Discussion has mostly taken place in standing-committee minutes, National Assembly Research Service reports and domestic journal articles, and research on institutional reform and comparisons with other countries has been growing recently.',
+    sections:[
+      {h:'Key issues', p:'The main issues discussed are the effectiveness of the system, fairness among stakeholders, and fiscal burden.', c:['d6','d7']},
+      {h:'Assembly discussion', p:'Related bills were reviewed by the relevant standing committee, and a range of views were raised through public hearings and expert review reports.', c:['d1','d3']},
+      {h:'Worth reading', p:'For concepts and background, start with books; for the latest issues, research reports and journal articles are recommended.', c:['d2','d4']},
+    ],
+    docs:['d6','d7','d1','d3','d2','d4','d5','d8'],
+    sugg:['Show me foreign legislation related to this','Find recent Assembly public-hearing material on this','Show me statistics on this topic, if any','Summarise the arguments for and against'],
+    kw: kw.concat(['Legislative trends','Policy report']),
+  };
+}
+const HOME_Q = [
+  'Which foreign legislation has the Korean National Assembly referred to?',
+  'How were the main opinions raised at public hearings reflected in actual legislation?',
+  'I want the 2023 policy report on housing support for young people',
+  'Is there research on overseas legislative trends related to AI service development?',
+];
+const GUIDE = [
+  ['Put context into your question','What are the key issues in pursuing carbon-neutrality policy?','carbon-neutrality policy'],
+  ['Include a specific subject and type of material','Reports on changes in data-protection policy at libraries and other public institutions','data protection'],
+  ['Put what you want to know — your ‘intent’ — into the sentence','I’d like to know how domestic and international standards on AI ethics differ','AI ethics'],
+  ['Ask in sentences rather than single words','Tell me about AI bills discussed in the National Assembly','AI bills'],
+];
+const TIPS = [
+  ['Go one level deeper','How have the related bills changed over time?'],
+  ['From another angle','What were the main issues debated in the Assembly?'],
+  ['Expand with a linked question','Is there Assembly forum material related to this?'],
+];
+let history = [
+  'Show me a step-by-step flow of the legislative process','I want the 2023 policy report on housing support for young people','Which bill topics has each standing committee handled most?','How long does a law take from introduction to promulgation?','List the presidential vetoes exercised so far',
+];
+
+/* ---------------- helpers ---------------- */
+const $ = s => document.querySelector(s);
+const app = $('#app');
+const esc = s => s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const Q_ICON = '<svg class="qi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5v6a4 4 0 0 0 4 4h10"/><path d="m15 11 4 4-4 4"/></svg>';
+const SPARK = (n)=>'<svg width="'+n+'" height="'+n+'" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c.6 6 4 9.4 10 10-6 .6-9.4 4-10 10-.6-6-4-9.4-10-10 6-.6 9.4-4 10-10z"/></svg>';
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),1800); }
+
+/* ---------------- render static ---------------- */
+$('#qGrid').innerHTML = HOME_Q.map(q=>`<button class="q-card" data-q="${esc(q)}"><span class="q-ic">${SPARK(18)}</span><svg class="arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 17 17 7M8 7h9v9"/></svg><span>${esc(q)}</span></button>`).join('');
+const OK = '<svg width="22" height="22" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="var(--ok)"/><path d="m7 12.5 3.2 3L17 9" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const NO = '<svg width="22" height="22" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="var(--no)"/><path d="m8.5 8.5 7 7m0-7-7 7" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>';
+$('#gGrid').innerHTML = GUIDE.map((g,i)=>`<div class="g-card"><h4><span class="num">${i+1}</span>${g[0]}</h4>
+  <div class="ex">${OK}<button data-q="${esc(g[1])}" title="Search with this question">${g[1]}</button></div>
+  <div class="ex" style="color:var(--ink-3)">${NO}<span>${g[2]}</span></div></div>`).join('');
+$('#tips').innerHTML = TIPS.map((t,i)=>`<div><h4 style="display:flex;gap:10px;align-items:center;margin:0 0 10px;font-size:16px"><span class="num">${i+1}</span>${t[0]}</h4><div class="ex" style="padding-left:34px">${OK}<span>${t[1]}</span></div></div>`).join('');
+
+function renderHistory(active){
+  $('#history').innerHTML = history.map(h=>`<button class="hist${h===active?' active':''}" data-q="${esc(h)}" title="${esc(h)}">${esc(h)}</button>`).join('');
+}
+renderHistory();
+
+/* ---------------- views ---------------- */
+let busy = false;
+function goHome(){
+  app.classList.remove('in-chat'); $('#thread').innerHTML=''; $('#title').textContent='';
+  $('#top').classList.remove('bordered'); renderHistory(); closeDrawer();
+  const ta = $('#home textarea'); ta.value=''; syncForm(ta); ta.focus();
+  window.scrollTo(0,0);
+}
+async function ask(q, {fresh=false}={}){
+  q = q.trim(); if(!q || busy) return;
+  busy = true; closeDrawer(); closePop();
+  if(fresh || !app.classList.contains('in-chat')){ $('#thread').innerHTML=''; $('#title').textContent=q; }
+  app.classList.add('in-chat'); $('#top').classList.add('bordered');
+  history = [q, ...history.filter(h=>h!==q)].slice(0,12); renderHistory($('#title').textContent);
+
+  const turn = document.createElement('article'); turn.className='turn';
+  turn.innerHTML = `<h3 class="user-q"><span class="badge">Follow-up question</span><span>${esc(q)}</span></h3>
+    <div class="progress" aria-live="polite">
+      <div class="step"><span class="dot"></span>Analysing the meaning and intent of your question</div>
+      <div class="step"><span class="dot"></span>Searching the Assembly Library by meaning</div>
+      <div class="step"><span class="dot"></span>Writing up an answer from the sources found</div>
+    </div>`;
+  $('#thread').appendChild(turn);
+  turn.scrollIntoView({behavior:'smooth', block:'start'});
+  const steps = turn.querySelectorAll('.step');
+  for(const s of steps){ s.classList.add('run'); await sleep(650); s.classList.replace('run','done'); }
+  await sleep(150);
+
+  const A = ANSWERS[q] || genericAnswer(q);
+  turn.querySelector('.progress').outerHTML = `<div class="answer"><div class="ai-head"><span class="ai-av">${SPARK(16)}</span><b>NAIL AI</b><span class="ai-meta">Analysed ${A.docs.length} sources</span></div><h2>Detailed summary</h2><p class="lead"></p><hr><div class="secs"></div></div>`;
+  const ans = turn.querySelector('.answer');
+  await typeInto(ans.querySelector('.lead'), A.summary);
+  const secs = ans.querySelector('.secs');
+  for(const [i,s] of A.sections.entries()){
+    const h = document.createElement('h3'); h.innerHTML = `<span class="num">${i+1}</span>${esc(s.h)}`; secs.appendChild(h);
+    const p = document.createElement('p'); secs.appendChild(p);
+    await typeInto(p, s.p);
+    s.c.forEach(id=>{
+      const n = A.docs.indexOf(id)+1;
+      p.insertAdjacentHTML('beforeend', `<button class="cite" data-cite="${id}" aria-expanded="false" title="View sources">${n}</button>`);
+    });
+  }
+  const docsHtml = A.docs.map((id,i)=>{const d=DOCS[id];return `<button class="doc${i>=4?' more':''}" data-doc="${id}"><span class="type" data-k="${d.type}">${d.type}</span><span class="t">${esc(d.t)}</span><span class="m">${esc(d.a)} · ${d.y}</span></button>`}).join('');
+  ans.insertAdjacentHTML('afterend', `
+    <div class="block">
+      <div class="block-head"><h4>Related material <span class="cnt">${A.docs.length}</span></h4>
+        ${A.docs.length>4?`<button class="link-btn" data-act="expand" aria-expanded="false"><span>Expand all</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></button>`:''}
+      </div>
+      <div class="docs">${docsHtml}</div>
+    </div>
+    <div class="block"><div class="block-head"><h4>Ask a follow-up</h4></div>
+      <div class="sugg">${A.sugg.map(s=>`<button data-q="${esc(s)}">${Q_ICON}<span>${esc(s)}</span></button>`).join('')}</div></div>
+    <div class="block"><div class="block-head"><h4>Suggested keywords</h4></div>
+      <div class="chips">${A.kw.map(k=>`<button class="chip" data-q="${esc(k)} Find related material">#${esc(k)}</button>`).join('')}</div></div>
+    <div class="actions">
+      <button class="act" data-act="copy" title="Copy answer" aria-label="Copy answer"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg></button>
+      <button class="act" data-act="like" title="Helpful" aria-label="Helpful" aria-pressed="false"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M7 10v10H4V10zM7 10l4-7c1.5 0 2.5 1 2.5 2.5L13 9h6a2 2 0 0 1 2 2.3l-1.2 7A2 2 0 0 1 17.8 20H7"/></svg></button>
+      <button class="act" data-act="dislike" title="Not quite" aria-label="Not quite" aria-pressed="false"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" style="transform:scaleY(-1)"><path d="M7 10v10H4V10zM7 10l4-7c1.5 0 2.5 1 2.5 2.5L13 9h6a2 2 0 0 1 2 2.3l-1.2 7A2 2 0 0 1 17.8 20H7"/></svg></button>
+      <button class="act" data-act="retry" data-q="${esc(q)}" title="Get a new answer" aria-label="Get a new answer"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg></button>
+    </div>`);
+  busy = false;
+  $('.composer textarea').focus({preventScroll:true});
+}
+async function typeInto(el, text){
+  el.classList.add('caret');
+  const step = Math.max(2, Math.round(text.length/45));
+  for(let i=0;i<=text.length;i+=step){ el.textContent = text.slice(0,i); await sleep(16); }
+  el.textContent = text; el.classList.remove('caret');
+}
+
+/* ---------------- citation popover ---------------- */
+let popEl=null, popBtn=null;
+function closePop(){ if(popEl){popEl.remove();popEl=null;} if(popBtn){popBtn.setAttribute('aria-expanded','false');popBtn=null;} }
+function openPop(btn){
+  closePop();
+  const ids = [...btn.parentElement.querySelectorAll('.cite')].map(b=>b.dataset.cite);
+  popEl = document.createElement('div'); popEl.className='pop'; popEl.setAttribute('role','dialog');
+  popEl.innerHTML = ids.map(id=>{const d=DOCS[id]; const n=btn.closest('.turn').querySelector(`.doc[data-doc="${id}"]`)?[...btn.closest('.turn').querySelectorAll('.doc')].findIndex(x=>x.dataset.doc===id)+1:'';
+    return `<a href="#" data-goto="${id}" class="${id===btn.dataset.cite?'cur':''}"><span class="n">${n}</span><span><b>${esc(d.t)}</b><small>${d.type} · ${esc(d.a)} · ${d.y}</small></span></a>`}).join('');
+  document.body.appendChild(popEl);
+  const r = btn.getBoundingClientRect();
+  let left = r.left + window.scrollX; const w = popEl.offsetWidth;
+  left = Math.min(left, window.scrollX + document.documentElement.clientWidth - w - 16);
+  popEl.style.left = Math.max(16,left)+'px';
+  popEl.style.top = (r.bottom + window.scrollY + 8)+'px';
+  btn.setAttribute('aria-expanded','true'); popBtn = btn;
+}
+
+/* ---------------- events ---------------- */
+function syncForm(ta){ ta.style.height='auto'; ta.style.height=Math.min(ta.scrollHeight,180)+'px'; ta.closest('.search').classList.toggle('has-text', !!ta.value.trim()); }
+document.querySelectorAll('[data-form]').forEach(f=>{
+  const ta = f.querySelector('textarea');
+  ta.addEventListener('input',()=>syncForm(ta));
+  ta.addEventListener('keydown',e=>{ if(e.key==='Enter' && !e.shiftKey && !e.isComposing){ e.preventDefault(); f.requestSubmit(); } });
+  f.addEventListener('submit',e=>{ e.preventDefault(); const v=ta.value; if(!v.trim()||busy) return; ta.value=''; syncForm(ta); ask(v,{fresh:f.closest('#home')!==null}); });
+});
+
+function closeDrawer(){ app.classList.remove('drawer'); }
+document.addEventListener('click', e=>{
+  const cite = e.target.closest('.cite');
+  if(cite){ e.preventDefault(); popBtn===cite ? closePop() : openPop(cite); return; }
+  const go = e.target.closest('[data-goto]');
+  if(go){ e.preventDefault(); const turn = popBtn.closest('.turn'); closePop();
+    const card = turn.querySelector(`.doc[data-doc="${go.dataset.goto}"]`);
+    if(card.classList.contains('more')) turn.querySelector('[data-act=expand]')?.click();
+    card.scrollIntoView({behavior:'smooth',block:'center'}); card.classList.add('flash'); setTimeout(()=>card.classList.remove('flash'),1600); return; }
+  if(popEl && !e.target.closest('.pop')) closePop();
+
+  const qb = e.target.closest('[data-q]');
+  const act = e.target.closest('[data-act]')?.dataset.act;
+  if(act==='retry'){ ask(qb.dataset.q); return; }
+  if(qb){ const fromHome = !!e.target.closest('#home,.side'); ask(qb.dataset.q,{fresh:fromHome}); return; }
+  const doc = e.target.closest('.doc'); if(doc){ toast('Opens the full-text detail screen (prototype)'); return; }
+
+  switch(act){
+    case 'home': e.preventDefault(); goHome(); break;
+    case 'help': openHelp(); break;
+    case 'closeHelp': closeHelp(); break;
+    case 'openDrawer': app.classList.add('drawer'); break;
+    case 'closeDrawer': closeDrawer(); break;
+    case 'expand': { const b=e.target.closest('[data-act]'); const g=b.closest('.block').querySelector('.docs'); const on=g.classList.toggle('expanded');
+      b.setAttribute('aria-expanded',on); b.querySelector('span').textContent= on?'Collapse':'Expand all'; b.querySelector('svg').style.transform=on?'rotate(180deg)':''; break; }
+    case 'like': case 'dislike': { const b=e.target.closest('.act'); const wrap=b.parentElement; const on=!b.classList.contains('on');
+      wrap.querySelectorAll('[data-act=like],[data-act=dislike]').forEach(x=>{x.classList.remove('on');x.setAttribute('aria-pressed','false')});
+      if(on){b.classList.add('on');b.setAttribute('aria-pressed','true');toast(act==='like'?'Thanks for the feedback!':'We’ll use this to improve answers');} break; }
+    case 'copy': { const t=e.target.closest('.turn').querySelector('.answer').innerText; navigator.clipboard?.writeText(t).then(()=>toast('Answer copied'),()=>toast('Couldn’t copy')); break; }
+  }
+});
+$('#toggleSide').addEventListener('click',()=>{ if(matchMedia('(max-width:900px)').matches){ closeDrawer(); return; } const c=app.classList.toggle('collapsed'); $('#toggleSide').setAttribute('aria-label', c?'Expand sidebar':'Collapse sidebar'); try{localStorage.setItem('nail-side',c?'1':'0')}catch(_){} });
+try{ if(localStorage.getItem('nail-side')==='1') app.classList.add('collapsed'); }catch(_){}
+
+$('#guideToggle').addEventListener('click',e=>{ const g=$('#guide'); const on=g.classList.toggle('open'); e.currentTarget.setAttribute('aria-expanded',on); e.currentTarget.querySelector('svg').style.transform=on?'rotate(180deg)':''; if(on) g.scrollIntoView({behavior:'smooth',block:'nearest'}); });
+
+let lastFocus=null;
+function openHelp(){ lastFocus=document.activeElement; $('#modal').classList.add('open'); $('#modal [data-act=closeHelp]').focus(); closeDrawer(); }
+function closeHelp(){ $('#modal').classList.remove('open'); lastFocus?.focus(); }
+$('#modal').addEventListener('click',e=>{ if(e.target.id==='modal') closeHelp(); });
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){ if($('#modal').classList.contains('open')) closeHelp(); else if(popEl) closePop(); else closeDrawer(); }
+  if(e.key==='/' && !/TEXTAREA|INPUT/.test(document.activeElement.tagName)){ e.preventDefault(); (app.classList.contains('in-chat')?$('.composer textarea'):$('#home textarea')).focus(); }
+  if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='b'){ e.preventDefault(); $('#toggleSide').click(); }
+});
+window.addEventListener('scroll',()=>{ if(!app.classList.contains('in-chat')) $('#top').classList.toggle('bordered', scrollY>8); },{passive:true});
+window.addEventListener('resize',closePop);
+</script>
+</body>
+</html>

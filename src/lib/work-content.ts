@@ -199,7 +199,8 @@ export interface WorkProject {
   /** Free-form timeline label shown in the meta row, e.g. "2025". */
   year?: string;
   /** External links besides `url` — prototypes, artifacts, live demos. */
-  links?: { label: Copy; url: string }[];
+  /** `urlEn`: an English build of the same page, used when the site is in EN. */
+  links?: { label: Copy; url: string; urlEn?: string }[];
   /** Free-form case-study sections for projects not documented in the
    * Design Guide format (brand work, character work, flows). */
   story?: StoryBlock[];
@@ -230,7 +231,7 @@ export interface StoryBlock {
   /** "Coming soon" placeholder — content the designer is still preparing. */
   pending?: Copy;
   /** A live, interactive page (prototype, flow chart) framed inline. */
-  embed?: { src: string; label: Copy; height?: number };
+  embed?: { src: string; srcEn?: string; label: Copy; height?: number };
   /** A playable film with sound and controls. */
   video?: { src: string; poster?: string; caption?: Copy };
   /** Built-in interactive widgets that need code, not data. */
