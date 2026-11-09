@@ -1,21 +1,19 @@
-import { Gnb } from "@/components/site-header/gnb";
-import { Hero } from "@/components/cyber/hero";
-import { OperatorSection } from "@/components/cyber/operator-section";
-import { MissionsSection } from "@/components/cyber/missions-section";
-import { TransmissionSection } from "@/components/cyber/transmission-section";
-import { SiteFooter } from "@/components/footer/site-footer";
+import { Hero } from "@/components/site/hero";
+import { Showreel } from "@/components/site/showreel";
+import { WorkStack } from "@/components/site/work-stack";
+import { About } from "@/components/site/about";
+import { ProjectIndex } from "@/components/site/project-index";
+import { Contact } from "@/components/site/contact";
 
 export default function Home() {
   return (
-    <>
-      <Gnb />
-      <main>
-        <Hero />
-        <OperatorSection />
-        <MissionsSection />
-        <TransmissionSection />
-      </main>
-      <SiteFooter />
-    </>
+    <main className="bg-paper">
+      <Hero />
+      <Showreel />
+      <WorkStack />
+      <About />
+      <ProjectIndex />
+      <Contact />
+    </main>
   );
 }

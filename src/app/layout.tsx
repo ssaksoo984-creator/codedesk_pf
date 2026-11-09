@@ -1,32 +1,22 @@
 import type { Metadata, Viewport } from "next";
 import { Analytics } from "@vercel/analytics/next";
-import "@fontsource/chakra-petch/400.css";
-import "@fontsource/chakra-petch/500.css";
-import "@fontsource/chakra-petch/600.css";
-import "@fontsource/chakra-petch/700.css";
-import "@fontsource/chakra-petch/500-italic.css";
 import "@fontsource/jetbrains-mono/400.css";
-import "@fontsource/jetbrains-mono/500.css";
 import { LocaleProvider } from "@/components/site-header/locale-context";
-import { BackToTop } from "@/components/site-header/back-to-top";
-import { CyberBackground } from "@/components/cyber/cyber-background";
-import { CyberCursor } from "@/components/cyber/cyber-cursor";
-import { BootScreen } from "@/components/cyber/boot-screen";
-import { IntegrityHud } from "@/components/cyber/integrity-hud";
-import { SysBot } from "@/components/cyber/sys-bot";
-import { WorldSaved } from "@/components/cyber/world-saved";
+import { Nav } from "@/components/site/nav";
+import { Cursor } from "@/components/site/cursor";
+import { AskMe } from "@/components/site/ask-me";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "{Code} · Desk — Recovery Protocol",
+  title: "Soomin Park — UI/UX Designer · {Code} · Desk",
   description:
-    "Portfolio of Soomin Park ({Code} · Desk) — UI/UX design & frontend. Restore every sector to save the digital world.",
+    "Portfolio of Soomin Park, a UI/UX designer in Vancouver: information architecture, flows, interfaces and working prototypes for public-sector systems, commerce and AI products.",
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#05070d",
+  themeColor: "#f5f4ee",
 };
 
 export default function RootLayout({
@@ -40,24 +30,13 @@ export default function RootLayout({
         {/* Pretendard as unicode-range chunks — only the glyphs a page uses get downloaded. */}
         {/* eslint-disable-next-line @next/next/no-css-tags */}
         <link rel="stylesheet" href="/fonts/pretendard/pretendardvariable-dynamic-subset.css" />
-        {/* Runs before paint: skip the boot overlay for anyone who already booted this session. */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html:
-              "try{if(sessionStorage.getItem('rp-booted')||matchMedia('(prefers-reduced-motion: reduce)').matches){document.documentElement.dataset.booted='1'}}catch(e){}",
-          }}
-        />
       </head>
       <body className="min-h-full flex flex-col">
         <LocaleProvider>
-          <CyberBackground />
-          <BootScreen />
+          <Nav />
           {children}
-          <IntegrityHud />
-          <BackToTop />
-          <SysBot />
-          <WorldSaved />
-          <CyberCursor />
+          <AskMe />
+          <Cursor />
         </LocaleProvider>
         <Analytics />
       </body>

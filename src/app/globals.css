@@ -1,43 +1,59 @@
 @import "tailwindcss";
 
 /* ---------------------------------------------------------------------------
-   RECOVERY PROTOCOL — cyberpunk design tokens.
-   --ink / --paper keep their old names on purpose: the case-study components
-   (Design Guide, Image Showcase, Lightbox) are written against them, so
-   re-pointing the two tokens re-skins all of that content in one place.
+   {Code} · Desk — calm, motion-first portfolio.
+   Warm neutrals (Ink / Paper) with one signal accent. Case-study pages sit on
+   Ink; the home page alternates Paper and Ink sections.
+
+   Token names (--ink, --paper, --neon, --magenta, --acid) are kept from the
+   previous design on purpose: the case-study components are written against
+   them, so re-pointing the tokens re-skins all of that content in one place.
    ------------------------------------------------------------------------- */
 :root {
   /* Pretendard dynamic subset (public/fonts/pretendard): the browser fetches
-     only the unicode-range chunks a page actually uses instead of the 2MB
-     full variable font. */
+     only the unicode-range chunks a page actually uses. */
   --font-pretendard: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-  --paper: #e6f6ff;
-  --ink: #05070d;
-  --charcoal: #0a0f1a;
-  --muted: #7d8ca3;
-  --line: rgba(0, 240, 255, 0.14);
 
-  --neon: #00f0ff;
-  --neon-dim: rgba(0, 240, 255, 0.35);
-  --magenta: #ff2bd6;
-  --acid: #e8ff3a;
-  --alert: #ff3355;
+  --ink: #141312;
+  --ink-2: #1f1e1d;
+  --ink-3: #2a2927;
+  --paper: #f5f4ee;
+  --cream: #ebe8de;
+  --stone: #8e8b82;
+  --charcoal: var(--ink-2);
+  --muted: var(--stone);
+  --line: rgba(245, 244, 238, 0.12);
 
-  --gnb-height: 64px;
-  --content-max: 1680px;
+  --accent: #ff5b2e;
+  --accent-ink: #141312;
+  /* legacy names → calm equivalents */
+  --neon: var(--accent);
+  --neon-dim: rgba(255, 91, 46, 0.35);
+  --magenta: var(--accent);
+  --acid: #f5f4ee;
+  --alert: #e5484d;
+
+  --gnb-height: 72px;
+  --content-max: 1600px;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @theme inline {
   --font-sans: var(--font-pretendard);
-  --font-display: "Chakra Petch", var(--font-pretendard);
-  --font-point: "Chakra Petch", var(--font-pretendard);
+  --font-display: var(--font-pretendard);
+  --font-point: var(--font-pretendard);
   --font-mono: "JetBrains Mono", var(--font-pretendard), ui-monospace, SFMono-Regular, Menlo, monospace;
 
   --color-paper: var(--paper);
+  --color-cream: var(--cream);
+  --color-stone: var(--stone);
   --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
   --color-charcoal: var(--charcoal);
   --color-muted: var(--muted);
   --color-line: var(--line);
+  --color-accent: var(--accent);
   --color-neon: var(--neon);
   --color-magenta: var(--magenta);
   --color-acid: var(--acid);
@@ -48,7 +64,7 @@
   width: 100%;
   max-width: var(--content-max);
   margin-inline: auto;
-  padding-inline: clamp(1rem, 4vw, 4rem);
+  padding-inline: clamp(1rem, 4vw, 3.5rem);
 }
 
 @utility no-scrollbar {
@@ -59,20 +75,12 @@
   }
 }
 
-/* Notched-corner panel — the signature HUD frame shape. */
+/* Former HUD frame shapes → soft rounded corners. */
 @utility notch {
-  clip-path: polygon(
-    0 0,
-    calc(100% - 14px) 0,
-    100% 14px,
-    100% 100%,
-    14px 100%,
-    0 calc(100% - 14px)
-  );
+  border-radius: 20px;
 }
-
 @utility notch-sm {
-  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+  border-radius: 999px;
 }
 
 * {
@@ -85,148 +93,62 @@ html {
 }
 
 body {
-  /* transparent so the fixed -z-10 backdrop (grid, data field) shows —
-     <html> already paints the ink colour underneath */
-  background: transparent;
+  background: var(--ink);
   color: var(--paper);
   font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   overflow-x: clip;
+  letter-spacing: -0.005em;
 }
 
 ::selection {
-  background: var(--magenta);
+  background: var(--accent);
   color: #fff;
 }
 
 :focus-visible {
-  outline: 2px solid var(--neon);
-  outline-offset: 2px;
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
 }
 
-/* Desktop crosshair cursor replaces the native one only where the custom
-   one is actually drawn (fine pointer + motion allowed). */
-@media (pointer: fine) and (prefers-reduced-motion: no-preference) {
-  html.has-cursor,
-  html.has-cursor a,
-  html.has-cursor button {
-    cursor: none;
-  }
+/* Big display type: tight tracking reads crafted rather than templated. */
+.display {
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 0.92;
+}
+html[lang="ko"] .display {
+  letter-spacing: -0.03em;
+  line-height: 1.02;
+  word-break: keep-all;
 }
 
-/* ---- Text glow / glitch ---- */
-.text-glow {
-  text-shadow:
-    0 0 8px rgba(0, 240, 255, 0.55),
-    0 0 28px rgba(0, 240, 255, 0.25);
-}
-
+/* ---- Retired cyber effects: kept as names, now quiet ---- */
+.text-glow,
 .text-glow-magenta {
-  text-shadow:
-    0 0 8px rgba(255, 43, 214, 0.6),
-    0 0 28px rgba(255, 43, 214, 0.25);
+  text-shadow: none;
 }
-
-.glitch {
+.glitch,
+.rgb-hover {
   position: relative;
 }
-
-.glitch::before,
-.glitch::after {
-  content: attr(data-text);
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.85;
-}
-
-.glitch::before {
-  color: var(--magenta);
-  transform: translate(-2px, 0);
-  clip-path: inset(0 0 60% 0);
-  animation: glitch-a 3.2s infinite steps(1);
-  mix-blend-mode: screen;
-}
-
-.glitch::after {
-  color: var(--neon);
-  transform: translate(2px, 0);
-  clip-path: inset(55% 0 0 0);
-  animation: glitch-b 2.7s infinite steps(1);
-  mix-blend-mode: screen;
-}
-
-@keyframes glitch-a {
-  0%, 86%, 100% { transform: translate(0, 0); clip-path: inset(0 0 100% 0); }
-  87% { transform: translate(-6px, -1px); clip-path: inset(10% 0 62% 0); }
-  89% { transform: translate(4px, 1px); clip-path: inset(40% 0 30% 0); }
-  91% { transform: translate(-3px, 0); clip-path: inset(70% 0 5% 0); }
-  93% { transform: translate(0, 0); clip-path: inset(0 0 100% 0); }
-}
-
-@keyframes glitch-b {
-  0%, 80%, 100% { transform: translate(0, 0); clip-path: inset(100% 0 0 0); }
-  81% { transform: translate(5px, 1px); clip-path: inset(62% 0 12% 0); }
-  83% { transform: translate(-4px, -1px); clip-path: inset(22% 0 52% 0); }
-  85% { transform: translate(2px, 0); clip-path: inset(80% 0 2% 0); }
-  87% { transform: translate(0, 0); clip-path: inset(100% 0 0 0); }
-}
-
-/* Hover-triggered RGB split for cards/images. */
-.rgb-hover {
-  transition: filter 0.25s ease;
-}
-.group:hover .rgb-hover {
-  filter: drop-shadow(-3px 0 0 rgba(255, 43, 214, 0.7)) drop-shadow(3px 0 0 rgba(0, 240, 255, 0.7));
-}
-
-/* ---- Screen overlays ---- */
-.scanlines {
-  background: repeating-linear-gradient(
-    to bottom,
-    rgba(255, 255, 255, 0.035) 0,
-    rgba(255, 255, 255, 0.035) 1px,
-    transparent 1px,
-    transparent 3px
-  );
-}
-
+.scanlines,
 .grid-bg {
-  background-image:
-    linear-gradient(rgba(0, 240, 255, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 240, 255, 0.05) 1px, transparent 1px);
-  background-size: 48px 48px;
+  background: none;
 }
-
-/* Corner brackets on any HUD frame. */
 .brackets {
   position: relative;
+  border-radius: 20px;
+  overflow: hidden;
 }
-.brackets::before,
-.brackets::after {
-  content: "";
-  position: absolute;
-  width: 14px;
-  height: 14px;
-  pointer-events: none;
-  border-color: var(--neon);
-  z-index: 2;
+.flicker {
+  animation: none;
 }
-.brackets::before {
-  top: -1px;
-  left: -1px;
-  border-top: 2px solid;
-  border-left: 2px solid;
-}
-.brackets::after {
-  bottom: -1px;
-  right: -1px;
-  border-bottom: 2px solid;
-  border-right: 2px solid;
+.scan-sweep {
+  display: none;
 }
 
-/* ---- Motion ---- */
 @keyframes caret-blink {
   0%, 45% { opacity: 1; }
   50%, 95% { opacity: 0; }
@@ -241,7 +163,7 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 .animate-step-in {
-  animation: step-in 0.5s ease-out both;
+  animation: step-in 0.35s var(--ease) both;
 }
 
 @keyframes pulse-ring {
@@ -249,23 +171,7 @@ body {
   100% { transform: scale(2.4); opacity: 0; }
 }
 .pulse-ring {
-  animation: pulse-ring 1.8s cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
-}
-
-@keyframes flicker {
-  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
-  20%, 24%, 55% { opacity: 0.35; }
-}
-.flicker {
-  animation: flicker 4s linear infinite;
-}
-
-@keyframes scan-sweep {
-  from { transform: translateY(-100%); }
-  to { transform: translateY(100vh); }
-}
-.scan-sweep {
-  animation: scan-sweep 7s linear infinite;
+  animation: pulse-ring 1.8s var(--ease) infinite;
 }
 
 @keyframes marquee {
@@ -276,26 +182,41 @@ body {
   animation: marquee 38s linear infinite;
 }
 
+/* ---- Scroll reveal ---- */
 @keyframes reveal-up {
-  from { opacity: 0; transform: translateY(24px); }
+  from { opacity: 0; transform: translateY(28px); }
   to { opacity: 1; transform: none; }
 }
 [data-reveal] {
   opacity: 0;
 }
 [data-reveal="in"] {
-  animation: reveal-up 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  animation: reveal-up 0.9s var(--ease) both;
+}
+
+/* Headline words rising out of a clip on load. */
+@keyframes word-up {
+  from { transform: translateY(105%); }
+  to { transform: none; }
+}
+.word {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
+}
+.word > span {
+  display: inline-block;
+  animation: word-up 1s var(--ease) both;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .glitch::before,
-  .glitch::after,
-  .flicker,
-  .scan-sweep,
   .marquee,
   .pulse-ring,
   .caret,
-  .animate-step-in {
+  .animate-step-in,
+  .word > span {
     animation: none !important;
   }
   [data-reveal] {
@@ -304,178 +225,64 @@ body {
   }
 }
 
-@keyframes drip {
-  from { transform: translateY(-100%); }
-  to { transform: translateY(400%); }
-}
-.drip {
-  animation: drip 1.6s cubic-bezier(0.6, 0, 0.4, 1) infinite;
-}
-@media (prefers-reduced-motion: reduce) {
-  .drip { animation: none; }
-}
-
-/* ---- Legacy case-study content (Design Guide / Image Showcase) re-skinned
-   to the HUD look: square corners, neon active states. ---- */
+/* ---- Legacy case-study content (Design Guide / Image Showcase) ---- */
 .case-content .rounded-2xl,
-.case-content .rounded-xl,
-.case-content .rounded-lg {
-  border-radius: 2px;
-}
-.case-content button.rounded-full {
-  border-radius: 0;
+.case-content .rounded-xl {
+  border-radius: 16px;
 }
 .case-content button.bg-paper {
-  background: var(--neon);
+  background: var(--paper);
   color: var(--ink);
 }
-.case-content .font-display.italic {
-  font-style: normal;
-}
 
-/* Wide HUD letter-spacing reads well on Latin caps but breaks Hangul apart —
+/* Wide letter-spacing reads well on Latin caps but breaks Hangul apart —
    anything whose text changes with the locale opts in to tighter tracking. */
 html[lang="ko"] .ko-safe,
 html[lang="ko"] .ko-safe * {
   letter-spacing: 0.02em !important;
 }
 
-/* ---- SYS-BOT companion ---- */
-@keyframes bot-float {
-  0%, 100% { transform: translateY(0) rotate(-2deg); }
-  50% { transform: translateY(-8px) rotate(2deg); }
-}
-.bot-float {
-  animation: bot-float 3.6s ease-in-out infinite;
-}
-@keyframes bot-glitch {
-  0%, 100% { transform: translate(0, 0); }
-  20% { transform: translate(-4px, 1px) skewX(-8deg); }
-  40% { transform: translate(4px, -1px) skewX(6deg); }
-  60% { transform: translate(-2px, 0); }
-  80% { transform: translate(2px, 1px); }
-}
-.bot-glitch {
-  animation: bot-glitch 0.15s steps(2) 4;
-}
-
-/* ---- Meteor strike ---- */
-@keyframes meteor-fall {
-  from { transform: translate(var(--mx0), var(--my0)) scale(0.55); opacity: 0; }
-  12% { opacity: 1; }
-  to { transform: translate(0, 0) scale(1); opacity: 1; }
-}
-.meteor-fall {
-  animation: meteor-fall 1.4s cubic-bezier(0.35, 0, 0.75, 0.6) forwards;
-}
-@keyframes shockwave {
-  from { transform: translate(-50%, -50%) scale(0.1); opacity: 1; }
-  to { transform: translate(-50%, -50%) scale(1); opacity: 0; }
-}
-.shockwave {
-  animation: shockwave 0.9s cubic-bezier(0.1, 0.7, 0.3, 1) forwards;
-}
-@keyframes impact-flash {
-  from { opacity: 0.85; }
-  to { opacity: 0; }
-}
-.impact-flash {
-  animation: impact-flash 0.7s ease-out forwards;
-}
-@keyframes hero-shake {
-  0%, 100% { transform: translate(0, 0); }
-  15% { transform: translate(-7px, 4px); }
-  30% { transform: translate(6px, -5px); }
-  45% { transform: translate(-5px, -3px); }
-  60% { transform: translate(4px, 4px); }
-  80% { transform: translate(-2px, 1px); }
-}
-.hero-shake {
-  animation: hero-shake 0.45s linear;
-}
-
-/* ---- Globe ---- */
-@keyframes globe-bob {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-.globe-bob {
-  animation: globe-bob 6s ease-in-out infinite;
-}
-@keyframes radar {
-  to { transform: rotate(360deg); }
-}
-.radar {
-  animation: radar 4s linear infinite;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .bot-float, .bot-glitch, .meteor-fall, .shockwave, .impact-flash, .hero-shake, .globe-bob, .radar {
-    animation: none !important;
-  }
-}
-
-/* ---- World saved ---- */
-@keyframes saved-flash {
-  from { opacity: 0.55; }
-  to { opacity: 0; }
-}
-.saved-flash {
-  animation: saved-flash 0.9s ease-out forwards;
-}
-@keyframes saved-in {
-  from { opacity: 0; transform: scale(0.92); filter: blur(6px); }
-  to { opacity: 1; transform: none; filter: none; }
-}
-.saved-in {
-  animation: saved-in 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both;
-}
-@media (prefers-reduced-motion: reduce) {
-  .saved-flash, .saved-in { animation: none !important; }
-  .saved-flash { opacity: 0; }
-}
-
-/* ── mission preview popup / hover thumbnail ──────────────────────── */
+/* ---- Popups ---- */
 @keyframes preview-in {
-  from {
-    opacity: 0;
-    transform: translateY(24px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: none; }
 }
 .preview-in {
-  animation: preview-in 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  animation: preview-in 0.35s var(--ease);
 }
 
-/* ── media stage: detail images sit smaller, centred on a lit backdrop
-   instead of filling (and cropping) the whole column ─────────────────── */
+/* ---- Media stage: case-study images sit contained on a soft panel ---- */
 .stage-bg {
-  background:
-    radial-gradient(ellipse at 50% 0%, rgba(0, 240, 255, 0.14), transparent 60%),
-    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px) 0 0 / 28px 28px,
-    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px) 0 0 / 28px 28px,
-    #0a101c;
+  background: var(--ink-2);
 }
 .stage-img {
   padding: clamp(14px, 4vw, 44px);
   object-fit: contain !important;
 }
 .case-content img {
-  background:
-    radial-gradient(ellipse at 50% 0%, rgba(0, 240, 255, 0.12), transparent 60%),
-    #0a101c;
+  background: var(--ink-2);
   padding: clamp(10px, 2.5vw, 28px);
   object-fit: contain !important;
   object-position: center !important;
 }
 
-/* No backdrop-filter anywhere: every blurred panel sits over the animated
-   backdrop, so the browser re-blurs it on every frame — the main cause of
-   the site feeling slow. The panels already have semi-opaque ink fills. */
+/* backdrop-filter re-blurs on every frame of anything animating behind it;
+   panels use solid fills instead. */
 [class*="backdrop-blur"] {
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
 }
+
+/* ---- Custom cursor label ("View", "Play") over media ---- */
+@media (pointer: fine) {
+  [data-cursor] {
+    cursor: none;
+  }
+}
+
+/* Tale brand section */
+@keyframes tale-float { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-10px) } }
+.tale-float { animation: tale-float 4.8s var(--ease) infinite; }
+@keyframes tale-pop { from { opacity: 0; scale: 0.88 } to { opacity: 1; scale: 1 } }
+.tale-pop { animation: tale-pop 0.6s var(--ease) both, tale-float 4.8s var(--ease) infinite; }
+@media (prefers-reduced-motion: reduce) { .tale-float, .tale-pop { animation: none; } }
