@@ -1,21 +1,20 @@
-import { Gnb } from "@/components/site-header/gnb";
-import { Hero } from "@/components/cyber/hero";
-import { OperatorSection } from "@/components/cyber/operator-section";
-import { MissionsSection } from "@/components/cyber/missions-section";
-import { TransmissionSection } from "@/components/cyber/transmission-section";
-import { SiteFooter } from "@/components/footer/site-footer";
+import { PaperHero } from "@/components/studio/paper-hero";
+import { SelectedWork } from "@/components/studio/selected-work";
+import { ContactSection, Footer, StudioSection } from "@/components/studio/studio-contact";
+import { Reveals } from "@/components/studio/reveals";
+import { LEAD_ID, getCase } from "@/lib/studio";
 
 export default function Home() {
   return (
     <>
-      <Gnb />
-      <main>
-        <Hero />
-        <OperatorSection />
-        <MissionsSection />
-        <TransmissionSection />
+      <main id="main">
+        <PaperHero lead={getCase(LEAD_ID)!} />
+        <SelectedWork />
+        <StudioSection />
+        <ContactSection />
       </main>
-      <SiteFooter />
+      <Footer />
+      <Reveals />
     </>
   );
 }

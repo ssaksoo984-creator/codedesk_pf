@@ -1,64 +1,36 @@
 import type { Metadata, Viewport } from "next";
 import { Analytics } from "@vercel/analytics/next";
-import "@fontsource/chakra-petch/400.css";
-import "@fontsource/chakra-petch/500.css";
-import "@fontsource/chakra-petch/600.css";
-import "@fontsource/chakra-petch/700.css";
-import "@fontsource/chakra-petch/500-italic.css";
-import "@fontsource/jetbrains-mono/400.css";
-import "@fontsource/jetbrains-mono/500.css";
-import { LocaleProvider } from "@/components/site-header/locale-context";
-import { BackToTop } from "@/components/site-header/back-to-top";
-import { CyberBackground } from "@/components/cyber/cyber-background";
-import { CyberCursor } from "@/components/cyber/cyber-cursor";
-import { BootScreen } from "@/components/cyber/boot-screen";
-import { IntegrityHud } from "@/components/cyber/integrity-hud";
-import { SysBot } from "@/components/cyber/sys-bot";
-import { WorldSaved } from "@/components/cyber/world-saved";
+import "@fontsource/instrument-sans/400.css";
+import "@fontsource/instrument-sans/500.css";
+import "@fontsource/ibm-plex-mono/400.css";
+import { Header } from "@/components/studio/header";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "{Code} · Desk — Recovery Protocol",
+  metadataBase: new URL("https://codedesk-studio.online"),
+  title: {
+    default: "CodeDesk Studio — Web and digital design, Vancouver",
+    template: "%s — CodeDesk Studio",
+  },
   description:
-    "Portfolio of Soomin Park ({Code} · Desk) — UI/UX design & frontend. Restore every sector to save the digital world.",
+    "CodeDesk Studio is an independent web and digital design studio in Vancouver: websites, product interfaces and brand identities, designed and built.",
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#05070d",
+  themeColor: "#f4f3ee",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className="h-full antialiased" suppressHydrationWarning>
-      <head>
-        {/* Pretendard as unicode-range chunks — only the glyphs a page uses get downloaded. */}
-        {/* eslint-disable-next-line @next/next/no-css-tags */}
-        <link rel="stylesheet" href="/fonts/pretendard/pretendardvariable-dynamic-subset.css" />
-        {/* Runs before paint: skip the boot overlay for anyone who already booted this session. */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html:
-              "try{if(sessionStorage.getItem('rp-booted')||matchMedia('(prefers-reduced-motion: reduce)').matches){document.documentElement.dataset.booted='1'}}catch(e){}",
-          }}
-        />
-      </head>
-      <body className="min-h-full flex flex-col">
-        <LocaleProvider>
-          <CyberBackground />
-          <BootScreen />
-          {children}
-          <IntegrityHud />
-          <BackToTop />
-          <SysBot />
-          <WorldSaved />
-          <CyberCursor />
-        </LocaleProvider>
+    <html lang="en">
+      <body className="min-h-svh antialiased">
+        <a href="#main" className="sr-only z-50 bg-ink px-4 py-2 text-paper focus:not-sr-only focus:fixed focus:left-4 focus:top-4">
+          Skip to content
+        </a>
+        <Header />
+        {children}
         <Analytics />
       </body>
     </html>

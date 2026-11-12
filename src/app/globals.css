@@ -1,481 +1,177 @@
 @import "tailwindcss";
 
 /* ---------------------------------------------------------------------------
-   RECOVERY PROTOCOL — cyberpunk design tokens.
-   --ink / --paper keep their old names on purpose: the case-study components
-   (Design Guide, Image Showcase, Lightbox) are written against them, so
-   re-pointing the two tokens re-skins all of that content in one place.
+   CodeDesk Studio — "Paper to Screen".
+   One paper colour, one ink, one cobalt. Everything else comes from the work.
    ------------------------------------------------------------------------- */
 :root {
-  /* Pretendard dynamic subset (public/fonts/pretendard): the browser fetches
-     only the unicode-range chunks a page actually uses instead of the 2MB
-     full variable font. */
-  --font-pretendard: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-  --paper: #e6f6ff;
-  --ink: #05070d;
-  --charcoal: #0a0f1a;
-  --muted: #7d8ca3;
-  --line: rgba(0, 240, 255, 0.14);
-
-  --neon: #00f0ff;
-  --neon-dim: rgba(0, 240, 255, 0.35);
-  --magenta: #ff2bd6;
-  --acid: #e8ff3a;
-  --alert: #ff3355;
-
-  --gnb-height: 64px;
-  --content-max: 1680px;
+  --paper: #f4f3ee;
+  --ink: #191a18;
+  --cobalt: #243de5;
+  --muted: #595b56;
+  --rule: #d4d4cc;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --gutter: 16px;
+}
+@media (min-width: 768px) {
+  :root { --gutter: 32px; }
+}
+@media (min-width: 1280px) {
+  :root { --gutter: 48px; }
 }
 
 @theme inline {
-  --font-sans: var(--font-pretendard);
-  --font-display: "Chakra Petch", var(--font-pretendard);
-  --font-point: "Chakra Petch", var(--font-pretendard);
-  --font-mono: "JetBrains Mono", var(--font-pretendard), ui-monospace, SFMono-Regular, Menlo, monospace;
-
   --color-paper: var(--paper);
   --color-ink: var(--ink);
-  --color-charcoal: var(--charcoal);
+  --color-cobalt: var(--cobalt);
   --color-muted: var(--muted);
-  --color-line: var(--line);
-  --color-neon: var(--neon);
-  --color-magenta: var(--magenta);
-  --color-acid: var(--acid);
-  --color-alert: var(--alert);
-}
-
-@utility wrap {
-  width: 100%;
-  max-width: var(--content-max);
-  margin-inline: auto;
-  padding-inline: clamp(1rem, 4vw, 4rem);
-}
-
-@utility no-scrollbar {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  &::-webkit-scrollbar {
-    display: none;
-  }
-}
-
-/* Notched-corner panel — the signature HUD frame shape. */
-@utility notch {
-  clip-path: polygon(
-    0 0,
-    calc(100% - 14px) 0,
-    100% 14px,
-    100% 100%,
-    14px 100%,
-    0 calc(100% - 14px)
-  );
-}
-
-@utility notch-sm {
-  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
-}
-
-* {
-  box-sizing: border-box;
+  --color-rule: var(--rule);
+  --font-sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
 }
 
 html {
-  background: var(--ink);
-  color-scheme: dark;
+  background: var(--paper);
+  color: var(--ink);
+  -webkit-text-size-adjust: 100%;
 }
-
 body {
-  /* transparent so the fixed -z-10 backdrop (grid, data field) shows —
-     <html> already paints the ink colour underneath */
-  background: transparent;
-  color: var(--paper);
-  font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  line-height: 1.55;
-  -webkit-font-smoothing: antialiased;
-  overflow-x: clip;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 17px;
+  line-height: 1.6;
+  text-rendering: optimizeLegibility;
 }
 
 ::selection {
-  background: var(--magenta);
+  background: var(--cobalt);
   color: #fff;
 }
 
-:focus-visible {
-  outline: 2px solid var(--neon);
-  outline-offset: 2px;
+/* Page gutter + 12-column grid used across the site. */
+@utility wrap {
+  width: 100%;
+  margin-inline: auto;
+  max-width: 1600px;
+  padding-inline: var(--gutter);
 }
 
-/* Desktop crosshair cursor replaces the native one only where the custom
-   one is actually drawn (fine pointer + motion allowed). */
-@media (pointer: fine) and (prefers-reduced-motion: no-preference) {
-  html.has-cursor,
-  html.has-cursor a,
-  html.has-cursor button {
-    cursor: none;
+/* Display type: Instrument Sans Medium, tight tracking, set line breaks. */
+@utility title {
+  font-weight: 500;
+  letter-spacing: -0.05em;
+  line-height: 0.96;
+  font-size: clamp(44px, 9vw, 56px);
+  @media (min-width: 1024px) {
+    font-size: clamp(76px, 7.2vw, 108px);
   }
 }
 
-/* ---- Text glow / glitch ---- */
-.text-glow {
-  text-shadow:
-    0 0 8px rgba(0, 240, 255, 0.55),
-    0 0 28px rgba(0, 240, 255, 0.25);
+/* Small mono label for fields and captions only. */
+@utility label {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.5;
+  letter-spacing: 0;
+  color: var(--muted);
 }
 
-.text-glow-magenta {
-  text-shadow:
-    0 0 8px rgba(255, 43, 214, 0.6),
-    0 0 28px rgba(255, 43, 214, 0.25);
+/* Visible keyboard focus everywhere. */
+:focus-visible {
+  outline: 2px solid var(--cobalt);
+  outline-offset: 3px;
 }
 
-.glitch {
+/* Underline links that read as text. */
+.link {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  text-decoration-color: color-mix(in srgb, currentColor 35%, transparent);
+  transition: text-decoration-color 0.2s;
+}
+.link:hover {
+  text-decoration-color: currentColor;
+}
+
+/* ---- The paper ----------------------------------------------------------- */
+
+/* Paper sheet: flat cobalt plus a fibre texture sampled from the reference
+   photograph, blended so it reads as material rather than a pattern. */
+.sheet {
   position: relative;
+  background-color: var(--cobalt);
+  transform-origin: 50% 50%;
 }
-
-.glitch::before,
-.glitch::after {
-  content: attr(data-text);
+.sheet::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("/media/studio/paper-fiber.jpg") center / cover;
+  mix-blend-mode: overlay;
+  opacity: 0.45;
+  pointer-events: none;
+}
+/* The corner that lifts: a soft highlight on the lower-right, gone once the
+   sheet lies flat. */
+.sheet-lift {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  opacity: 0.85;
+  background: radial-gradient(120% 90% at 100% 100%, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0) 32%);
 }
 
-.glitch::before {
-  color: var(--magenta);
-  transform: translate(-2px, 0);
-  clip-path: inset(0 0 60% 0);
-  animation: glitch-a 3.2s infinite steps(1);
-  mix-blend-mode: screen;
-}
-
-.glitch::after {
-  color: var(--neon);
-  transform: translate(2px, 0);
-  clip-path: inset(55% 0 0 0);
-  animation: glitch-b 2.7s infinite steps(1);
-  mix-blend-mode: screen;
-}
-
-@keyframes glitch-a {
-  0%, 86%, 100% { transform: translate(0, 0); clip-path: inset(0 0 100% 0); }
-  87% { transform: translate(-6px, -1px); clip-path: inset(10% 0 62% 0); }
-  89% { transform: translate(4px, 1px); clip-path: inset(40% 0 30% 0); }
-  91% { transform: translate(-3px, 0); clip-path: inset(70% 0 5% 0); }
-  93% { transform: translate(0, 0); clip-path: inset(0 0 100% 0); }
-}
-
-@keyframes glitch-b {
-  0%, 80%, 100% { transform: translate(0, 0); clip-path: inset(100% 0 0 0); }
-  81% { transform: translate(5px, 1px); clip-path: inset(62% 0 12% 0); }
-  83% { transform: translate(-4px, -1px); clip-path: inset(22% 0 52% 0); }
-  85% { transform: translate(2px, 0); clip-path: inset(80% 0 2% 0); }
-  87% { transform: translate(0, 0); clip-path: inset(100% 0 0 0); }
-}
-
-/* Hover-triggered RGB split for cards/images. */
-.rgb-hover {
-  transition: filter 0.25s ease;
-}
-.group:hover .rgb-hover {
-  filter: drop-shadow(-3px 0 0 rgba(255, 43, 214, 0.7)) drop-shadow(3px 0 0 rgba(0, 240, 255, 0.7));
-}
-
-/* ---- Screen overlays ---- */
-.scanlines {
-  background: repeating-linear-gradient(
-    to bottom,
-    rgba(255, 255, 255, 0.035) 0,
-    rgba(255, 255, 255, 0.035) 1px,
-    transparent 1px,
-    transparent 3px
-  );
-}
-
-.grid-bg {
-  background-image:
-    linear-gradient(rgba(0, 240, 255, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 240, 255, 0.05) 1px, transparent 1px);
-  background-size: 48px 48px;
-}
-
-/* Corner brackets on any HUD frame. */
-.brackets {
-  position: relative;
-}
-.brackets::before,
-.brackets::after {
-  content: "";
+/* Two pre-blurred shadows. Only their opacity changes while scrolling. */
+.shadow-lifted,
+.shadow-contact {
   position: absolute;
-  width: 14px;
-  height: 14px;
+  inset: 0;
   pointer-events: none;
-  border-color: var(--neon);
-  z-index: 2;
 }
-.brackets::before {
-  top: -1px;
-  left: -1px;
-  border-top: 2px solid;
-  border-left: 2px solid;
+.shadow-lifted {
+  box-shadow:
+    18px 28px 46px -18px rgba(25, 26, 24, 0.38),
+    6px 10px 18px -8px rgba(25, 26, 24, 0.22);
 }
-.brackets::after {
-  bottom: -1px;
-  right: -1px;
-  border-bottom: 2px solid;
-  border-right: 2px solid;
+.shadow-contact {
+  box-shadow:
+    0 1px 1px rgba(25, 26, 24, 0.14),
+    0 2px 6px -2px rgba(25, 26, 24, 0.16);
 }
 
-/* ---- Motion ---- */
-@keyframes caret-blink {
-  0%, 45% { opacity: 1; }
-  50%, 95% { opacity: 0; }
-  100% { opacity: 1; }
+/* Desktop starting pose, so the first paint already matches the scene. */
+@media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+  .paper-pose {
+    transform: rotate(-6deg);
+  }
 }
-.caret {
-  animation: caret-blink 1s step-end infinite;
-}
-
-@keyframes step-in {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.animate-step-in {
-  animation: step-in 0.5s ease-out both;
+@media (max-width: 1023px) and (prefers-reduced-motion: no-preference) {
+  .paper-pose {
+    transform: rotate(-3deg);
+  }
 }
 
-@keyframes pulse-ring {
-  0% { transform: scale(0.6); opacity: 0.9; }
-  100% { transform: scale(2.4); opacity: 0; }
+/* Gentle fade-up for content entering the viewport (opacity + transform). */
+[data-in] {
+  transition:
+    opacity 0.8s var(--ease),
+    transform 0.8s var(--ease);
 }
-.pulse-ring {
-  animation: pulse-ring 1.8s cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
-}
-
-@keyframes flicker {
-  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
-  20%, 24%, 55% { opacity: 0.35; }
-}
-.flicker {
-  animation: flicker 4s linear infinite;
-}
-
-@keyframes scan-sweep {
-  from { transform: translateY(-100%); }
-  to { transform: translateY(100vh); }
-}
-.scan-sweep {
-  animation: scan-sweep 7s linear infinite;
-}
-
-@keyframes marquee {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
-}
-.marquee {
-  animation: marquee 38s linear infinite;
-}
-
-@keyframes reveal-up {
-  from { opacity: 0; transform: translateY(24px); }
-  to { opacity: 1; transform: none; }
-}
-[data-reveal] {
+[data-in="0"] {
   opacity: 0;
-}
-[data-reveal="in"] {
-  animation: reveal-up 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  transform: translateY(24px);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .glitch::before,
-  .glitch::after,
-  .flicker,
-  .scan-sweep,
-  .marquee,
-  .pulse-ring,
-  .caret,
-  .animate-step-in {
-    animation: none !important;
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
   }
-  [data-reveal] {
-    opacity: 1;
-    animation: none !important;
-  }
-}
-
-@keyframes drip {
-  from { transform: translateY(-100%); }
-  to { transform: translateY(400%); }
-}
-.drip {
-  animation: drip 1.6s cubic-bezier(0.6, 0, 0.4, 1) infinite;
-}
-@media (prefers-reduced-motion: reduce) {
-  .drip { animation: none; }
-}
-
-/* ---- Legacy case-study content (Design Guide / Image Showcase) re-skinned
-   to the HUD look: square corners, neon active states. ---- */
-.case-content .rounded-2xl,
-.case-content .rounded-xl,
-.case-content .rounded-lg {
-  border-radius: 2px;
-}
-.case-content button.rounded-full {
-  border-radius: 0;
-}
-.case-content button.bg-paper {
-  background: var(--neon);
-  color: var(--ink);
-}
-.case-content .font-display.italic {
-  font-style: normal;
-}
-
-/* Wide HUD letter-spacing reads well on Latin caps but breaks Hangul apart —
-   anything whose text changes with the locale opts in to tighter tracking. */
-html[lang="ko"] .ko-safe,
-html[lang="ko"] .ko-safe * {
-  letter-spacing: 0.02em !important;
-}
-
-/* ---- SYS-BOT companion ---- */
-@keyframes bot-float {
-  0%, 100% { transform: translateY(0) rotate(-2deg); }
-  50% { transform: translateY(-8px) rotate(2deg); }
-}
-.bot-float {
-  animation: bot-float 3.6s ease-in-out infinite;
-}
-@keyframes bot-glitch {
-  0%, 100% { transform: translate(0, 0); }
-  20% { transform: translate(-4px, 1px) skewX(-8deg); }
-  40% { transform: translate(4px, -1px) skewX(6deg); }
-  60% { transform: translate(-2px, 0); }
-  80% { transform: translate(2px, 1px); }
-}
-.bot-glitch {
-  animation: bot-glitch 0.15s steps(2) 4;
-}
-
-/* ---- Meteor strike ---- */
-@keyframes meteor-fall {
-  from { transform: translate(var(--mx0), var(--my0)) scale(0.55); opacity: 0; }
-  12% { opacity: 1; }
-  to { transform: translate(0, 0) scale(1); opacity: 1; }
-}
-.meteor-fall {
-  animation: meteor-fall 1.4s cubic-bezier(0.35, 0, 0.75, 0.6) forwards;
-}
-@keyframes shockwave {
-  from { transform: translate(-50%, -50%) scale(0.1); opacity: 1; }
-  to { transform: translate(-50%, -50%) scale(1); opacity: 0; }
-}
-.shockwave {
-  animation: shockwave 0.9s cubic-bezier(0.1, 0.7, 0.3, 1) forwards;
-}
-@keyframes impact-flash {
-  from { opacity: 0.85; }
-  to { opacity: 0; }
-}
-.impact-flash {
-  animation: impact-flash 0.7s ease-out forwards;
-}
-@keyframes hero-shake {
-  0%, 100% { transform: translate(0, 0); }
-  15% { transform: translate(-7px, 4px); }
-  30% { transform: translate(6px, -5px); }
-  45% { transform: translate(-5px, -3px); }
-  60% { transform: translate(4px, 4px); }
-  80% { transform: translate(-2px, 1px); }
-}
-.hero-shake {
-  animation: hero-shake 0.45s linear;
-}
-
-/* ---- Globe ---- */
-@keyframes globe-bob {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-.globe-bob {
-  animation: globe-bob 6s ease-in-out infinite;
-}
-@keyframes radar {
-  to { transform: rotate(360deg); }
-}
-.radar {
-  animation: radar 4s linear infinite;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .bot-float, .bot-glitch, .meteor-fall, .shockwave, .impact-flash, .hero-shake, .globe-bob, .radar {
-    animation: none !important;
-  }
-}
-
-/* ---- World saved ---- */
-@keyframes saved-flash {
-  from { opacity: 0.55; }
-  to { opacity: 0; }
-}
-.saved-flash {
-  animation: saved-flash 0.9s ease-out forwards;
-}
-@keyframes saved-in {
-  from { opacity: 0; transform: scale(0.92); filter: blur(6px); }
-  to { opacity: 1; transform: none; filter: none; }
-}
-.saved-in {
-  animation: saved-in 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both;
-}
-@media (prefers-reduced-motion: reduce) {
-  .saved-flash, .saved-in { animation: none !important; }
-  .saved-flash { opacity: 0; }
-}
-
-/* ── mission preview popup / hover thumbnail ──────────────────────── */
-@keyframes preview-in {
-  from {
-    opacity: 0;
-    transform: translateY(24px);
-  }
-  to {
+  [data-in="0"] {
     opacity: 1;
     transform: none;
   }
-}
-.preview-in {
-  animation: preview-in 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-/* ── media stage: detail images sit smaller, centred on a lit backdrop
-   instead of filling (and cropping) the whole column ─────────────────── */
-.stage-bg {
-  background:
-    radial-gradient(ellipse at 50% 0%, rgba(0, 240, 255, 0.14), transparent 60%),
-    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px) 0 0 / 28px 28px,
-    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px) 0 0 / 28px 28px,
-    #0a101c;
-}
-.stage-img {
-  padding: clamp(14px, 4vw, 44px);
-  object-fit: contain !important;
-}
-.case-content img {
-  background:
-    radial-gradient(ellipse at 50% 0%, rgba(0, 240, 255, 0.12), transparent 60%),
-    #0a101c;
-  padding: clamp(10px, 2.5vw, 28px);
-  object-fit: contain !important;
-  object-position: center !important;
-}
-
-/* No backdrop-filter anywhere: every blurred panel sits over the animated
-   backdrop, so the browser re-blurs it on every frame — the main cause of
-   the site feeling slow. The panels already have semi-opaque ink fills. */
-[class*="backdrop-blur"] {
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important;
 }
