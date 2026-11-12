@@ -1,35 +1,48 @@
-"use client";
+import type { Metadata } from "next";
+import Link from "next/link";
+import { CASES } from "@/lib/studio";
+import { ShotImage } from "@/components/studio/shot-image";
+import { ContactSection, Footer } from "@/components/studio/studio-contact";
+import { Reveals } from "@/components/studio/reveals";
 
-import { useLocale } from "@/components/site-header/locale-context";
-import { ProjectIndex } from "@/components/site/project-index";
-import { Footer } from "@/components/site/contact";
-import { SHOWREEL } from "@/lib/project-media";
-import { MotionVideo } from "@/components/site/motion-video";
+export const metadata: Metadata = { title: "Work" };
 
-export default function WorkPage() {
-  const { locale } = useLocale();
+export default function WorkIndex() {
   return (
     <>
-      <main className="min-h-screen bg-ink text-paper">
-        <div className="wrap pt-32 md:pt-44">
-          <p className="font-mono text-[12px] text-paper/45">{locale === "ko" ? "작업" : "Work"}</p>
-          <h1 key={locale} className="display mt-5 text-[clamp(3rem,11vw,10rem)]">
-            <span className="word block">
-              <span>{locale === "ko" ? "전체 작업" : "All the work"}</span>
-            </span>
+      <main id="main" className="pt-32 md:pt-44">
+        <div className="wrap">
+          <h1 className="title">
+            All work
           </h1>
-          <p className="mt-6 max-w-xl text-[17px] leading-relaxed text-paper/60">
-            {locale === "ko"
-              ? "공공 시스템, 커머스, 브랜드, 그리고 직접 만든 AI 제품까지. 마우스를 올리면 실제 화면이 재생돼요."
-              : "Public systems, commerce, brands and the AI products I build myself. Hover a row to play the real screens."}
-          </p>
-          <div className="mt-12 aspect-[21/9] overflow-hidden rounded-[24px] bg-ink-2">
-            <MotionVideo src={SHOWREEL.video} poster={SHOWREEL.poster} />
-          </div>
+          <ol className="mt-14 border-t border-rule md:mt-20">
+            {CASES.map((c) => (
+              <li key={c.id} id={`p-${c.id}`} data-in className="scroll-mt-10 border-b border-rule">
+                <Link
+                  href={`/work/${c.id}/`}
+                  className="group grid grid-cols-[96px_1fr] items-center gap-5 py-5 md:grid-cols-[200px_1fr_auto] md:gap-8 md:py-7"
+                >
+                  <span className="relative block aspect-[16/10] overflow-hidden bg-rule/40">
+                    <ShotImage shot={{ ...c.hero, contain: false }} sizes="200px" />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block text-[22px] font-medium leading-tight tracking-[-0.03em] group-hover:underline md:text-[32px]">
+                      {c.title}
+                    </span>
+                    <span className="label mt-1 block">{c.field}</span>
+                  </span>
+                  <span className="label hidden md:block">{[c.status, c.year].filter(Boolean).join(" · ")}</span>
+                </Link>
+              </li>
+            ))}
+          </ol>
         </div>
-        <ProjectIndex withHeading={false} />
+        <div className="mt-24">
+          <ContactSection />
+        </div>
       </main>
-      <Footer dark />
+      <Footer />
+      <Reveals />
     </>
   );
 }

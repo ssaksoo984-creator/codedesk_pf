@@ -1,19 +1,20 @@
-import { Hero } from "@/components/site/hero";
-import { Showreel } from "@/components/site/showreel";
-import { WorkStack } from "@/components/site/work-stack";
-import { About } from "@/components/site/about";
-import { ProjectIndex } from "@/components/site/project-index";
-import { Contact } from "@/components/site/contact";
+import { PaperHero } from "@/components/studio/paper-hero";
+import { SelectedWork } from "@/components/studio/selected-work";
+import { ContactSection, Footer, StudioSection } from "@/components/studio/studio-contact";
+import { Reveals } from "@/components/studio/reveals";
+import { LEAD_ID, getCase } from "@/lib/studio";
 
 export default function Home() {
   return (
-    <main className="bg-paper">
-      <Hero />
-      <Showreel />
-      <WorkStack />
-      <About />
-      <ProjectIndex />
-      <Contact />
-    </main>
+    <>
+      <main id="main">
+        <PaperHero lead={getCase(LEAD_ID)!} />
+        <SelectedWork />
+        <StudioSection />
+        <ContactSection />
+      </main>
+      <Footer />
+      <Reveals />
+    </>
   );
 }

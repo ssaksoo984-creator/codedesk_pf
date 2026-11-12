@@ -1,288 +1,177 @@
 @import "tailwindcss";
 
 /* ---------------------------------------------------------------------------
-   {Code} · Desk — calm, motion-first portfolio.
-   Warm neutrals (Ink / Paper) with one signal accent. Case-study pages sit on
-   Ink; the home page alternates Paper and Ink sections.
-
-   Token names (--ink, --paper, --neon, --magenta, --acid) are kept from the
-   previous design on purpose: the case-study components are written against
-   them, so re-pointing the tokens re-skins all of that content in one place.
+   CodeDesk Studio — "Paper to Screen".
+   One paper colour, one ink, one cobalt. Everything else comes from the work.
    ------------------------------------------------------------------------- */
 :root {
-  /* Pretendard dynamic subset (public/fonts/pretendard): the browser fetches
-     only the unicode-range chunks a page actually uses. */
-  --font-pretendard: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-
-  --ink: #141312;
-  --ink-2: #1f1e1d;
-  --ink-3: #2a2927;
-  --paper: #f5f4ee;
-  --cream: #ebe8de;
-  --stone: #8e8b82;
-  --charcoal: var(--ink-2);
-  --muted: var(--stone);
-  --line: rgba(245, 244, 238, 0.12);
-
-  --accent: #ff5b2e;
-  --accent-ink: #141312;
-  /* legacy names → calm equivalents */
-  --neon: var(--accent);
-  --neon-dim: rgba(255, 91, 46, 0.35);
-  --magenta: var(--accent);
-  --acid: #f5f4ee;
-  --alert: #e5484d;
-
-  --gnb-height: 72px;
-  --content-max: 1600px;
+  --paper: #f4f3ee;
+  --ink: #191a18;
+  --cobalt: #243de5;
+  --muted: #595b56;
+  --rule: #d4d4cc;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --gutter: 16px;
+}
+@media (min-width: 768px) {
+  :root { --gutter: 32px; }
+}
+@media (min-width: 1280px) {
+  :root { --gutter: 48px; }
 }
 
 @theme inline {
-  --font-sans: var(--font-pretendard);
-  --font-display: var(--font-pretendard);
-  --font-point: var(--font-pretendard);
-  --font-mono: "JetBrains Mono", var(--font-pretendard), ui-monospace, SFMono-Regular, Menlo, monospace;
-
   --color-paper: var(--paper);
-  --color-cream: var(--cream);
-  --color-stone: var(--stone);
   --color-ink: var(--ink);
-  --color-ink-2: var(--ink-2);
-  --color-ink-3: var(--ink-3);
-  --color-charcoal: var(--charcoal);
+  --color-cobalt: var(--cobalt);
   --color-muted: var(--muted);
-  --color-line: var(--line);
-  --color-accent: var(--accent);
-  --color-neon: var(--neon);
-  --color-magenta: var(--magenta);
-  --color-acid: var(--acid);
-  --color-alert: var(--alert);
-}
-
-@utility wrap {
-  width: 100%;
-  max-width: var(--content-max);
-  margin-inline: auto;
-  padding-inline: clamp(1rem, 4vw, 3.5rem);
-}
-
-@utility no-scrollbar {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  &::-webkit-scrollbar {
-    display: none;
-  }
-}
-
-/* Former HUD frame shapes → soft rounded corners. */
-@utility notch {
-  border-radius: 20px;
-}
-@utility notch-sm {
-  border-radius: 999px;
-}
-
-* {
-  box-sizing: border-box;
+  --color-rule: var(--rule);
+  --font-sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
 }
 
 html {
-  background: var(--ink);
-  color-scheme: dark;
+  background: var(--paper);
+  color: var(--ink);
+  -webkit-text-size-adjust: 100%;
 }
-
 body {
-  background: var(--ink);
-  color: var(--paper);
-  font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  line-height: 1.55;
-  -webkit-font-smoothing: antialiased;
-  overflow-x: clip;
-  letter-spacing: -0.005em;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 17px;
+  line-height: 1.6;
+  text-rendering: optimizeLegibility;
 }
 
 ::selection {
-  background: var(--accent);
+  background: var(--cobalt);
   color: #fff;
 }
 
+/* Page gutter + 12-column grid used across the site. */
+@utility wrap {
+  width: 100%;
+  margin-inline: auto;
+  max-width: 1600px;
+  padding-inline: var(--gutter);
+}
+
+/* Display type: Instrument Sans Medium, tight tracking, set line breaks. */
+@utility title {
+  font-weight: 500;
+  letter-spacing: -0.05em;
+  line-height: 0.96;
+  font-size: clamp(44px, 9vw, 56px);
+  @media (min-width: 1024px) {
+    font-size: clamp(76px, 7.2vw, 108px);
+  }
+}
+
+/* Small mono label for fields and captions only. */
+@utility label {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.5;
+  letter-spacing: 0;
+  color: var(--muted);
+}
+
+/* Visible keyboard focus everywhere. */
 :focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--cobalt);
   outline-offset: 3px;
 }
 
-/* Big display type: tight tracking reads crafted rather than templated. */
-.display {
-  font-weight: 800;
-  letter-spacing: -0.045em;
-  line-height: 0.92;
+/* Underline links that read as text. */
+.link {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  text-decoration-color: color-mix(in srgb, currentColor 35%, transparent);
+  transition: text-decoration-color 0.2s;
 }
-html[lang="ko"] .display {
-  letter-spacing: -0.03em;
-  line-height: 1.02;
-  word-break: keep-all;
+.link:hover {
+  text-decoration-color: currentColor;
 }
 
-/* ---- Retired cyber effects: kept as names, now quiet ---- */
-.text-glow,
-.text-glow-magenta {
-  text-shadow: none;
-}
-.glitch,
-.rgb-hover {
+/* ---- The paper ----------------------------------------------------------- */
+
+/* Paper sheet: flat cobalt plus a fibre texture sampled from the reference
+   photograph, blended so it reads as material rather than a pattern. */
+.sheet {
   position: relative;
+  background-color: var(--cobalt);
+  transform-origin: 50% 50%;
 }
-.scanlines,
-.grid-bg {
-  background: none;
+.sheet::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("/media/studio/paper-fiber.jpg") center / cover;
+  mix-blend-mode: overlay;
+  opacity: 0.45;
+  pointer-events: none;
 }
-.brackets {
-  position: relative;
-  border-radius: 20px;
-  overflow: hidden;
-}
-.flicker {
-  animation: none;
-}
-.scan-sweep {
-  display: none;
-}
-
-@keyframes caret-blink {
-  0%, 45% { opacity: 1; }
-  50%, 95% { opacity: 0; }
-  100% { opacity: 1; }
-}
-.caret {
-  animation: caret-blink 1s step-end infinite;
+/* The corner that lifts: a soft highlight on the lower-right, gone once the
+   sheet lies flat. */
+.sheet-lift {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(120% 90% at 100% 100%, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0) 32%);
 }
 
-@keyframes step-in {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+/* Two pre-blurred shadows. Only their opacity changes while scrolling. */
+.shadow-lifted,
+.shadow-contact {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
 }
-.animate-step-in {
-  animation: step-in 0.35s var(--ease) both;
+.shadow-lifted {
+  box-shadow:
+    18px 28px 46px -18px rgba(25, 26, 24, 0.38),
+    6px 10px 18px -8px rgba(25, 26, 24, 0.22);
 }
-
-@keyframes pulse-ring {
-  0% { transform: scale(0.6); opacity: 0.9; }
-  100% { transform: scale(2.4); opacity: 0; }
-}
-.pulse-ring {
-  animation: pulse-ring 1.8s var(--ease) infinite;
-}
-
-@keyframes marquee {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
-}
-.marquee {
-  animation: marquee 38s linear infinite;
+.shadow-contact {
+  box-shadow:
+    0 1px 1px rgba(25, 26, 24, 0.14),
+    0 2px 6px -2px rgba(25, 26, 24, 0.16);
 }
 
-/* ---- Scroll reveal ---- */
-@keyframes reveal-up {
-  from { opacity: 0; transform: translateY(28px); }
-  to { opacity: 1; transform: none; }
+/* Desktop starting pose, so the first paint already matches the scene. */
+@media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+  .paper-pose {
+    transform: rotate(-6deg);
+  }
 }
-[data-reveal] {
+@media (max-width: 1023px) and (prefers-reduced-motion: no-preference) {
+  .paper-pose {
+    transform: rotate(-3deg);
+  }
+}
+
+/* Gentle fade-up for content entering the viewport (opacity + transform). */
+[data-in] {
+  transition:
+    opacity 0.8s var(--ease),
+    transform 0.8s var(--ease);
+}
+[data-in="0"] {
   opacity: 0;
-}
-[data-reveal="in"] {
-  animation: reveal-up 0.9s var(--ease) both;
-}
-
-/* Headline words rising out of a clip on load. */
-@keyframes word-up {
-  from { transform: translateY(105%); }
-  to { transform: none; }
-}
-.word {
-  display: inline-block;
-  overflow: hidden;
-  vertical-align: top;
-  padding-bottom: 0.08em;
-  margin-bottom: -0.08em;
-}
-.word > span {
-  display: inline-block;
-  animation: word-up 1s var(--ease) both;
+  transform: translateY(24px);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .marquee,
-  .pulse-ring,
-  .caret,
-  .animate-step-in,
-  .word > span {
-    animation: none !important;
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
   }
-  [data-reveal] {
+  [data-in="0"] {
     opacity: 1;
-    animation: none !important;
+    transform: none;
   }
 }
-
-/* ---- Legacy case-study content (Design Guide / Image Showcase) ---- */
-.case-content .rounded-2xl,
-.case-content .rounded-xl {
-  border-radius: 16px;
-}
-.case-content button.bg-paper {
-  background: var(--paper);
-  color: var(--ink);
-}
-
-/* Wide letter-spacing reads well on Latin caps but breaks Hangul apart —
-   anything whose text changes with the locale opts in to tighter tracking. */
-html[lang="ko"] .ko-safe,
-html[lang="ko"] .ko-safe * {
-  letter-spacing: 0.02em !important;
-}
-
-/* ---- Popups ---- */
-@keyframes preview-in {
-  from { opacity: 0; transform: translateY(24px); }
-  to { opacity: 1; transform: none; }
-}
-.preview-in {
-  animation: preview-in 0.35s var(--ease);
-}
-
-/* ---- Media stage: case-study images sit contained on a soft panel ---- */
-.stage-bg {
-  background: var(--ink-2);
-}
-.stage-img {
-  padding: clamp(14px, 4vw, 44px);
-  object-fit: contain !important;
-}
-.case-content img {
-  background: var(--ink-2);
-  padding: clamp(10px, 2.5vw, 28px);
-  object-fit: contain !important;
-  object-position: center !important;
-}
-
-/* backdrop-filter re-blurs on every frame of anything animating behind it;
-   panels use solid fills instead. */
-[class*="backdrop-blur"] {
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important;
-}
-
-/* ---- Custom cursor label ("View", "Play") over media ---- */
-@media (pointer: fine) {
-  [data-cursor] {
-    cursor: none;
-  }
-}
-
-/* Tale brand section */
-@keyframes tale-float { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-10px) } }
-.tale-float { animation: tale-float 4.8s var(--ease) infinite; }
-@keyframes tale-pop { from { opacity: 0; scale: 0.88 } to { opacity: 1; scale: 1 } }
-.tale-pop { animation: tale-pop 0.6s var(--ease) both, tale-float 4.8s var(--ease) infinite; }
-@media (prefers-reduced-motion: reduce) { .tale-float, .tale-pop { animation: none; } }
