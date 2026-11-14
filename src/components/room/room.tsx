@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import clsx from "clsx";
-import { FOCAL, ROOM, SPOTS, type SpotId } from "./spots";
+import { FOCAL, ROOM, SCREEN, SPOTS, type SpotId } from "./spots";
 import { IntroFilm } from "./intro-film";
 import { ResumeDialog } from "./resume-dialog";
 import { LibraryPanel } from "./library-panel";
@@ -90,7 +90,7 @@ export function Room() {
     const cy = stage.top + (ft + fh / 2) * stage.h;
     const s =
       active === "portfolio"
-        ? Math.max(vp.w / rw, vp.h / rh) * 1.08 // dive into the screen
+        ? Math.max(vp.w / rw, vp.h / rh) * 1.01 // the screen fills the view exactly
         : clamp(Math.min((vp.w * 0.86) / rw, (vp.h * 0.74) / rh), 1, 3.4);
     // Keep the render covering the screen: never reveal past its edges.
     const x = clamp(vp.w / 2 - cx * s, vp.w - (left + stage.w) * s, -left * s);
@@ -131,6 +131,19 @@ export function Room() {
 
   useEffect(() => () => {
     if (timer.current) clearTimeout(timer.current);
+  }, []);
+
+  // Coming back from a project page (/#portfolio): skip the intro and land
+  // inside the computer.
+  useEffect(() => {
+    if (location.hash !== "#portfolio") return;
+    document.documentElement.dataset.intro = "seen";
+    history.replaceState(null, "", location.pathname);
+    const r = requestAnimationFrame(() => {
+      setActive("portfolio");
+      setOpen("portfolio");
+    });
+    return () => cancelAnimationFrame(r);
   }, []);
 
   // Drag to look around when the room is wider than the screen (phones).
@@ -197,6 +210,25 @@ export function Room() {
             />
           ))}
 
+          {/* The monitor shows the portfolio — the same picture the live
+              view starts from, so diving in reads as one continuous move. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/media/room/screen.webp"
+            alt=""
+            draggable={false}
+            className="pointer-events-none absolute"
+            style={{
+              left: `${SCREEN[0] * 100}%`,
+              top: `${SCREEN[1] * 100}%`,
+              width: `${SCREEN[2] * 100}%`,
+              height: `${SCREEN[3] * 100}%`,
+              objectFit: "cover",
+              borderRadius: 2,
+              boxShadow: night ? "0 0 40px rgba(120,110,255,0.35)" : "none",
+            }}
+          />
+
           {/* Night-only life on top of the render. */}
           <div className="room-layer pointer-events-none absolute inset-0" style={{ opacity: night ? 1 : 0 }} aria-hidden>
             {STARS.map(([x, y], i) => (
@@ -252,9 +284,8 @@ export function Room() {
       <div
         className="pointer-events-none absolute inset-0 transition-opacity duration-700"
         style={{
-          background: active === "portfolio" ? "#05060a" : "rgba(4,6,10,0.45)",
-          opacity: open === "portfolio" ? 1 : open ? 1 : 0,
-          transitionDelay: active === "portfolio" && open !== "portfolio" ? "0.55s" : "0s",
+          background: "rgba(4,6,10,0.45)",
+          opacity: open && open !== "portfolio" ? 1 : 0,
         }}
         aria-hidden
       />
