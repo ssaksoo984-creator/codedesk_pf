@@ -3,33 +3,32 @@ import { Analytics } from "@vercel/analytics/next";
 import "@fontsource/instrument-sans/400.css";
 import "@fontsource/instrument-sans/500.css";
 import "@fontsource/ibm-plex-mono/400.css";
-import { Header } from "@/components/studio/header";
 import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://codedesk-studio.online"),
-  title: {
-    default: "CodeDesk Studio — Web and digital design, Vancouver",
-    template: "%s — CodeDesk Studio",
-  },
-  description:
-    "CodeDesk Studio is an independent web and digital design studio in Vancouver: websites, product interfaces and brand identities, designed and built.",
+  title: { default: "CodeDesk — Soomin Park, UI/UX designer", template: "%s — CodeDesk" },
+  description: "Step into Soomin Park’s workroom: résumé on the idea board, portfolio on the computer, notes by the window.",
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#f4f3ee",
+  themeColor: "#07090d",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
-      <body className="min-h-svh antialiased">
-        <a href="#main" className="sr-only z-50 bg-ink px-4 py-2 text-paper focus:not-sr-only focus:fixed focus:left-4 focus:top-4">
-          Skip to content
-        </a>
-        <Header />
+    <html lang="en" data-mode="night" suppressHydrationWarning>
+      <head>
+        {/* Apply the saved day/night choice before paint. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{var d=document.documentElement,m=localStorage.getItem("mode");if(m==="day")d.dataset.mode="day";if(sessionStorage.getItem("intro")==="seen"||matchMedia("(prefers-reduced-motion: reduce)").matches)d.dataset.intro="seen"}catch(e){}`,
+          }}
+        />
+      </head>
+      <body>
         {children}
         <Analytics />
       </body>

@@ -1,177 +1,155 @@
 @import "tailwindcss";
 
 /* ---------------------------------------------------------------------------
-   CodeDesk Studio — "Paper to Screen".
-   One paper colour, one ink, one cobalt. Everything else comes from the work.
+   CodeDesk — the room. Dark by default (night / agent mode); a light theme
+   for daytime. Colours come from the room renders.
    ------------------------------------------------------------------------- */
 :root {
-  --paper: #f4f3ee;
-  --ink: #191a18;
-  --cobalt: #243de5;
-  --muted: #595b56;
-  --rule: #d4d4cc;
-  --ease: cubic-bezier(0.22, 1, 0.36, 1);
-  --gutter: 16px;
+  --bg: #07090d;
+  --fg: #eef1f5;
+  --muted: #8b93a1;
+  --line: rgba(255, 255, 255, 0.12);
+  --glass: rgba(14, 17, 24, 0.72);
+  --glow: #5ef2d2;
+  --violet: #8b6cff;
+  --lamp: #ff4a3d;
+  --ease: cubic-bezier(0.65, 0, 0.25, 1);
 }
-@media (min-width: 768px) {
-  :root { --gutter: 32px; }
-}
-@media (min-width: 1280px) {
-  :root { --gutter: 48px; }
+[data-mode="day"] {
+  --bg: #f3efe6;
+  --fg: #1d1c19;
+  --muted: #6b665c;
+  --line: rgba(29, 28, 25, 0.14);
+  --glass: rgba(250, 247, 240, 0.82);
+  --glow: #ffffff;
 }
 
 @theme inline {
-  --color-paper: var(--paper);
-  --color-ink: var(--ink);
-  --color-cobalt: var(--cobalt);
+  --color-bg: var(--bg);
+  --color-fg: var(--fg);
   --color-muted: var(--muted);
-  --color-rule: var(--rule);
+  --color-line: var(--line);
+  --color-glass: var(--glass);
+  --color-glow: var(--glow);
+  --color-violet: var(--violet);
+  --color-lamp: var(--lamp);
   --font-sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;
 }
 
-html {
-  background: var(--paper);
-  color: var(--ink);
-  -webkit-text-size-adjust: 100%;
+html,
+body {
+  background: var(--bg);
+  color: var(--fg);
 }
 body {
-  background: var(--paper);
-  color: var(--ink);
   font-family: var(--font-sans);
-  font-size: 17px;
-  line-height: 1.6;
-  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 
-::selection {
-  background: var(--cobalt);
-  color: #fff;
-}
-
-/* Page gutter + 12-column grid used across the site. */
-@utility wrap {
-  width: 100%;
-  margin-inline: auto;
-  max-width: 1600px;
-  padding-inline: var(--gutter);
-}
-
-/* Display type: Instrument Sans Medium, tight tracking, set line breaks. */
-@utility title {
-  font-weight: 500;
-  letter-spacing: -0.05em;
-  line-height: 0.96;
-  font-size: clamp(44px, 9vw, 56px);
-  @media (min-width: 1024px) {
-    font-size: clamp(76px, 7.2vw, 108px);
-  }
-}
-
-/* Small mono label for fields and captions only. */
-@utility label {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  line-height: 1.5;
-  letter-spacing: 0;
-  color: var(--muted);
-}
-
-/* Visible keyboard focus everywhere. */
 :focus-visible {
-  outline: 2px solid var(--cobalt);
+  outline: 2px solid var(--glow);
   outline-offset: 3px;
 }
 
-/* Underline links that read as text. */
-.link {
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.2em;
-  text-decoration-color: color-mix(in srgb, currentColor 35%, transparent);
-  transition: text-decoration-color 0.2s;
-}
-.link:hover {
-  text-decoration-color: currentColor;
+/* Frosted control surface, used for the menu, buttons and panels. */
+@utility glass {
+  background: var(--glass);
+  border: 1px solid var(--line);
+  backdrop-filter: blur(14px) saturate(1.2);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
 }
 
-/* ---- The paper ----------------------------------------------------------- */
+/* ---- Room ---------------------------------------------------------------- */
 
-/* Paper sheet: flat cobalt plus a fibre texture sampled from the reference
-   photograph, blended so it reads as material rather than a pattern. */
-.sheet {
-  position: relative;
-  background-color: var(--cobalt);
-  transform-origin: 50% 50%;
+.cam {
+  transform-origin: 0 0;
+  transition: transform 1.25s var(--ease);
+  will-change: transform;
 }
-.sheet::before {
-  content: "";
+.cam[data-dragging] {
+  transition: none;
+}
+
+.room-layer {
+  transition: opacity 1.4s ease;
+}
+
+/* Hotspots: invisible until hovered/focused, then a soft outline + label. */
+.spot {
   position: absolute;
-  inset: 0;
-  background: url("/media/studio/paper-fiber.jpg") center / cover;
-  mix-blend-mode: overlay;
-  opacity: 0.45;
-  pointer-events: none;
-}
-/* The corner that lifts: a soft highlight on the lower-right, gone once the
-   sheet lies flat. */
-.sheet-lift {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: radial-gradient(120% 90% at 100% 100%, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0) 32%);
-}
-
-/* Two pre-blurred shadows. Only their opacity changes while scrolling. */
-.shadow-lifted,
-.shadow-contact {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-.shadow-lifted {
-  box-shadow:
-    18px 28px 46px -18px rgba(25, 26, 24, 0.38),
-    6px 10px 18px -8px rgba(25, 26, 24, 0.22);
-}
-.shadow-contact {
-  box-shadow:
-    0 1px 1px rgba(25, 26, 24, 0.14),
-    0 2px 6px -2px rgba(25, 26, 24, 0.16);
-}
-
-/* Desktop starting pose, so the first paint already matches the scene. */
-@media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
-  .paper-pose {
-    transform: rotate(-6deg);
-  }
-}
-@media (max-width: 1023px) and (prefers-reduced-motion: no-preference) {
-  .paper-pose {
-    transform: rotate(-3deg);
-  }
-}
-
-/* Gentle fade-up for content entering the viewport (opacity + transform). */
-[data-in] {
+  border-radius: 14px;
+  outline: none;
   transition:
-    opacity 0.8s var(--ease),
-    transform 0.8s var(--ease);
+    box-shadow 0.35s ease,
+    background-color 0.35s ease;
 }
-[data-in="0"] {
+.spot:hover,
+.spot:focus-visible,
+.spot[data-hint] {
+  background-color: color-mix(in srgb, var(--glow) 7%, transparent);
+  box-shadow:
+    0 0 0 1.5px color-mix(in srgb, var(--glow) 75%, transparent),
+    0 0 28px color-mix(in srgb, var(--glow) 35%, transparent);
+}
+.spot-label {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 10px);
+  translate: -50% 6px;
   opacity: 0;
-  transform: translateY(24px);
+  white-space: nowrap;
+  pointer-events: none;
+  transition:
+    opacity 0.3s ease,
+    translate 0.3s ease;
+}
+.spot:hover .spot-label,
+.spot:focus-visible .spot-label,
+.spot[data-hint] .spot-label {
+  opacity: 1;
+  translate: -50% 0;
+}
+
+/* Night-only life: twinkling stars in the window, breathing glows. */
+@keyframes twinkle {
+  0%, 100% { opacity: 0.25; }
+  50% { opacity: 1; }
+}
+.star {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 6px 1px rgba(255, 255, 255, 0.7);
+  animation: twinkle 3.2s ease-in-out infinite;
+}
+@keyframes breathe {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 0.85; }
+}
+.breathe {
+  animation: breathe 4.5s ease-in-out infinite;
+}
+@keyframes scan {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(100%); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    transition-duration: 0.01ms !important;
-    animation-duration: 0.01ms !important;
+  .cam,
+  .room-layer {
+    transition: none;
   }
-  [data-in="0"] {
-    opacity: 1;
-    transform: none;
+  .star,
+  .breathe {
+    animation: none;
   }
+}
+
+/* The intro is server-rendered so it covers the room from the first paint;
+   on a repeat visit (same tab session) it is hidden before paint. */
+[data-intro="seen"] .intro-film {
+  display: none;
 }
