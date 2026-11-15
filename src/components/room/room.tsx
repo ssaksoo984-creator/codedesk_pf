@@ -8,6 +8,7 @@ import { PARALLAX, SCREEN, SPOTS, STARS, layout, type Box, type SpotId } from ".
 import { IntroFilm } from "./intro-film";
 import { ResumeDialog } from "./resume-dialog";
 import { LibraryPanel } from "./library-panel";
+import { MONITOR, MonitorUI } from "./monitor-ui";
 
 const PortfolioView = dynamic(() => import("../portfolio/portfolio-view").then((m) => m.PortfolioView), {
   ssr: false,
@@ -16,6 +17,14 @@ const PortfolioView = dynamic(() => import("../portfolio/portfolio-view").then((
 type Mode = "night" | "day";
 
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
+
+/** What the hover card says about each object. */
+const SPOT_INFO: Record<SpotId, { color: string; hint: string }> = {
+  library: { color: "#F2A33A", hint: "About · experience · skills" },
+  resume: { color: "#5ef2d2", hint: "Résumé · English / 한국어 PDF" },
+  portfolio: { color: "#8B6CFF", hint: "4 databases · 10 projects" },
+  blog: { color: "#E8606F", hint: "Notes from the projects" },
+};
 
 // Day/night and "intro seen" live on <html> (set before paint by the layout
 // script), so the room reads them from there.
@@ -49,6 +58,25 @@ export function Room() {
   const [hover, setHover] = useState<SpotId | null>(null);
   const [pan, setPan] = useState(0);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  // The room only starts leaning once the film has fully handed over, so
+  // the last frame and the room line up exactly.
+  const [tiltOn, setTiltOn] = useState(false);
+  useEffect(() => {
+    if (!introDone) return;
+    const t = setTimeout(() => setTiltOn(true), 1600);
+    return () => clearTimeout(t);
+  }, [introDone]);
+  // Repeat visits skip the film: show a small loader until the room is decoded.
+  const [roomReady, setRoomReady] = useState(false);
+  const stageRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const imgs = Array.from(stageRef.current?.querySelectorAll<HTMLImageElement>("img[data-room]") ?? []);
+    let alive = true;
+    Promise.all(imgs.map((i) => i.decode().catch(() => {}))).then(() => alive && setRoomReady(true));
+    return () => {
+      alive = false;
+    };
+  }, []);
   const [dragging, setDragging] = useState(false);
   const drag = useRef<{ x: number; start: number; moved: boolean } | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -218,10 +246,6 @@ export function Room() {
         visibility: active ? "hidden" : undefined,
       }}
     >
-      <span className="spot-label glass rounded-xl px-3 py-1.5 text-[13px] font-medium text-fg">
-        {s.label}
-        <span className="ml-1.5 font-mono text-[11px] text-muted">{s.object}</span>
-      </span>
     </button>
   );
 
@@ -236,6 +260,7 @@ export function Room() {
       <h1 className="sr-only">CodeDesk — Soomin Park’s workroom</h1>
 
       <div
+        ref={stageRef}
         className="cam absolute inset-0"
         data-dragging={dragging || undefined}
         style={{ transform: `translate(${cam.x}px, ${cam.y}px) scale(${cam.s})` }}
@@ -248,7 +273,7 @@ export function Room() {
             top: wall.y,
             width: wall.w,
             height: wall.h,
-            transform: active ? undefined : `translate(${-tilt.x * 10}px, ${-tilt.y * 6}px)`,
+            transform: active || !tiltOn ? undefined : `translate(${-tilt.x * 10}px, ${-tilt.y * 6}px)`,
           }}
         >
           {(["day", "night"] as const).map((m) => (
@@ -261,6 +286,7 @@ export function Room() {
               alt=""
               draggable={false}
               fetchPriority={m === "night" ? "high" : "low"}
+              data-room=""
               className="room-layer absolute inset-0 h-full w-full"
               style={{ opacity: m === mode ? 1 : 0 }}
             />
@@ -281,13 +307,13 @@ export function Room() {
 
         {/* ---- Near layer: the desk and the monitor ---- */}
         <div
-          className="layer absolute"
+          className="layer pointer-events-none absolute"
           style={{
             left: desk.x,
             top: desk.y,
             width: desk.w,
             height: desk.h,
-            transform: active ? undefined : `translate(${-tilt.x * 26}px, ${-tilt.y * 10}px)`,
+            transform: active || !tiltOn ? undefined : `translate(${-tilt.x * 26}px, ${-tilt.y * 10}px)`,
           }}
         >
           {(["day", "night"] as const).map((m) => (
@@ -300,6 +326,7 @@ export function Room() {
               alt=""
               draggable={false}
               fetchPriority={m === "night" ? "high" : "low"}
+              data-room=""
               className="room-layer absolute inset-0 h-full w-full"
               style={{ opacity: m === mode ? 1 : 0 }}
             />
@@ -319,17 +346,55 @@ export function Room() {
               transition: "box-shadow 1.2s ease",
             }}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/media/room/screen.webp?v=6"
-              alt=""
-              draggable={false}
-              className={clsx("h-full w-full object-cover", screenOn ? "screen-on" : "opacity-0")}
-            />
+            <div className={clsx("h-full w-full", screenOn ? "screen-on" : "opacity-0")}>
+              <div style={{ transform: `scale(${(desk.w * SCREEN[2]) / MONITOR.w})`, transformOrigin: "0 0" }}>
+                <MonitorUI />
+              </div>
+            </div>
           </div>
           {SPOTS.filter((s) => s.layer === "desk").map(spot)}
         </div>
       </div>
+
+      {/* Hover: everything else dims, the object is outlined, a card names it. */}
+      {hover && !active && (() => {
+        const sp = SPOTS.find((x) => x.id === hover)!;
+        const b = sp.layer === "wall" ? wall : desk;
+        const [rl, rt, rw, rh] = sp.rect;
+        const x = b.x + rl * b.w;
+        const y = b.y + rt * b.h;
+        const w = rw * b.w;
+        const h = rh * b.h;
+        const off = !tiltOn ? [0, 0] : sp.layer === "wall" ? [-tilt.x * 10, -tilt.y * 6] : [-tilt.x * 26, -tilt.y * 10];
+        const info = SPOT_INFO[sp.id];
+        const cardW = 260;
+        const cx = clamp(x + w / 2 - cardW / 2, 12, vp.w - cardW - 12);
+        const above = y > 150;
+        return (
+          <div className="layer pointer-events-none absolute inset-0 z-10" style={{ transform: `translate(${off[0]}px, ${off[1]}px)` }} aria-hidden>
+            <div className="spot-focus absolute rounded-2xl" style={{ left: x, top: y, width: w, height: h, ["--c" as string]: info.color }}>
+              <i className="tl" />
+              <i className="tr" />
+              <i className="bl" />
+              <i className="br" />
+            </div>
+            <div
+              className="spot-card absolute rounded-2xl border border-white/10 bg-[rgba(12,11,22,0.82)] p-3.5 font-mono text-white shadow-2xl backdrop-blur-md"
+              style={{ left: cx, top: above ? Math.max(70, y - 108) : y + h + 12, width: cardW }}
+            >
+              <p className="flex items-center gap-2 text-[11px] text-white/55">
+                <span className="h-2 w-2 rounded-full" style={{ background: info.color }} />
+                {sp.object}
+              </p>
+              <p className="mt-1 font-sans text-[18px] font-medium leading-tight">{sp.label}</p>
+              <p className="mt-0.5 text-[11.5px] text-white/60">{info.hint}</p>
+              <p className="mt-2 text-[11px]" style={{ color: info.color }}>
+                Click to open →
+              </p>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Dim while a panel is open; black while diving into the computer. */}
       <div
@@ -400,6 +465,15 @@ export function Room() {
       <ResumeDialog open={open === "resume"} onClose={back} />
       <LibraryPanel open={open === "library"} onClose={back} />
       {open === "portfolio" && <PortfolioView onClose={back} />}
+
+      {introDone && !roomReady && (
+        <div className="fixed inset-0 z-40 flex flex-col items-center justify-center gap-4 bg-[#07090d]">
+          <p className="font-mono text-[12px] uppercase tracking-[0.3em] text-white/60">CodeDesk</p>
+          <div className="h-[2px] w-40 overflow-hidden rounded-full bg-white/10">
+            <div className="loader-bar h-full w-1/3 rounded-full bg-[#5ef2d2]" />
+          </div>
+        </div>
+      )}
 
       {!introDone && <IntroFilm onDone={() => (document.documentElement.dataset.intro = "seen")} />}
     </main>
