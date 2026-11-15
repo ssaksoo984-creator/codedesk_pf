@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import clsx from "clsx";
-import { FOCAL, ROOM, SCREEN, SPOTS, type SpotId } from "./spots";
+import { PARALLAX, SCREEN, SPOTS, STARS, layout, type Box, type SpotId } from "./spots";
 import { IntroFilm } from "./intro-film";
 import { ResumeDialog } from "./resume-dialog";
 import { LibraryPanel } from "./library-panel";
@@ -14,12 +14,6 @@ const PortfolioView = dynamic(() => import("../portfolio/portfolio-view").then((
 });
 
 type Mode = "night" | "day";
-
-// Fixed star positions inside the window (fractions of the render).
-const STARS = [
-  [0.705, 0.14], [0.73, 0.2], [0.76, 0.13], [0.79, 0.24], [0.715, 0.3], [0.745, 0.33], [0.775, 0.17],
-  [0.8, 0.31], [0.72, 0.22], [0.81, 0.15], [0.755, 0.27], [0.79, 0.37],
-];
 
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
 
@@ -47,6 +41,7 @@ export function Room() {
   const [open, setOpen] = useState<SpotId | null>(null);
   const [hover, setHover] = useState<SpotId | null>(null);
   const [pan, setPan] = useState(0);
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const [dragging, setDragging] = useState(false);
   const drag = useRef<{ x: number; start: number; moved: boolean } | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -67,36 +62,51 @@ export function Room() {
     } catch {}
   };
 
-  // Stage: the render covering the viewport, centred on the computer.
-  const stage = useMemo(() => {
-    const ar = ROOM.w / ROOM.h;
-    const w = Math.max(vp.w, vp.h * ar);
-    const h = w / ar;
-    const minL = vp.w - w;
-    const baseL = clamp(vp.w / 2 - FOCAL.x * w, minL, 0);
-    const top = clamp(vp.h / 2 - FOCAL.y * h, vp.h - h, 0);
-    return { w, h, minL, baseL, top };
-  }, [vp]);
-  const left = clamp(stage.baseL + pan, stage.minL, 0);
+  // Layers for this viewport, then slid by the pan (near layer slides more).
+  const L = useMemo(() => layout(vp.w, vp.h), [vp]);
+  const p = clamp(pan, -L.panRange, L.panRange);
+  const deskShift = clamp(p * PARALLAX.desk, (vp.w - L.desk.w) - L.desk.x, -L.desk.x);
+  const wall: Box = { ...L.wall, x: L.wall.x + p };
+  const desk: Box = { ...L.desk, x: L.desk.x + deskShift };
 
-  // Camera transform for the active spot.
+  // Camera transform for the active spot (applied to both layers together).
   const cam = useMemo(() => {
     if (!active) return { x: 0, y: 0, s: 1 };
     const spot = SPOTS.find((s) => s.id === active)!;
+    const b = spot.layer === "wall" ? wall : desk;
     const [fl, ft, fw, fh] = spot.focus;
-    const rw = fw * stage.w;
-    const rh = fh * stage.h;
-    const cx = left + (fl + fw / 2) * stage.w;
-    const cy = stage.top + (ft + fh / 2) * stage.h;
+    const rw = fw * b.w;
+    const rh = fh * b.h;
+    const cx = b.x + (fl + fw / 2) * b.w;
+    const cy = b.y + (ft + fh / 2) * b.h;
     const s =
       active === "portfolio"
         ? Math.max(vp.w / rw, vp.h / rh) * 1.01 // the screen fills the view exactly
         : clamp(Math.min((vp.w * 0.86) / rw, (vp.h * 0.74) / rh), 1, 3.4);
-    // Keep the render covering the screen: never reveal past its edges.
-    const x = clamp(vp.w / 2 - cx * s, vp.w - (left + stage.w) * s, -left * s);
-    const y = clamp(vp.h / 2 - cy * s, vp.h - (stage.top + stage.h) * s, -stage.top * s);
+    // Never look past what the layers cover.
+    const x = clamp(vp.w / 2 - cx * s, vp.w - vp.w * s, 0);
+    const y = clamp(vp.h / 2 - cy * s, vp.h - vp.h * s, 0);
     return { x, y, s };
-  }, [active, left, stage, vp]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active, vp, p, L]);
+
+  // Desktop: the room leans a little with the pointer (far wall less, desk more).
+  useEffect(() => {
+    if (!matchMedia("(pointer: fine)").matches || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let raf = 0;
+    const onMove = (e: PointerEvent) => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        setTilt({ x: e.clientX / innerWidth - 0.5, y: e.clientY / innerHeight - 0.5 });
+      });
+    };
+    addEventListener("pointermove", onMove);
+    return () => {
+      cancelAnimationFrame(raf);
+      removeEventListener("pointermove", onMove);
+    };
+  }, []);
 
   const go = useCallback(
     (id: SpotId) => {
@@ -148,7 +158,7 @@ export function Room() {
 
   // Drag to look around when the room is wider than the screen (phones).
   const onPointerDown = (e: React.PointerEvent) => {
-    if (active || stage.minL > -1) return;
+    if (active || L.panRange < 1) return;
     drag.current = { x: e.clientX, start: pan, moved: false };
   };
   const onPointerMove = (e: React.PointerEvent) => {
@@ -159,7 +169,7 @@ export function Room() {
       d.moved = true;
       setDragging(true);
     }
-    if (d.moved) setPan(clamp(d.start + dx, stage.minL - stage.baseL, -stage.baseL));
+    if (d.moved) setPan(clamp(d.start + dx, -L.panRange, L.panRange));
   };
   const onPointerUp = () => {
     const moved = drag.current?.moved;
@@ -179,9 +189,38 @@ export function Room() {
   const night = mode === "night";
   const shown = hover ?? active;
 
+  // A plain render function (not a component), so hovering doesn't remount it.
+  const spot = (s: (typeof SPOTS)[number]) => (
+    <button
+      key={s.id}
+      type="button"
+      className="spot"
+      data-hint={hover === s.id && !active ? "" : undefined}
+      aria-label={`${s.label} — ${s.object}`}
+      tabIndex={active ? -1 : 0}
+      onClick={() => go(s.id)}
+      onPointerEnter={() => setHover(s.id)}
+      onPointerLeave={() => setHover(null)}
+      onFocus={() => setHover(s.id)}
+      onBlur={() => setHover(null)}
+      style={{
+        left: `${s.rect[0] * 100}%`,
+        top: `${s.rect[1] * 100}%`,
+        width: `${s.rect[2] * 100}%`,
+        height: `${s.rect[3] * 100}%`,
+        visibility: active ? "hidden" : undefined,
+      }}
+    >
+      <span className="spot-label glass rounded-xl px-3 py-1.5 text-[13px] font-medium text-fg">
+        {s.label}
+        <span className="ml-1.5 font-mono text-[11px] text-muted">{s.object}</span>
+      </span>
+    </button>
+  );
+
   return (
     <main
-      className="fixed inset-0 select-none overflow-hidden bg-black touch-none"
+      className="fixed inset-0 select-none overflow-hidden bg-[#1b1c17] touch-none"
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
@@ -194,14 +233,24 @@ export function Room() {
         data-dragging={dragging || undefined}
         style={{ transform: `translate(${cam.x}px, ${cam.y}px) scale(${cam.s})` }}
       >
-        <div className="absolute" style={{ left, top: stage.top, width: stage.w, height: stage.h }}>
+        {/* ---- Far layer: the back wall ---- */}
+        <div
+          className="layer absolute"
+          style={{
+            left: wall.x,
+            top: wall.y,
+            width: wall.w,
+            height: wall.h,
+            transform: active ? undefined : `translate(${-tilt.x * 10}px, ${-tilt.y * 6}px)`,
+          }}
+        >
           {(["day", "night"] as const).map((m) => (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               key={m}
-              src={`/media/room/${m}-2400.webp`}
-              srcSet={`/media/room/${m}-1400.webp 1400w, /media/room/${m}-2400.webp 2400w`}
-              sizes={`${Math.round(stage.w)}px`}
+              src={`/media/room/wall-${m}-2400.webp`}
+              srcSet={`/media/room/wall-${m}-1400.webp 1400w, /media/room/wall-${m}-2400.webp 2400w`}
+              sizes={`${Math.round(wall.w)}px`}
               alt=""
               draggable={false}
               fetchPriority={m === "night" ? "high" : "low"}
@@ -209,7 +258,45 @@ export function Room() {
               style={{ opacity: m === mode ? 1 : 0 }}
             />
           ))}
+          {/* depth: the wall falls into shadow behind the desk */}
+          <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(to bottom, transparent 55%, rgba(0,0,0,0.35))" }} aria-hidden />
+          <div className="room-layer pointer-events-none absolute inset-0" style={{ opacity: night ? 1 : 0 }} aria-hidden>
+            {STARS.map(([x, y], i) => (
+              <span key={i} className="star" style={{ left: `${x * 100}%`, top: `${y * 100}%`, animationDelay: `${(i * 0.53) % 3}s` }} />
+            ))}
+            <span
+              className="breathe absolute mix-blend-screen"
+              style={{ left: "32%", top: "16%", width: "36%", height: "44%", background: "radial-gradient(closest-side, rgba(94,242,210,0.2), transparent)" }}
+            />
+          </div>
+          {SPOTS.filter((s) => s.layer === "wall").map(spot)}
+        </div>
 
+        {/* ---- Near layer: the desk and the monitor ---- */}
+        <div
+          className="layer absolute"
+          style={{
+            left: desk.x,
+            top: desk.y,
+            width: desk.w,
+            height: desk.h,
+            transform: active ? undefined : `translate(${-tilt.x * 26}px, ${-tilt.y * 10}px)`,
+          }}
+        >
+          {(["day", "night"] as const).map((m) => (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              key={m}
+              src={`/media/room/desk-${m}-2400.webp`}
+              srcSet={`/media/room/desk-${m}-1400.webp 1400w, /media/room/desk-${m}-2400.webp 2400w`}
+              sizes={`${Math.round(desk.w)}px`}
+              alt=""
+              draggable={false}
+              fetchPriority={m === "night" ? "high" : "low"}
+              className="room-layer absolute inset-0 h-full w-full"
+              style={{ opacity: m === mode ? 1 : 0 }}
+            />
+          ))}
           {/* The monitor shows the portfolio — the same picture the live
               view starts from, so diving in reads as one continuous move. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -225,58 +312,10 @@ export function Room() {
               height: `${SCREEN[3] * 100}%`,
               objectFit: "cover",
               borderRadius: 2,
-              boxShadow: night ? "0 0 40px rgba(120,110,255,0.35)" : "none",
+              boxShadow: night ? "0 0 60px rgba(120,110,255,0.4)" : "none",
             }}
           />
-
-          {/* Night-only life on top of the render. */}
-          <div className="room-layer pointer-events-none absolute inset-0" style={{ opacity: night ? 1 : 0 }} aria-hidden>
-            {STARS.map(([x, y], i) => (
-              <span key={i} className="star" style={{ left: `${x * 100}%`, top: `${y * 100}%`, animationDelay: `${(i * 0.53) % 3}s` }} />
-            ))}
-            <span
-              className="breathe absolute mix-blend-screen"
-              style={{
-                left: "35%", top: "30%", width: "32%", height: "22%",
-                background: "radial-gradient(closest-side, rgba(94,242,210,0.22), transparent)",
-              }}
-            />
-            <span
-              className="breathe absolute mix-blend-screen"
-              style={{
-                left: "37%", top: "47%", width: "26%", height: "26%", animationDelay: "1.6s",
-                background: "radial-gradient(closest-side, rgba(110,170,255,0.28), transparent)",
-              }}
-            />
-          </div>
-
-          {SPOTS.map((s) => (
-            <button
-              key={s.id}
-              type="button"
-              className="spot"
-              data-hint={hover === s.id && !active ? "" : undefined}
-              aria-label={`${s.label} — ${s.object}`}
-              tabIndex={active ? -1 : 0}
-              onClick={() => go(s.id)}
-              onPointerEnter={() => setHover(s.id)}
-              onPointerLeave={() => setHover(null)}
-              onFocus={() => setHover(s.id)}
-              onBlur={() => setHover(null)}
-              style={{
-                left: `${s.rect[0] * 100}%`,
-                top: `${s.rect[1] * 100}%`,
-                width: `${s.rect[2] * 100}%`,
-                height: `${s.rect[3] * 100}%`,
-                visibility: active ? "hidden" : undefined,
-              }}
-            >
-              <span className="spot-label glass rounded-xl px-3 py-1.5 text-[13px] font-medium text-fg">
-                {s.label}
-                <span className="ml-1.5 font-mono text-[11px] text-muted">{s.object}</span>
-              </span>
-            </button>
-          ))}
+          {SPOTS.filter((s) => s.layer === "desk").map(spot)}
         </div>
       </div>
 
@@ -340,7 +379,7 @@ export function Room() {
         </button>
       </header>
 
-      {!active && stage.minL < -1 && (
+      {!active && L.panRange > 1 && (
         <p className="pointer-events-none glass absolute bottom-[70px] left-1/2 sm:bottom-4 -translate-x-1/2 rounded-xl px-3 py-1.5 font-mono text-[11px] text-muted [@media(pointer:fine)]:hidden">
           ← drag to look around →
         </p>
