@@ -55,6 +55,8 @@ export function Room() {
   }, [introDone]);
   const [active, setActive] = useState<SpotId | null>(null);
   const [open, setOpen] = useState<SpotId | null>(null);
+  // Inside the computer: blur the room hard, load the 3D view over it, then fade it in.
+  const [pfReady, setPfReady] = useState(false);
   const [hover, setHover] = useState<SpotId | null>(null);
   const [pan, setPan] = useState(0);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
@@ -93,7 +95,7 @@ export function Room() {
     const next: Mode = mode === "night" ? "day" : "night";
     document.documentElement.dataset.mode = next;
     try {
-      localStorage.setItem("mode", next);
+      sessionStorage.setItem("mode", next);
     } catch {}
   };
 
@@ -162,6 +164,7 @@ export function Room() {
 
   const back = useCallback(() => {
     if (timer.current) clearTimeout(timer.current);
+    setPfReady(false);
     setOpen(null);
     setActive(null);
   }, []);
@@ -263,7 +266,11 @@ export function Room() {
         ref={stageRef}
         className="cam absolute inset-0"
         data-dragging={dragging || undefined}
-        style={{ transform: `translate(${cam.x}px, ${cam.y}px) scale(${cam.s})` }}
+        style={{
+          transform: `translate(${cam.x}px, ${cam.y}px) scale(${cam.s})`,
+          filter: open === "portfolio" ? "blur(28px) brightness(0.7)" : undefined,
+          transition: dragging ? "none" : "transform 1.25s var(--ease), filter 0.7s ease",
+        }}
       >
         {/* ---- Far layer: the back wall ---- */}
         <div
@@ -464,7 +471,21 @@ export function Room() {
 
       <ResumeDialog open={open === "resume"} onClose={back} />
       <LibraryPanel open={open === "library"} onClose={back} />
-      {open === "portfolio" && <PortfolioView onClose={back} />}
+      {open === "portfolio" && (
+        <>
+          <div
+            className="pointer-events-none fixed inset-0 z-30 flex flex-col items-center justify-center gap-4 transition-opacity duration-500"
+            style={{ opacity: pfReady ? 0 : 1 }}
+            aria-hidden={pfReady}
+          >
+            <p className="font-mono text-[12px] uppercase tracking-[0.3em] text-white/70">Loading work.db</p>
+            <div className="h-[2px] w-44 overflow-hidden rounded-full bg-white/15">
+              <div className="loader-bar h-full w-1/3 rounded-full bg-[#8b6cff]" />
+            </div>
+          </div>
+          <PortfolioView onClose={back} onReady={() => setPfReady(true)} />
+        </>
+      )}
 
       {introDone && !roomReady && (
         <div className="fixed inset-0 z-40 flex flex-col items-center justify-center gap-4 bg-[#07090d]">

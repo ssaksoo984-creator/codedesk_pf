@@ -26,7 +26,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         {/* Apply the saved day/night choice before paint. */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `try{var d=document.documentElement,m=localStorage.getItem("mode");if(m==="day")d.dataset.mode="day";if(sessionStorage.getItem("intro")==="seen"||matchMedia("(prefers-reduced-motion: reduce)").matches)d.dataset.intro="seen"}catch(e){}`,
+            __html: `try{var d=document.documentElement,m=sessionStorage.getItem("mode");if(m==="day")d.dataset.mode="day";if(sessionStorage.getItem("intro")==="seen"||matchMedia("(prefers-reduced-motion: reduce)").matches)d.dataset.intro="seen"}catch(e){}`,
           }}
         />
       </head>

@@ -65,6 +65,7 @@ export function DbCanvas({
   flow,
   labels,
   spin,
+  onReady,
 }: {
   stack: string | null;
   project: string | null;
@@ -73,13 +74,15 @@ export function DbCanvas({
   flow: boolean;
   labels: boolean;
   spin: boolean;
+  /** Called once the first frames are on screen. */
+  onReady?: () => void;
 }) {
   const wrap = useRef<HTMLDivElement>(null);
   const labelLayer = useRef<HTMLDivElement>(null);
   const api = useRef<Api | null>(null);
-  const cb = useRef({ onStack, onProject, stack, project });
+  const cb = useRef({ onStack, onProject, stack, project, onReady });
   useEffect(() => {
-    cb.current = { onStack, onProject, stack, project };
+    cb.current = { onStack, onProject, stack, project, onReady };
   });
 
   useEffect(() => {
@@ -522,9 +525,14 @@ export function DbCanvas({
       composer.render();
     };
     tick();
+    // Two frames in, the scene (shaders compiled, first composite done) is real.
+    let readyRaf = requestAnimationFrame(() => {
+      readyRaf = requestAnimationFrame(() => cb.current.onReady?.());
+    });
 
     return () => {
       cancelAnimationFrame(raf);
+      cancelAnimationFrame(readyRaf);
       ro.disconnect();
       controls.dispose();
       renderer.domElement.removeEventListener("pointerdown", onDown);

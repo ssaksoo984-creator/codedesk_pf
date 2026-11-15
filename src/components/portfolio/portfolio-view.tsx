@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import clsx from "clsx";
 import { DbCanvas } from "./db-canvas";
@@ -8,7 +8,7 @@ import { ALL_PROJECTS, STACKS, yearOf } from "./db-data";
 
 /** What you see inside the computer: the work as databases. Pick a stack to
  * split it open, pick a layer to see the project, open it to read the case. */
-export function PortfolioView({ onClose }: { onClose: () => void }) {
+export function PortfolioView({ onClose, onReady }: { onClose: () => void; onReady?: () => void }) {
   const [stack, setStack] = useState<string | null>(null);
   const [project, setProject] = useState<string | null>(null);
   const [query, setQuery] = useState("");
@@ -17,10 +17,6 @@ export function PortfolioView({ onClose }: { onClose: () => void }) {
   const [spin, setSpin] = useState(true);
   const [shown, setShown] = useState(false);
 
-  useEffect(() => {
-    const r = requestAnimationFrame(() => setShown(true));
-    return () => cancelAnimationFrame(r);
-  }, []);
 
   const current = ALL_PROJECTS.find((x) => x.project.index === project) ?? null;
   const q = query.trim().toLowerCase();
@@ -33,7 +29,7 @@ export function PortfolioView({ onClose }: { onClose: () => void }) {
 
   return (
     <div
-      className={clsx("fixed inset-0 z-40 bg-[#07060d] font-mono text-white transition-opacity duration-500 ease-out", shown ? "opacity-100" : "opacity-0")}
+      className={clsx("fixed inset-0 z-40 bg-[#07060d] font-mono text-white transition-opacity duration-[900ms] ease-out", shown ? "opacity-100" : "opacity-0")}
       style={{ ["--glass" as string]: "rgba(12,11,22,0.78)", ["--line" as string]: "rgba(255,255,255,0.1)", ["--fg" as string]: "#fff", ["--muted" as string]: "#8d8aa6" }}
       onPointerDown={(e) => e.stopPropagation()}
       onPointerMove={(e) => e.stopPropagation()}
@@ -50,6 +46,10 @@ export function PortfolioView({ onClose }: { onClose: () => void }) {
         flow={flow}
         labels={labels}
         spin={spin}
+        onReady={() => {
+          setShown(true);
+          onReady?.();
+        }}
       />
 
       {/* ---- Left: databases ---- */}
