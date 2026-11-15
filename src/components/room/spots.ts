@@ -13,7 +13,7 @@ export type LayerId = "wall" | "desk";
 type Rect = [number, number, number, number];
 
 /** The monitor's screen, as fractions of the desk layer. */
-export const SCREEN: Rect = [0.3754, 0.4368, 0.2478, 0.2396];
+export const SCREEN: Rect = [0.3754, 0.4368, 0.2478, 0.2506];
 
 /** Rectangles are fractions of their layer: [left, top, width, height]. */
 export const SPOTS: { id: SpotId; label: string; object: string; layer: LayerId; rect: Rect; focus: Rect }[] = [

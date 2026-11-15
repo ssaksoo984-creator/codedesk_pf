@@ -37,6 +37,13 @@ export function Room() {
   const [vp, setVp] = useState({ w: 1440, h: 900 });
   const mode: Mode = useHtmlData("mode") === "day" ? "day" : "night";
   const introDone = useHtmlData("intro") === "seen";
+  // The monitor switches on a moment after the intro hands over.
+  const [screenOn, setScreenOn] = useState(false);
+  useEffect(() => {
+    if (!introDone) return;
+    const t = setTimeout(() => setScreenOn(true), 700);
+    return () => clearTimeout(t);
+  }, [introDone]);
   const [active, setActive] = useState<SpotId | null>(null);
   const [open, setOpen] = useState<SpotId | null>(null);
   const [hover, setHover] = useState<SpotId | null>(null);
@@ -297,24 +304,29 @@ export function Room() {
               style={{ opacity: m === mode ? 1 : 0 }}
             />
           ))}
-          {/* The monitor shows the portfolio — the same picture the live
+          {/* The monitor: switched off (black, like the film's last frame),
+              then it powers on to the portfolio — the same picture the live
               view starts from, so diving in reads as one continuous move. */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/media/room/screen.webp?v=6"
-            alt=""
-            draggable={false}
-            className="pointer-events-none absolute"
+          <div
+            className="pointer-events-none absolute overflow-hidden bg-[#06070c]"
             style={{
               left: `${SCREEN[0] * 100}%`,
               top: `${SCREEN[1] * 100}%`,
               width: `${SCREEN[2] * 100}%`,
               height: `${SCREEN[3] * 100}%`,
-              objectFit: "cover",
               borderRadius: 2,
-              boxShadow: night ? "0 0 60px rgba(120,110,255,0.4)" : "none",
+              boxShadow: night && screenOn ? "0 0 60px rgba(120,110,255,0.4)" : "none",
+              transition: "box-shadow 1.2s ease",
             }}
-          />
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/media/room/screen.webp?v=6"
+              alt=""
+              draggable={false}
+              className={clsx("h-full w-full object-cover", screenOn ? "screen-on" : "opacity-0")}
+            />
+          </div>
           {SPOTS.filter((s) => s.layer === "desk").map(spot)}
         </div>
       </div>

@@ -49,7 +49,8 @@ export function IntroFilm({ onDone }: { onDone: () => void }) {
       style={{
         opacity: leaving ? 0 : 1,
         pointerEvents: leaving ? "none" : undefined,
-        backgroundImage: "url(/media/room/intro-v6-poster.webp)",
+        // full first frame, over a tiny inline copy that is there instantly
+        backgroundImage: "url(/media/room/intro-v6-poster.webp), url(data:image/webp;base64,UklGRp4AAABXRUJQVlA4IJIAAADwBACdASogABIAPrVIoEunI6MhsBgIAOAWiWMAuwAMeRMPTNnXZb8RT4UyY9080LAA/rorUTFpuNJoo0zV8i6CmQgYiRmygoybdxbsC2RF0AaQPi7BVKGa28yf9kBPHp/Msiv34Kx8350vSbfgOJmbHrG1TSC/Y4H8dByMydUPMKb8te58yT0rz2JJ5h7QRX4AAA==)",
       }}
       role="region"
       aria-label="Intro film"

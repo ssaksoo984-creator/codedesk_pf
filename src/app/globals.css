@@ -168,3 +168,17 @@ body {
 .cam[data-dragging] .layer {
   transition: none;
 }
+
+/* Monitor power-on: a line of light that opens into the picture. */
+@keyframes screen-on {
+  0% { opacity: 0; transform: scaleY(0.01); filter: brightness(4); }
+  35% { opacity: 1; transform: scaleY(0.01); filter: brightness(4); }
+  70% { transform: scaleY(1); filter: brightness(1.6); }
+  100% { transform: scaleY(1); filter: brightness(1); }
+}
+.screen-on {
+  animation: screen-on 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .screen-on { animation: none; }
+}
