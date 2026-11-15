@@ -17,8 +17,8 @@ type Mode = "night" | "day";
 
 // Fixed star positions inside the window (fractions of the render).
 const STARS = [
-  [0.845, 0.05], [0.87, 0.11], [0.9, 0.04], [0.912, 0.16], [0.858, 0.2], [0.885, 0.26], [0.9, 0.31],
-  [0.842, 0.29], [0.875, 0.36], [0.905, 0.09], [0.862, 0.14], [0.918, 0.24],
+  [0.705, 0.14], [0.73, 0.2], [0.76, 0.13], [0.79, 0.24], [0.715, 0.3], [0.745, 0.33], [0.775, 0.17],
+  [0.8, 0.31], [0.72, 0.22], [0.81, 0.15], [0.755, 0.27], [0.79, 0.37],
 ];
 
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
@@ -237,14 +237,14 @@ export function Room() {
             <span
               className="breathe absolute mix-blend-screen"
               style={{
-                left: "30%", top: "24%", width: "41%", height: "35%",
+                left: "35%", top: "30%", width: "32%", height: "22%",
                 background: "radial-gradient(closest-side, rgba(94,242,210,0.22), transparent)",
               }}
             />
             <span
               className="breathe absolute mix-blend-screen"
               style={{
-                left: "40%", top: "42%", width: "20%", height: "24%", animationDelay: "1.6s",
+                left: "37%", top: "47%", width: "26%", height: "26%", animationDelay: "1.6s",
                 background: "radial-gradient(closest-side, rgba(110,170,255,0.28), transparent)",
               }}
             />
