@@ -21,6 +21,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en" data-mode="night" suppressHydrationWarning>
       <head>
+        {/* First frame of the intro, so the opening paints at once. */}
+        <link rel="preload" as="image" href="/media/room/intro-poster.webp" />
         {/* Apply the saved day/night choice before paint. */}
         <script
           dangerouslySetInnerHTML={{
