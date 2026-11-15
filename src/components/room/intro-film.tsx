@@ -49,7 +49,7 @@ export function IntroFilm({ onDone }: { onDone: () => void }) {
       style={{
         opacity: leaving ? 0 : 1,
         pointerEvents: leaving ? "none" : undefined,
-        backgroundImage: "url(/media/room/intro-poster.webp)",
+        backgroundImage: "url(/media/room/intro-v6-poster.webp)",
       }}
       role="region"
       aria-label="Intro film"
@@ -66,8 +66,8 @@ export function IntroFilm({ onDone }: { onDone: () => void }) {
         onEnded={finish}
       >
         {/* Phones get the lighter cut; chosen by the browser, no swap in JS. */}
-        <source src="/media/room/intro-960.mp4" type="video/mp4" media="(max-width: 1024px)" />
-        <source src="/media/room/intro.mp4" type="video/mp4" onError={finish} />
+        <source src="/media/room/intro-v6-960.mp4" type="video/mp4" media="(max-width: 1024px)" />
+        <source src="/media/room/intro-v6.mp4" type="video/mp4" onError={finish} />
       </video>
       <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-4 md:p-6">
         <button type="button" onClick={toggleSound} className="glass h-11 rounded-2xl px-4 text-[14px] font-medium text-white" style={{ ["--fg" as string]: "#fff" }}>

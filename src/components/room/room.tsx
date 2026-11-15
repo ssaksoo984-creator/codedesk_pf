@@ -248,8 +248,8 @@ export function Room() {
             // eslint-disable-next-line @next/next/no-img-element
             <img
               key={m}
-              src={`/media/room/wall-${m}-2400.webp`}
-              srcSet={`/media/room/wall-${m}-1400.webp 1400w, /media/room/wall-${m}-2400.webp 2400w`}
+              src={`/media/room/wall-${m}-2400.webp?v=6`}
+              srcSet={`/media/room/wall-${m}-1400.webp?v=6 1400w, /media/room/wall-${m}-2400.webp?v=6 2400w`}
               sizes={`${Math.round(wall.w)}px`}
               alt=""
               draggable={false}
@@ -287,8 +287,8 @@ export function Room() {
             // eslint-disable-next-line @next/next/no-img-element
             <img
               key={m}
-              src={`/media/room/desk-${m}-2400.webp`}
-              srcSet={`/media/room/desk-${m}-1400.webp 1400w, /media/room/desk-${m}-2400.webp 2400w`}
+              src={`/media/room/desk-${m}-2400.webp?v=6`}
+              srcSet={`/media/room/desk-${m}-1400.webp?v=6 1400w, /media/room/desk-${m}-2400.webp?v=6 2400w`}
               sizes={`${Math.round(desk.w)}px`}
               alt=""
               draggable={false}
@@ -301,7 +301,7 @@ export function Room() {
               view starts from, so diving in reads as one continuous move. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/media/room/screen.webp"
+            src="/media/room/screen.webp?v=6"
             alt=""
             draggable={false}
             className="pointer-events-none absolute"
