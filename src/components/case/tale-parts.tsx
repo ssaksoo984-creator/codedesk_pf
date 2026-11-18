@@ -9,15 +9,14 @@ const C = "/media/tale/case/";
 // ---------------------------------------------------------------- hero reel
 
 const REEL = [
-  { src: "site-home", label: "Landing" },
-  { src: "v3-r2", label: "Projects" },
-  { src: "v3-p1", label: "Producer" },
-  { src: "v3-w1", label: "Writer" },
-  { src: "v3-a5", label: "Artist" },
-  { src: "v3-s1", label: "Storyboard" },
-  { src: "v3-d1", label: "Director" },
-  { src: "v3-ed1", label: "Editor" },
-  { src: "site-home", label: "Landing" },
+  { src: "site-home", label: "Main site" },
+  { src: "sim-producer", label: "Producer" },
+  { src: "sim-writer", label: "Writer" },
+  { src: "sim-artist", label: "Artist" },
+  { src: "sim-storyboard", label: "Storyboard" },
+  { src: "sim-director", label: "Director" },
+  { src: "sim-editor", label: "Editor" },
+  { src: "site-home", label: "Main site" },
 ];
 
 /**
@@ -371,6 +370,106 @@ export function FlowChart() {
       </div>
       <p className="border-t border-white/10 px-4 py-3 font-mono text-[10.5px] text-white/40">
         Drag to pan · {g.nodes.filter((n) => n.type !== "ghost").length} nodes in this stage · dashed pills lead to other stages
+      </p>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------- stage show
+
+export const SHOW = [
+  { id: "producer", name: "Producer", color: "#F2A33A", line: "One line in. Lumi asks for genre, length and ratio with recommended cards, then sums it up.", lumi: "producer" },
+  { id: "writer", name: "Writer", color: "#E8606F", line: "Prose only. Pick a paragraph, ask for a change, compare and apply — or lock the prose and break it down.", lumi: "writer" },
+  { id: "artist", name: "Artist", color: "#8B63E8", line: "Lumi asks one question — which style — then draws the cast and sets as versioned cards.", lumi: "artist" },
+  { id: "storyboard", name: "Storyboard", color: "#5A6AE6", line: "Scenes split into shots and sketched as roughs; empty shots fill in while you watch.", lumi: "storyboard" },
+  { id: "director", name: "Director", color: "#3E9BE0", line: "Cast and sets wire into each shot as nodes; shots render to video one by one.", lumi: "director" },
+  { id: "editor", name: "Editor", color: "#2DB39A", line: "The shots land on a timeline — trim, add sound, preview and export.", lumi: "editor" },
+] as const;
+
+/**
+ * The renewed product in motion, stage by stage — recorded from the live
+ * stage demo on the main site. Plays through on its own; tabs jump around.
+ */
+export function StageShow() {
+  const [i, setI] = useState(0);
+  const [inView, setInView] = useState(false);
+  const [prog, setProg] = useState(0);
+  const root = useRef<HTMLDivElement>(null);
+  const vids = useRef<(HTMLVideoElement | null)[]>([]);
+
+  useEffect(() => {
+    const el = root.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { threshold: 0.35 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  useEffect(() => {
+    vids.current.forEach((v, k) => {
+      if (!v) return;
+      if (k === i && inView) {
+        v.currentTime = 0;
+        v.play().catch(() => {});
+      } else v.pause();
+    });
+  }, [i, inView]);
+
+  const s = SHOW[i];
+  return (
+    <div ref={root}>
+      <div role="tablist" aria-label="Stage" className="no-scrollbar -mx-5 flex gap-2 overflow-x-auto px-5 md:mx-0 md:flex-wrap md:justify-center md:px-0">
+        {SHOW.map((x, k) => (
+          <button
+            key={x.id}
+            type="button"
+            role="tab"
+            aria-selected={k === i}
+            onClick={() => setI(k)}
+            className={clsx(
+              "relative flex h-12 shrink-0 items-center gap-2 overflow-hidden rounded-2xl pl-2 pr-4 text-[13.5px] font-medium ring-1 backdrop-blur transition-colors",
+              k === i ? "bg-white/[0.08] text-white ring-white/30" : "bg-white/[0.03] text-white/55 ring-white/10 hover:text-white"
+            )}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={`/media/tale/lumi/${x.lumi}.webp`} alt="" className="h-9 w-9 object-contain" />
+            {x.name}
+            {k === i && <span className="absolute bottom-0 left-0 h-[2px]" style={{ width: `${prog * 100}%`, background: x.color }} />}
+          </button>
+        ))}
+      </div>
+
+      <div className="relative mt-5">
+        <div className="absolute -inset-x-10 -inset-y-6 -z-10 opacity-60 blur-3xl transition-colors duration-700" style={{ background: `radial-gradient(50% 50% at 50% 50%, ${s.color}33, transparent 70%)` }} />
+        <div className="rounded-[16px] bg-[#1b1b1f] p-[0.8%] shadow-[0_40px_80px_-30px_rgba(0,0,0,0.7)] ring-1 ring-white/10">
+          <div className="relative aspect-[1152/720] overflow-hidden rounded-[8px] bg-[#1f1e1d]">
+            {SHOW.map((x, k) => (
+              <video
+                key={x.id}
+                ref={(v) => {
+                  vids.current[k] = v;
+                }}
+                poster={`/media/tale/case/sim-${x.id}.webp`}
+                muted
+                playsInline
+                preload={k === 0 ? "auto" : "metadata"}
+                onTimeUpdate={(e) => k === i && setProg(e.currentTarget.currentTime / (e.currentTarget.duration || 1))}
+                onEnded={() => k === i && setI((i + 1) % SHOW.length)}
+                className={clsx("absolute inset-0 h-full w-full object-cover transition-opacity duration-500", k === i ? "opacity-100" : "opacity-0")}
+                aria-label={`${x.name} stage in motion`}
+              >
+                <source src={`/media/tale/case/sim-${x.id}.mp4`} type="video/mp4" />
+                <source src={`/media/tale/case/sim-${x.id}.webm`} type="video/webm" />
+              </video>
+            ))}
+          </div>
+        </div>
+      </div>
+      <p className="mx-auto mt-5 max-w-[60ch] text-center text-[15px] leading-[1.6] text-white/70">
+        <b className="font-medium" style={{ color: s.color }}>
+          {s.name}.
+        </b>{" "}
+        {s.line}
       </p>
     </div>
   );

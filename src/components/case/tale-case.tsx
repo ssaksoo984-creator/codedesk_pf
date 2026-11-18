@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import clsx from "clsx";
-import { FlowChart, HeroReel, OldFlow } from "./tale-parts";
+import { FlowChart, HeroReel, OldFlow, StageShow } from "./tale-parts";
 
 const C = "/media/tale/case/";
 const L = "/media/tale/lumi/";
@@ -283,13 +283,13 @@ export function TaleCase() {
           <div className="relative overflow-hidden rounded-t-[36px] bg-gradient-to-b from-[#d9d7d0] to-[#a9a7a0] px-[4%] pb-0 pt-[5%] [perspective:1800px]">
             <div className="relative mx-auto max-w-[1080px]">
               <Display
-                src={`${C}v3-p1.webp`}
+                src={`${C}sim-producer.webp`}
                 alt="Producer stage with Lumi"
                 className="hero-left absolute left-[-6%] top-[8%] w-[52%] opacity-95"
                 style={{ transform: "rotateY(22deg) rotateZ(-2deg)" }}
               />
               <Display
-                src={`${C}v3-d1.webp`}
+                src={`${C}sim-director.webp`}
                 alt="Director node view"
                 className="hero-right absolute right-[-6%] top-[8%] w-[52%] opacity-95"
                 style={{ transform: "rotateY(-22deg) rotateZ(2deg)" }}
@@ -364,7 +364,7 @@ export function TaleCase() {
             {[
               { href: "#brand", k: "01", t: "Logo & BI", d: "Tale = tail. A half-T with a story tail, in two colour families for the two halves of the pipeline.", img: "/media/tale/tale-symbol.svg", bg: "#F5F4EE", contain: true },
               { href: "#character", k: "02", t: "Character · Lumi", d: "A jelly-bodied AI teammate with a tail, who changes outfit and colour at every stage.", img: `${L}complete.webp`, bg: "#1f1e1d", contain: true },
-              { href: "#ux", k: "03", t: "UX/UI renewal", d: "Six stages by the work they do, every branch designed first, shipped as v3.", img: `${C}v3-s1.webp`, bg: "#141312" },
+              { href: "#ux", k: "03", t: "UX/UI renewal", d: "Six stages by the work they do, every branch designed first, shipped as v3.", img: `${C}sim-storyboard.webp`, bg: "#141312" },
             ].map((c) => (
               <a key={c.k} href={c.href} data-r className="group overflow-hidden rounded-3xl bg-white/[0.04] ring-1 ring-white/10 transition-colors hover:bg-white/[0.07]">
                 <div className="flex aspect-[4/3] items-center justify-center overflow-hidden" style={{ background: c.bg }}>
@@ -586,8 +586,8 @@ export function TaleCase() {
           {/* In product */}
           <div data-r className="mt-20 grid gap-4 md:grid-cols-2">
             <div>
-              <Display src={`${C}v3-p1.webp`} alt="Lumi greeting on the Producer stage" />
-              <p className="mt-3 text-[14px] text-white/60"><b className="font-medium text-white">Greeting.</b> On an empty stage, a large Lumi in that stage’s outfit says what to do next.</p>
+              <Display src={`${C}sim-producer.webp`} alt="Lumi asking about length and ratio on the Producer stage" />
+              <p className="mt-3 text-[14px] text-white/60"><b className="font-medium text-white">Guiding.</b> Lumi asks one thing at a time — length, then ratio — with a recommended card already marked.</p>
             </div>
             <div>
               <Display src={`${C}v3-as.webp`} alt="Lumi asking which style to draw" />
@@ -704,10 +704,10 @@ export function TaleCase() {
             <H3>Before → after.</H3>
             <P className="mt-3 mb-8">Drag to compare the previous service with the renewed v3 for the same step.</P>
             <div className="grid gap-8">
-              <Compare before={`${C}old-start.webp`} after={`${C}v3-p1.webp`} beforeLabel="Before · Start" afterLabel="v3 · Producer" />
+              <Compare before={`${C}old-start.webp`} after={`${C}sim-producer.webp`} beforeLabel="Before · Start" afterLabel="After · Producer" />
               <div className="grid gap-8 md:grid-cols-2">
-                <Compare before={`${C}old-writers.webp`} after={`${C}v3-w1.webp`} beforeLabel="Before · Writers’ Room" afterLabel="v3 · Writer" />
-                <Compare before={`${C}old-style.webp`} after={`${C}v3-as.webp`} beforeLabel="Before · Style" afterLabel="v3 · Artist style" />
+                <Compare before={`${C}old-writers.webp`} after={`${C}sim-writer.webp`} beforeLabel="Before · Writers’ Room" afterLabel="After · Writer" />
+                <Compare before={`${C}old-style.webp`} after={`${C}sim-artist.webp`} beforeLabel="Before · Style" afterLabel="After · Artist" />
               </div>
             </div>
           </div>
@@ -736,27 +736,13 @@ export function TaleCase() {
             </div>
           </div>
 
-          {/* Final screens */}
-          <div data-r className="mt-20">
-            <H3>The product — shipped v3, stage by stage.</H3>
-            <div className="mt-8 grid gap-x-4 gap-y-10 md:grid-cols-2">
-              {[
-                                ["v3-r2", "Projects", "A large white-pearl Lumi on the first screen; restyled cards and top bar."],
-                ["v3-p1", "Producer", "Option chips and selection cards in the Producer colour."],
-                ["v3-w1", "Writer", "Prose only. The screen/chat toggle is gone; paragraphs can be attached to chat."],
-                ["v3-a5", "Artist", "Filters for all, characters and backgrounds; cards carry version badges inside version groups."],
-                ["v3-s1", "Storyboard", "Scene headers with place, time, summary, shot count and seconds; chips for size, angle, movement, colour temperature."],
-                ["v3-d1", "Director", "Restyled nodes and edges; chat starts closed and opens from a Lumi pill with an unread count."],
-                ["v3-ed1", "Editor", "Final edit · cuts · length · video, the source panel beside the preview and a full-width timeline."],
-              ].map(([f, t, d], k, all) => (
-                <figure key={f} className={clsx(k === all.length - 1 && all.length % 2 && "md:col-span-2")}>
-                  <Display src={`${C}${f}.webp`} alt={`${t} — v3`} />
-                  <figcaption className="mt-3 text-[14px] leading-[1.6] text-white/60">
-                    <b className="font-medium text-white">{t}.</b> {d}
-                  </figcaption>
-                </figure>
-              ))}
-            </div>
+          {/* After: the product in motion */}
+          <div data-r className="mt-24">
+            <H3>After — the product, stage by stage.</H3>
+            <P className="mt-3 mb-10">
+              One line becomes a film: Lumi plans it, writes the prose, draws the cast, boards the shots, renders and cuts. Recorded from the live stage demo on the main site — it plays through on its own, or pick a stage.
+            </P>
+            <StageShow />
           </div>
 
           <div data-r className="mt-14 flex flex-wrap gap-2">
