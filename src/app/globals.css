@@ -217,3 +217,34 @@ body {
 .layer.pointer-events-none .spot {
   pointer-events: auto;
 }
+
+/* ---- Case page ---------------------------------------------------------- */
+.tale-case [data-r] {
+  transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1), transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.tale-case [data-r="0"] {
+  opacity: 0;
+  transform: translateY(28px);
+}
+@keyframes lumi-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+.lumi-float { animation: lumi-float 4.5s ease-in-out infinite; }
+@keyframes lumi-pop {
+  from { opacity: 0; transform: translate(-50%, -46%) scale(0.86); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+.lumi-pop { animation: lumi-pop 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; }
+@keyframes symbol-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+}
+.symbol-breathe { animation: symbol-breathe 5s ease-in-out infinite; }
+@keyframes hero-in-l { from { opacity: 0; transform: rotateY(40deg) rotateZ(-2deg) translateX(-8%); } }
+@keyframes hero-in-r { from { opacity: 0; transform: rotateY(-40deg) rotateZ(2deg) translateX(8%); } }
+.hero-left { animation: hero-in-l 1.4s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.hero-right { animation: hero-in-r 1.4s cubic-bezier(0.22, 1, 0.36, 1) both; }
+@media (prefers-reduced-motion: reduce) {
+  .lumi-float, .lumi-pop, .symbol-breathe, .hero-left, .hero-right { animation: none; }
+}

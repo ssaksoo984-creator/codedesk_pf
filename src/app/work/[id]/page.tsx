@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ALL_PROJECTS } from "@/components/portfolio/db-data";
 import { projectImages } from "@/lib/project-images";
+import { TaleCase } from "@/components/case/tale-case";
 
 export function generateStaticParams() {
   return ALL_PROJECTS.map((x) => ({ id: x.project.index }));
@@ -20,6 +21,8 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
   const { id } = await params;
   const i = ALL_PROJECTS.findIndex((x) => x.project.index === id);
   if (i === -1) notFound();
+  // Tale Studio has its own long-form case page.
+  if (id === "09") return <TaleCase />;
   const { project: p, stack } = ALL_PROJECTS[i];
   const next = ALL_PROJECTS[(i + 1) % ALL_PROJECTS.length].project;
   const images = projectImages(p).slice(0, 10);
