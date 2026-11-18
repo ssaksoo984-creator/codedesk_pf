@@ -135,42 +135,59 @@ export function HeroStage() {
   );
 }
 
-/** The billboard: a white-pearl Lumi that turns into the iridescent complete Lumi and hops. */
+/** The billboard: the white pearl fills with colour into the complete Lumi, bouncing as it goes. */
 export function BillboardLumi() {
   const box = useRef<HTMLDivElement>(null);
-  const [persona, setPersona] = useState("pearl");
+  const [full, setFull] = useState(false);
   const [hop, setHop] = useState(0);
   useEffect(() => {
     const el = box.current;
     if (!el) return;
     let ts: ReturnType<typeof setTimeout>[] = [];
-    const run = () => {
+    const clear = () => {
       ts.forEach(clearTimeout);
       ts = [];
-      setPersona("pearl");
-      ts.push(setTimeout(() => {
-        setPersona("complete");
-        setHop((h) => h + 1);
-      }, 1400));
-      ts.push(setTimeout(run, 7000));
     };
-    const io = new IntersectionObserver(([e]) => {
-      if (e.isIntersecting) run();
-      else ts.forEach(clearTimeout);
-    }, { threshold: 0.5 });
+    // pearl → fills with colour while bouncing → holds → colour drains back → again
+    const cycle = () => {
+      ts.push(setTimeout(() => {
+        setFull(true);
+        setHop((h) => h + 1);
+      }, 900));
+      ts.push(setTimeout(() => setFull(false), 5200));
+      ts.push(setTimeout(cycle, 7400));
+    };
+    const io = new IntersectionObserver(
+      ([e]) => {
+        clear();
+        if (e.isIntersecting) cycle();
+      },
+      { threshold: 0.5 }
+    );
     io.observe(el);
     return () => {
       io.disconnect();
-      ts.forEach(clearTimeout);
+      clear();
     };
   }, []);
   return (
     <div ref={box} className="relative overflow-hidden rounded-2xl">
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/media/tale/bi/billboard-wide.webp" alt="Billboard — 글 한 줄이 영상이 되기까지" loading="lazy" className="block w-full" />
-      <div className="absolute" style={{ left: "58.6%", top: "33.5%", width: "21.5%" }}>
-        <div key={hop} className={clsx(hop > 0 && "lumi-hop")}>
-          <Lumi persona={persona} state="idle" />
+      <img src="/media/tale/bi/billboard-wide.webp" alt="Billboard — One line, to film. All-in-one previz studio." loading="lazy" className="block w-full" />
+      <div className="absolute" style={{ left: "53.4%", top: "37.6%", width: "17%", transform: "rotate(-2.6deg)" }}>
+        <div key={hop} className={clsx("relative", hop > 0 && "bb-bounce")}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={`${C}bb-pearl.webp`} alt="" className="block w-full" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={`${C}bb-complete.webp`}
+            alt=""
+            className="absolute inset-0 w-full"
+            style={{
+              clipPath: full ? "circle(120% at 22% 62%)" : "circle(0% at 22% 62%)",
+              transition: full ? "clip-path 1.5s cubic-bezier(.5,0,.3,1) .35s" : "clip-path 1.8s cubic-bezier(.4,0,.2,1)",
+            }}
+          />
         </div>
       </div>
       <span className="absolute bottom-3 left-3 rounded-full bg-black/55 px-3 py-1 font-mono text-[11px] text-white/85 backdrop-blur">
@@ -180,20 +197,150 @@ export function BillboardLumi() {
   );
 }
 
-/** The Lumi developer guide, as delivered — a living page, framed. */
-export function LumiGuide() {
+/** A desktop mockup with the product playing on its screen. */
+export function DesktopVideo({ video = "sim-producer" }: { video?: string }) {
+  const box = useRef<HTMLDivElement>(null);
+  const [k, setK] = useState(0);
+  useEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => setK(el.clientWidth / 1600));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  // screen corners in the 1600×1195 photo: TL, TR, BR, BL
+  const m = quadMatrix(1440, 900, [
+    [351, 236],
+    [1267, 213],
+    [1267, 816],
+    [351, 796],
+  ]);
   return (
-    <div className="overflow-hidden rounded-2xl bg-[#1b1b1f] ring-1 ring-white/10">
-      <div className="flex items-center gap-2 border-b border-white/10 px-4 py-2.5">
-        <i className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
-        <i className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
-        <i className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
-        <span className="ml-3 truncate font-mono text-[11px] text-white/45">lumi-persona · developer guide</span>
-        <a href="/proto/lumi-guide/" target="_blank" rel="noopener noreferrer" className="ml-auto shrink-0 rounded-md bg-white/10 px-2.5 py-1 text-[11.5px] text-white/80 hover:bg-white/20">
-          Open ↗
-        </a>
+    <div ref={box} className="relative aspect-[1600/1195] overflow-hidden">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/media/tale/bi/desktop.webp" alt="Desktop mockup" loading="lazy" className="absolute inset-0 h-full w-full" />
+      <div className="absolute left-0 top-0 origin-top-left" style={{ width: 1600, height: 1195, transform: `scale(${k})` }}>
+        <video
+          className="absolute left-0 top-0 origin-top-left"
+          style={{ width: 1440, height: 900, transform: m }}
+          muted
+          loop
+          playsInline
+          autoPlay
+          poster={`${C}${video}.webp`}
+          aria-label="The Producer stage playing on the desktop"
+        >
+          <source src={`${C}${video}.mp4`} type="video/mp4" />
+          <source src={`${C}${video}.webm`} type="video/webm" />
+        </video>
       </div>
-      <iframe src="/proto/lumi-guide/" title="Lumi persona developer guide" loading="lazy" className="block h-[min(82svh,860px)] w-full bg-white" />
+    </div>
+  );
+}
+
+/** CSS matrix3d that maps a w×h box onto the quad q (TL, TR, BR, BL). */
+function quadMatrix(w: number, h: number, q: [number, number][]) {
+  const [[x0, y0], [x1, y1], [x2, y2], [x3, y3]] = q;
+  const dx1 = x1 - x2, dx2 = x3 - x2, dx3 = x0 - x1 + x2 - x3;
+  const dy1 = y1 - y2, dy2 = y3 - y2, dy3 = y0 - y1 + y2 - y3;
+  const den = dx1 * dy2 - dx2 * dy1;
+  const g = (dx3 * dy2 - dx2 * dy3) / den;
+  const hh = (dx1 * dy3 - dx3 * dy1) / den;
+  const a = x1 - x0 + g * x1, b = x3 - x0 + hh * x3, c = x0;
+  const d = y1 - y0 + g * y1, e = y3 - y0 + hh * y3, f = y0;
+  // unit square → quad, then scale the w×h box down to the unit square
+  const M = [a / w, d / w, 0, g / w, b / h, e / h, 0, hh / h, 0, 0, 1, 0, c, f, 0, 1];
+  return `matrix3d(${M.map((n) => +n.toFixed(8)).join(",")})`;
+}
+
+// ---------------------------------------------------------------- lumi playground
+
+const PERSONAS = [
+  { id: "pearl", name: "White pearl", when: "Start · home and projects", loading: "—" },
+  { id: "producer", name: "Producer", when: "Planning · settings", loading: "Pearl → Producer: reads the brief" },
+  { id: "writer", name: "Writer", when: "Writing the prose", loading: "Producer → Writer: bubbles, a bulb, writes with its tail" },
+  { id: "artist", name: "Artist", when: "Drawing cast and sets", loading: "Writer → Artist: shapes spin, burst, and it smiles" },
+  { id: "storyboard", name: "Storyboard", when: "Boards · shot breakdown", loading: "Artist → Storyboard: cloud → star → bulb → wow" },
+  { id: "director", name: "Director", when: "Direction · shooting", loading: "Storyboard → Director: shouts through a megaphone" },
+  { id: "editor", name: "Editor", when: "Edit · finish", loading: "Director → Editor: cuts and splices clips" },
+  { id: "complete", name: "Complete", when: "Film done · export", loading: "Editor → Complete: a 2.4 s finale plays" },
+];
+const STATES = [
+  { id: "idle", when: "Resting (all personas)", plays: "Loops" },
+  { id: "listening", when: "While the user types", plays: "Loops, 3 s" },
+  { id: "thinking", when: "Waiting for a reply", plays: "Loops, 3 s" },
+  { id: "complete", when: "A generation finished", plays: "Once, 1.2 s → back to idle" },
+  { id: "error", when: "Read or generation failed", plays: "Once, 1 s → holds" },
+  { id: "loading", when: "Moving to the next stage", plays: "Loops until idle" },
+];
+
+/**
+ * The top of the Lumi developer guide, in English and without the code:
+ * pick a persona and a state and the real Lumi plays it.
+ */
+export function LumiPlayground() {
+  const [p, setP] = useState("writer");
+  const [st, setSt] = useState("idle");
+  const P = PERSONAS.find((x) => x.id === p)!;
+  const S = STATES.find((x) => x.id === st)!;
+  const chip = (on: boolean) => clsx("h-9 rounded-full px-3.5 text-[13px] ring-1 transition-colors", on ? "bg-[#141312] text-white ring-[#141312]" : "bg-white text-[#141312] ring-black/15 hover:ring-black/40");
+  return (
+    <div className="rounded-3xl bg-[#F5F4EE] p-5 text-[#141312] md:p-8">
+      <p className="font-mono text-[11px] tracking-[0.14em] text-black/45">TALE STUDIO · LUMI PERSONA GUIDE</p>
+      <p className="mt-2 text-[clamp(24px,3vw,36px)] font-semibold tracking-[-0.03em]">Pick one — Lumi plays it.</p>
+      <p className="mt-2 max-w-[62ch] text-[14.5px] leading-[1.65] text-black/60">
+        One file and one tag. Change the persona or the state and the transition plays on its own — the same component the product uses.
+      </p>
+      <div className="mt-6 grid gap-5 lg:grid-cols-[1.15fr_1fr]">
+        <div className="flex items-center justify-center rounded-2xl bg-white ring-1 ring-black/10">
+          <Lumi persona={p} state={st} className="w-[86%]" />
+        </div>
+        <div className="flex flex-col gap-4">
+          <div>
+            <p className="mb-2 font-mono text-[11px] text-black/45">persona</p>
+            <div className="flex flex-wrap gap-1.5">
+              {PERSONAS.map((x) => (
+                <button key={x.id} type="button" aria-pressed={p === x.id} onClick={() => setP(x.id)} className={chip(p === x.id)}>
+                  {x.id}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <p className="mb-2 font-mono text-[11px] text-black/45">state</p>
+            <div className="flex flex-wrap gap-1.5">
+              {STATES.map((x) => (
+                <button key={x.id} type="button" aria-pressed={st === x.id} onClick={() => setSt(x.id)} className={chip(st === x.id)}>
+                  {x.id}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="flex items-center gap-3 rounded-2xl bg-[#141312] p-3 text-white">
+            <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-white/10">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={`/media/tale/lumi/${p}.webp`} alt="" className="w-[80%]" />
+            </span>
+            <span className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-full bg-white/10">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={`/media/tale/lumi/${p}.webp`} alt="" className="w-[80%]" />
+            </span>
+            <span className="text-[13px] text-white/80">Chat avatar · 28 · 40 px</span>
+          </div>
+          <dl className="divide-y divide-black/10 rounded-2xl bg-white px-4 text-[13.5px] ring-1 ring-black/10">
+            {[
+              [P.name, P.when],
+              ["Stage loading", P.loading],
+              [`state · ${S.id}`, `${S.when} — ${S.plays}`],
+            ].map(([k, v]) => (
+              <div key={k} className="grid grid-cols-[120px_1fr] gap-3 py-2.5">
+                <dt className="font-mono text-[11px] leading-[1.9] text-black/45">{k}</dt>
+                <dd>{v}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      </div>
     </div>
   );
 }
@@ -575,6 +722,105 @@ export function BeforeAfter() {
           <p className="mt-3 text-[14px] leading-[1.65] text-white/80">{c.after.note}</p>
         </div>
       </div>
+    </div>
+  );
+}
+// ---------------------------------------------------------------- stage show
+
+export const SHOW = [
+  { id: "producer", name: "Producer", color: "#F2A33A", line: "One line in. Lumi asks for genre, length and ratio with recommended cards, then sums it up.", lumi: "producer" },
+  { id: "writer", name: "Writer", color: "#E8606F", line: "Prose only. Pick a paragraph, ask for a change, compare and apply — or lock the prose and break it down.", lumi: "writer" },
+  { id: "artist", name: "Artist", color: "#8B63E8", line: "Lumi asks one question — which style — then draws the cast and sets as versioned cards.", lumi: "artist" },
+  { id: "storyboard", name: "Storyboard", color: "#5A6AE6", line: "Scenes split into shots and sketched as roughs; empty shots fill in while you watch.", lumi: "storyboard" },
+  { id: "director", name: "Director", color: "#3E9BE0", line: "Cast and sets wire into each shot as nodes; shots render to video one by one.", lumi: "director" },
+  { id: "editor", name: "Editor", color: "#2DB39A", line: "The shots land on a timeline — trim, add sound, preview and export.", lumi: "editor" },
+] as const;
+
+/**
+ * The renewed product in motion, stage by stage — recorded from the live
+ * stage demo on the main site. Plays through on its own; tabs jump around.
+ */
+export function StageShow() {
+  const [i, setI] = useState(0);
+  const [inView, setInView] = useState(false);
+  const [prog, setProg] = useState(0);
+  const root = useRef<HTMLDivElement>(null);
+  const vids = useRef<(HTMLVideoElement | null)[]>([]);
+
+  useEffect(() => {
+    const el = root.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { threshold: 0.35 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  useEffect(() => {
+    vids.current.forEach((v, k) => {
+      if (!v) return;
+      if (k === i && inView) {
+        v.currentTime = 0;
+        v.play().catch(() => {});
+      } else v.pause();
+    });
+  }, [i, inView]);
+
+  const s = SHOW[i];
+  return (
+    <div ref={root}>
+      <div role="tablist" aria-label="Stage" className="no-scrollbar -mx-5 flex gap-2 overflow-x-auto px-5 md:mx-0 md:flex-wrap md:justify-center md:px-0">
+        {SHOW.map((x, k) => (
+          <button
+            key={x.id}
+            type="button"
+            role="tab"
+            aria-selected={k === i}
+            onClick={() => setI(k)}
+            className={clsx(
+              "relative flex h-12 shrink-0 items-center gap-2 overflow-hidden rounded-2xl pl-2 pr-4 text-[13.5px] font-medium ring-1 backdrop-blur transition-colors",
+              k === i ? "bg-white/[0.08] text-white ring-white/30" : "bg-white/[0.03] text-white/55 ring-white/10 hover:text-white"
+            )}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={`/media/tale/lumi/${x.lumi}.webp`} alt="" className="h-9 w-9 object-contain" />
+            {x.name}
+            {k === i && <span className="absolute bottom-0 left-0 h-[2px]" style={{ width: `${prog * 100}%`, background: x.color }} />}
+          </button>
+        ))}
+      </div>
+
+      <div className="relative mt-5">
+        <div className="absolute -inset-x-10 -inset-y-6 -z-10 opacity-60 blur-3xl transition-colors duration-700" style={{ background: `radial-gradient(50% 50% at 50% 50%, ${s.color}33, transparent 70%)` }} />
+        <div className="rounded-[16px] bg-[#1b1b1f] p-[0.8%] shadow-[0_40px_80px_-30px_rgba(0,0,0,0.7)] ring-1 ring-white/10">
+          <div className="relative aspect-[1152/720] overflow-hidden rounded-[8px] bg-[#1f1e1d]">
+            {SHOW.map((x, k) => (
+              <video
+                key={x.id}
+                ref={(v) => {
+                  vids.current[k] = v;
+                }}
+                poster={`/media/tale/case/sim-${x.id}.webp`}
+                muted
+                playsInline
+                preload={k === 0 ? "auto" : "metadata"}
+                onTimeUpdate={(e) => k === i && setProg(e.currentTarget.currentTime / (e.currentTarget.duration || 1))}
+                onEnded={() => k === i && setI((i + 1) % SHOW.length)}
+                className={clsx("absolute inset-0 h-full w-full object-cover transition-opacity duration-500", k === i ? "opacity-100" : "opacity-0")}
+                aria-label={`${x.name} stage in motion`}
+              >
+                <source src={`/media/tale/case/sim-${x.id}.mp4`} type="video/mp4" />
+                <source src={`/media/tale/case/sim-${x.id}.webm`} type="video/webm" />
+              </video>
+            ))}
+          </div>
+        </div>
+      </div>
+      <p className="mx-auto mt-5 max-w-[60ch] text-center text-[15px] leading-[1.6] text-white/70">
+        <b className="font-medium" style={{ color: s.color }}>
+          {s.name}.
+        </b>{" "}
+        {s.line}
+      </p>
     </div>
   );
 }

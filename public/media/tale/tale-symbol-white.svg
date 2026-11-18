@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- Mono white: one colour in three tones, so the T, the tail and the droplet still read apart -->
+  <defs>
+    <linearGradient id="t" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity=".9"/>
+    </linearGradient>
+    <linearGradient id="tail" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity=".58"/><stop offset="1" stop-color="#fff" stop-opacity=".36"/>
+    </linearGradient>
+    <linearGradient id="drop" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity=".9"/><stop offset="1" stop-color="#fff" stop-opacity=".68"/>
+    </linearGradient>
+    <mask id="cut">
+      <rect width="200" height="200" fill="#fff"/>
+      <path fill="#000" d="M50 100H200V200H50A50 50 0 0 1 0 150A50 50 0 0 1 50 100Z"/>
+    </mask>
+    <mask id="cutDrop">
+      <rect width="200" height="200" fill="#fff"/>
+      <path fill="#000" d="M50 100H100V150A50 50 0 0 1 50 200A50 50 0 0 1 0 150A50 50 0 0 1 50 100Z"/>
+    </mask>
+  </defs>
+  <path fill="url(#t)" mask="url(#cut)" d="M50 0H150A50 50 0 0 1 150 100H100V150A50 50 0 0 1 50 200A50 50 0 0 1 0 150V50A50 50 0 0 1 50 0Z"/>
+  <path fill="url(#tail)" mask="url(#cutDrop)" d="M50 100H150A50 50 0 0 1 150 200H50A50 50 0 0 1 50 100Z"/>
+  <path fill="url(#drop)" d="M50 100H100V150A50 50 0 0 1 50 200A50 50 0 0 1 0 150A50 50 0 0 1 50 100Z"/>
+</svg>

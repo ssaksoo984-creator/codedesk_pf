@@ -4,7 +4,7 @@ import Link from "next/link";
 import Script from "next/script";
 import { useEffect, useRef, useState } from "react";
 import clsx from "clsx";
-import { BeforeAfter, BillboardLumi, FlowChart, HeroStage, LumiGuide, OldFlow } from "./tale-parts";
+import { BeforeAfter, BillboardLumi, DesktopVideo, FlowChart, HeroStage, LumiPlayground, OldFlow, StageShow } from "./tale-parts";
 
 /** Where “Open the website” points. */
 const SITE_URL = "#";
@@ -311,15 +311,8 @@ export function TaleCase() {
               <div key={s.label}>
                 <div className="flex aspect-[16/9] items-center justify-center gap-3 rounded-2xl" style={{ background: s.bg }}>
                   {s.mono ? (
-                    <span
-                      aria-hidden
-                      className="block h-9 w-9"
-                      style={{
-                        background: "linear-gradient(135deg, #fff 0%, rgba(255,255,255,.92) 45%, rgba(255,255,255,.55) 100%)",
-                        WebkitMask: "url(/media/tale/tale-symbol.svg) center / contain no-repeat",
-                        mask: "url(/media/tale/tale-symbol.svg) center / contain no-repeat",
-                      }}
-                    />
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src="/media/tale/tale-symbol-white.svg" alt="" className="h-9" />
                   ) : (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src="/media/tale/tale-symbol.svg" alt="" className="h-9" />
@@ -394,16 +387,24 @@ export function TaleCase() {
                 ["goods-1", "Goods"],
                 ["sign-lobby", "Lobby sign", "md:col-span-2"],
                 ["subway", "Subway ad"],
-                ["mobile", "Mobile"],
-                ["web", "Website"],
-                ["sign-ext", "Exterior sign", "md:col-span-2"],
-              ].map(([f, t, span]) => (
+                ["goods-2", "Goods"],
+                            ].map(([f, t, span]) => (
                 <figure key={f} className={clsx("group overflow-hidden rounded-2xl bg-white/5", span)}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={`${BI}${f}.webp`} alt={t} loading="lazy" className="aspect-[4/3] h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
                   <figcaption className="sr-only">{t}</figcaption>
                 </figure>
               ))}
+            </div>
+            <div className="mt-3 grid gap-3 md:grid-cols-2">
+              <figure className="overflow-hidden rounded-2xl bg-white/5">
+                <DesktopVideo />
+                <figcaption className="sr-only">Desktop — the product in use</figcaption>
+              </figure>
+              <figure className="overflow-hidden rounded-2xl bg-white/5">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={`${BI}sign-ext.webp`} alt="Exterior sign" loading="lazy" className="aspect-[1600/1195] h-full w-full object-cover" />
+              </figure>
             </div>
             <div className="mt-3">
               <BillboardLumi />
@@ -441,9 +442,9 @@ export function TaleCase() {
           <div data-r className="mt-14">
             <H3>Handed over as a living guide.</H3>
             <P className="mt-3 mb-8">
-              Lumi ships as one web component, <code className="rounded bg-white/10 px-1.5 py-0.5 font-mono text-[13px]">&lt;lumi-persona&gt;</code>: eight personas, six states and the stage-to-stage loading scenes. This is the developer guide exactly as delivered — pick a persona and state, and it writes the code.
+              Lumi ships to engineering as one web component: eight personas, six states and a loading scene for every stage change. This is the top of the developer guide I handed over — try it.
             </P>
-            <LumiGuide />
+            <LumiPlayground />
           </div>
         </div>
       </section>
@@ -546,6 +547,16 @@ export function TaleCase() {
             <div className="mt-3"><H3>Change by change.</H3></div>
             <P className="mt-3 mb-8">Pick a change to see the old screen next to the renewed one.</P>
             <BeforeAfter />
+          </div>
+
+          {/* 05 · After, stage by stage */}
+          <div data-r className="mt-24">
+            <Label>05 · After, stage by stage</Label>
+            <div className="mt-3"><H3>One line becomes a film.</H3></div>
+            <P className="mt-3 mb-10">
+              Lumi plans it, writes the prose, draws the cast, boards the shots, renders and cuts — recorded from the stage demo on the main site. It plays through on its own, or pick a stage.
+            </P>
+            <StageShow />
           </div>
 
           <div data-r className="mt-14 flex flex-wrap gap-2">
