@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import clsx from "clsx";
+import { FlowChart, HeroReel, OldFlow } from "./tale-parts";
 
 const C = "/media/tale/case/";
 const L = "/media/tale/lumi/";
@@ -293,9 +294,11 @@ export function TaleCase() {
                 className="hero-right absolute right-[-6%] top-[8%] w-[52%] opacity-95"
                 style={{ transform: "rotateY(-22deg) rotateZ(2deg)" }}
               />
-              <Display src={`${C}v3-home.webp`} alt="Tale Studio landing" className="relative z-10 mx-auto w-[72%]" />
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={`${L}complete.webp`} alt="" className="lumi-float absolute -top-[9%] right-[2%] z-20 w-[11%] drop-shadow-2xl" />
+              <figure className="relative z-10 mx-auto w-[72%]">
+                <div className="rounded-[14px] bg-[#1b1b1f] p-[1.1%] shadow-[0_40px_80px_-30px_rgba(0,0,0,0.6)] ring-1 ring-white/10">
+                  <HeroReel />
+                </div>
+              </figure>
             </div>
           </div>
         </div>
@@ -617,6 +620,33 @@ export function TaleCase() {
             </div>
           </div>
 
+          {/* The previous service */}
+          <div data-r className="mt-16">
+            <H3>Where it started — the previous service.</H3>
+            <P className="mt-3">
+              The first version was organised around five AI crews in one conversation: a Producer in the Meeting Room, a Writer in the Writers’ Room, then Artist, Director and Editor. On paper it was a clean hand-off; on screen, one stage did several jobs at once.
+            </P>
+            <div className="mt-8"><OldFlow /></div>
+            <p className="mt-3 font-mono text-[11px] text-white/40">Previous service plan v1.0 · overall workflow (redrawn in English)</p>
+            <div className="mt-10 grid gap-4 md:grid-cols-2">
+              {[
+                ["old-start", "Start", "A format picker first — short film, ad, music video… — before any story existed."],
+                ["old-idea", "Idea input", "A raw script box with no guidance on length or what the AI needs."],
+                ["old-meeting", "Meeting Room", "Scene, cast, sets and script on one live screen while the agent kept talking."],
+                ["old-style", "Style pick", "Style chosen mid-conversation, on top of a workspace that stayed editable."],
+                ["old-handoff", "Hand-off check", "A long confirmation sheet at every hand-off to the Writer."],
+                ["old-writers", "Writers’ Room", "Writer did prose, then art and shots — stages tangled together."],
+              ].map(([f, t, d]) => (
+                <figure key={f}>
+                  <Display src={`${C}${f}.webp`} alt={`Previous service — ${t}`} />
+                  <figcaption className="mt-3 text-[14px] leading-[1.6] text-white/60">
+                    <b className="font-medium text-white">{t}.</b> {d}
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
+          </div>
+
           {/* Architecture before / after */}
           <div data-r className="mt-16 rounded-3xl bg-white/[0.03] p-6 ring-1 ring-white/10 md:p-10">
             <H3>Architecture, before → after</H3>
@@ -660,52 +690,66 @@ export function TaleCase() {
             </div>
           </div>
 
-          {/* Process: flow + prototype */}
+          {/* The flow, designed */}
           <div data-r className="mt-20">
-            <H3>Flow before screens.</H3>
-            <P className="mt-3">
-              For every stage I drew the happy path, the alternate flow at each yes/no branch, the exception flow on errors, and where rollback is and isn’t allowed — then built a single HTML file where the flow chart, the clickable prototype and the change spec point at each other by screen ID.
+            <H3>The flow, designed — every branch before a single screen.</H3>
+            <P className="mt-3 mb-8">
+              For each stage I mapped the happy path, every yes/no branch, the error states, where the AI locks the screen and where rollback is allowed. The flow chart, the clickable prototype and the developer spec share one set of node IDs. Pick a stage and drag around.
             </P>
-            <div className="mt-8 grid gap-4 md:grid-cols-2">
-              <Display src={`${C}plan-flow.webp`} alt="Per-stage flow chart" />
-              <Display src={`${C}plan-spec.webp`} alt="Before → after change spec by screen ID" />
-            </div>
-            <div className="mt-4 grid gap-4 md:grid-cols-3">
-              <Display src={`${C}plan-proto-producer.webp`} alt="Prototype: Producer" />
-              <Display src={`${C}plan-proto-writer.webp`} alt="Prototype: Writer" />
-              <Display src={`${C}plan-proto-artist.webp`} alt="Prototype: Artist" />
-            </div>
-            <p className="mt-4 font-mono text-[11px] text-white/40">Planning prototype · flow chart · prototype · change spec in one file</p>
+            <FlowChart />
           </div>
 
           {/* Before / after */}
           <div data-r className="mt-20">
-            <H3>From plan to product.</H3>
-            <P className="mt-3 mb-8">Drag to compare the planning prototype with the shipped v3 design for the same screen.</P>
+            <H3>Before → after.</H3>
+            <P className="mt-3 mb-8">Drag to compare the previous service with the renewed v3 for the same step.</P>
             <div className="grid gap-8">
-              <Compare before={`${C}plan-proto-producer.webp`} after={`${C}v3-p1.webp`} beforeLabel="Plan · Producer" afterLabel="v3 · Producer" />
+              <Compare before={`${C}old-start.webp`} after={`${C}v3-p1.webp`} beforeLabel="Before · Start" afterLabel="v3 · Producer" />
               <div className="grid gap-8 md:grid-cols-2">
-                <Compare before={`${C}plan-proto-writer.webp`} after={`${C}v3-w1.webp`} beforeLabel="Plan · Writer" afterLabel="v3 · Writer" />
-                <Compare before={`${C}plan-proto-artist.webp`} after={`${C}v3-a5.webp`} beforeLabel="Plan · Artist" afterLabel="v3 · Artist" />
+                <Compare before={`${C}old-writers.webp`} after={`${C}v3-w1.webp`} beforeLabel="Before · Writers’ Room" afterLabel="v3 · Writer" />
+                <Compare before={`${C}old-style.webp`} after={`${C}v3-as.webp`} beforeLabel="Before · Style" afterLabel="v3 · Artist style" />
               </div>
+            </div>
+          </div>
+
+          {/* Front: the main site */}
+          <div data-r className="mt-20">
+            <H3>The front — main site.</H3>
+            <P className="mt-3">
+              The marketing site is the first screen people meet: one line in, a film out. The hero takes a story right away, then walks through what each stage does, the stories made with Tale, pricing by Takes, and FAQ.
+            </P>
+            <Display src={`${C}site-home.webp`} alt="Main site — hero" className="mt-8" />
+            <div className="mt-4 grid gap-4 md:grid-cols-3">
+              {[
+                ["site-stages", "Six stages, one line"],
+                ["site-write", "It writes with you"],
+                ["site-service", "Service page"],
+                ["site-features", "Chat planning · cast boards"],
+                ["site-board", "Storyboard first"],
+                ["site-pricing", "Pricing by Takes"],
+              ].map(([f, t]) => (
+                <figure key={f}>
+                  <Display src={`${C}${f}.webp`} alt={`Main site — ${t}`} />
+                  <figcaption className="mt-2 text-[13px] text-white/55">{t}</figcaption>
+                </figure>
+              ))}
             </div>
           </div>
 
           {/* Final screens */}
           <div data-r className="mt-20">
-            <H3>The shipped v3, stage by stage.</H3>
+            <H3>The product — shipped v3, stage by stage.</H3>
             <div className="mt-8 grid gap-x-4 gap-y-10 md:grid-cols-2">
               {[
-                ["v3-home", "Landing", "A soft stage-coloured glow instead of a video background; the v3 mark, title and badge."],
-                ["v3-r2", "Projects", "A large white-pearl Lumi on the first screen; restyled cards and top bar."],
+                                ["v3-r2", "Projects", "A large white-pearl Lumi on the first screen; restyled cards and top bar."],
                 ["v3-p1", "Producer", "Option chips and selection cards in the Producer colour."],
                 ["v3-w1", "Writer", "Prose only. The screen/chat toggle is gone; paragraphs can be attached to chat."],
                 ["v3-a5", "Artist", "Filters for all, characters and backgrounds; cards carry version badges inside version groups."],
                 ["v3-s1", "Storyboard", "Scene headers with place, time, summary, shot count and seconds; chips for size, angle, movement, colour temperature."],
                 ["v3-d1", "Director", "Restyled nodes and edges; chat starts closed and opens from a Lumi pill with an unread count."],
                 ["v3-ed1", "Editor", "Final edit · cuts · length · video, the source panel beside the preview and a full-width timeline."],
-              ].map(([f, t, d]) => (
-                <figure key={f}>
+              ].map(([f, t, d], k, all) => (
+                <figure key={f} className={clsx(k === all.length - 1 && all.length % 2 && "md:col-span-2")}>
                   <Display src={`${C}${f}.webp`} alt={`${t} — v3`} />
                   <figcaption className="mt-3 text-[14px] leading-[1.6] text-white/60">
                     <b className="font-medium text-white">{t}.</b> {d}
