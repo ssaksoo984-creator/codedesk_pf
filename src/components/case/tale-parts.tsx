@@ -6,95 +6,194 @@ import { FLOW, type FlowNode } from "./tale-flow-data";
 
 const C = "/media/tale/case/";
 
-// ---------------------------------------------------------------- hero reel
+// ---------------------------------------------------------------- lumi
 
-const REEL = [
-  { src: "site-home", label: "Main site" },
-  { src: "sim-producer", label: "Producer" },
-  { src: "sim-writer", label: "Writer" },
-  { src: "sim-artist", label: "Artist" },
-  { src: "sim-storyboard", label: "Storyboard" },
-  { src: "sim-director", label: "Director" },
-  { src: "sim-editor", label: "Editor" },
-  { src: "site-home", label: "Main site" },
-];
+type LumiProps = { persona?: string; state?: string; className?: string; style?: React.CSSProperties };
+
+/** The real Lumi (the <lumi-persona> web component from the Lumi dev guide). */
+export function Lumi({ persona = "pearl", state = "idle", className, style }: LumiProps) {
+  const ref = useRef<HTMLElement>(null);
+  useEffect(() => {
+    ref.current?.setAttribute("persona", persona);
+  }, [persona]);
+  useEffect(() => {
+    ref.current?.setAttribute("state", state);
+  }, [state]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const Tag = "lumi-persona" as any;
+  return (
+    <Tag ref={ref} persona={persona} state={state} class={className} style={{ display: "block", aspectRatio: "3 / 2", ...style }}>
+      {/* shown until the web component upgrades (or if WebGL is unavailable) */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={`/media/tale/lumi/${persona}.webp`} alt="" className="lumi-fallback h-full w-auto" />
+    </Tag>
+  );
+}
+
+// ---------------------------------------------------------------- hero
 
 /**
- * The hero screen: Lumi loads, then the renewed screens rattle past like a
- * reel and land back on the landing page. Loops.
+ * A dark, digital stage: Lumi loads, then three windows land — left, right,
+ * and the main site's first screen in the centre.
  */
-export function HeroReel() {
-  // -1 = loading, 0..n-1 = reel frame
-  const [i, setI] = useState(-1);
+export function HeroStage() {
+  const [phase, setPhase] = useState(0); // 0 loading · 1 left · 2 right · 3 centre
   const [pct, setPct] = useState(0);
 
   useEffect(() => {
-    if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      const t = setTimeout(() => setI(REEL.length - 1), 0);
-      return () => clearTimeout(t);
-    }
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const ts: ReturnType<typeof setTimeout>[] = [];
     let alive = true;
-    const timers: ReturnType<typeof setTimeout>[] = [];
-    const at = (ms: number, f: () => void) => timers.push(setTimeout(() => alive && f(), ms));
-    const cycle = (t0: number) => {
-      at(t0, () => {
-        setI(-1);
-        setPct(0);
-      });
-      for (let k = 1; k <= 20; k++) at(t0 + 80 + k * 105, () => setPct(k * 5));
-      // the reel: quick at first, slowing into the last frame
-      let t = t0 + 2400;
-      REEL.forEach((_, k) => {
-        at(t, () => setI(k));
-        t += k < REEL.length - 2 ? 300 : 520;
-      });
-      at(t + 3800, () => cycle(0));
+    if (reduce) {
+      ts.push(setTimeout(() => setPhase(3), 0));
+      return () => ts.forEach(clearTimeout);
+    }
+    // the bar fills while Lumi's script loads; the show starts once Lumi is on screen
+    let p = 0;
+    const tick = setInterval(() => {
+      p = Math.min(p + 2, 70);
+      setPct(p);
+    }, 60);
+    const start = () => {
+      if (!alive) return;
+      clearInterval(tick);
+      const from = p;
+      for (let k = 1; k <= 10; k++) ts.push(setTimeout(() => setPct(Math.round(from + ((100 - from) * k) / 10)), 2000 + k * 60));
+      ts.push(setTimeout(() => setPhase(1), 2900));
+      ts.push(setTimeout(() => setPhase(2), 3350));
+      ts.push(setTimeout(() => setPhase(3), 3800));
     };
-    cycle(300);
+    const ready = customElements.whenDefined("lumi-persona");
+    const fallback = new Promise((r) => setTimeout(r, 6000));
+    Promise.race([ready, fallback]).then(start);
     return () => {
       alive = false;
-      timers.forEach(clearTimeout);
+      clearInterval(tick);
+      ts.forEach(clearTimeout);
     };
   }, []);
 
-  const loading = i < 0;
+  const win = "absolute overflow-hidden rounded-[10px] bg-[#16161b] ring-1 ring-white/15 shadow-[0_30px_80px_-20px_rgba(0,0,0,.9),0_0_0_1px_rgba(120,140,255,.06)] transition-[opacity,transform,filter] duration-[900ms] ease-[cubic-bezier(.2,.8,.2,1)]";
+  const bar = (
+    <div className="flex h-[7%] min-h-3 items-center gap-[1.2%] bg-[#202027] px-[2%]">
+      <i className="aspect-square h-[34%] rounded-full bg-[#ff5f57]" />
+      <i className="aspect-square h-[34%] rounded-full bg-[#febc2e]" />
+      <i className="aspect-square h-[34%] rounded-full bg-[#28c840]" />
+    </div>
+  );
   return (
-    <div className="relative aspect-[16/10] overflow-hidden rounded-[6px] bg-[#141312]">
-      {/* reel strip */}
-      <div
-        className="absolute inset-0 flex transition-transform duration-[260ms] ease-[cubic-bezier(.3,.7,.2,1)]"
-        style={{ transform: `translateX(${-Math.max(0, i) * 100}%)` }}
-        aria-hidden={loading}
-      >
-        {REEL.map((r, k) => (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img key={k} src={`${C}${r.src}.webp`} alt={r.label} className="h-full w-full shrink-0 object-cover object-top" />
-        ))}
+    <div className="hero-digital relative aspect-[16/9] overflow-hidden rounded-[28px] bg-[#05060a] md:aspect-[2/1]">
+      {/* digital backdrop */}
+      <div className="absolute inset-0 opacity-60 [background-image:linear-gradient(rgba(120,140,255,.07)_1px,transparent_1px),linear-gradient(90deg,rgba(120,140,255,.07)_1px,transparent_1px)] [background-size:44px_44px] [mask-image:radial-gradient(70%_70%_at_50%_45%,#000,transparent)]" />
+      <div className="absolute inset-0" style={{ background: "radial-gradient(40% 55% at 30% 40%, rgba(232,96,111,.16), transparent 70%), radial-gradient(40% 55% at 70% 45%, rgba(62,155,224,.16), transparent 70%), radial-gradient(30% 40% at 50% 60%, rgba(139,99,232,.2), transparent 70%)" }} />
+      <div className="hero-scan pointer-events-none absolute inset-0" />
+      <div className="pointer-events-none absolute inset-0 font-mono text-[10px] text-white/30">
+        <span className="absolute left-5 top-4">TALE_STUDIO // v3</span>
+        <span className="absolute right-5 top-4">{phase === 0 ? "BOOTING" : "ONLINE"} ●</span>
+        <span className="absolute bottom-4 left-5">LUMI.persona = {phase === 0 ? "\"producer\" · loading" : "\"pearl\" · idle"}</span>
       </div>
-
-      {/* label of the current frame */}
-      {!loading && (
-        <span className="absolute bottom-3 left-3 rounded-full bg-black/60 px-2.5 py-1 font-mono text-[10px] text-white/85 backdrop-blur">
-          {String(i + 1).padStart(2, "0")} · {REEL[i].label}
-        </span>
-      )}
 
       {/* Lumi loading */}
-      <div
-        className={clsx(
-          "absolute inset-0 flex flex-col items-center justify-center gap-4 bg-[#141312] transition-opacity duration-300",
-          loading ? "opacity-100" : "pointer-events-none opacity-0"
-        )}
-      >
-        <div className="absolute inset-0 opacity-70" style={{ background: "radial-gradient(40% 50% at 50% 45%, rgba(242,163,58,.18), transparent 70%)" }} />
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/media/tale/lumi/complete.webp" alt="" className="lumi-loading relative w-[17%]" />
-        <p className="relative text-[clamp(11px,1.3vw,15px)] text-white/80">Lumi is setting up your studio…</p>
-        <div className="relative h-[3px] w-[28%] overflow-hidden rounded-full bg-white/10">
-          <div className="h-full rounded-full bg-gradient-to-r from-[#F2A33A] via-[#8B63E8] to-[#2DB39A] transition-[width] duration-100" style={{ width: `${pct}%` }} />
+      <div className={clsx("absolute inset-0 flex flex-col items-center justify-center transition-[opacity,transform] duration-700", phase === 0 ? "opacity-100" : "pointer-events-none scale-90 opacity-0")}>
+        <Lumi persona="producer" state="loading" className="w-[min(34%,340px)]" />
+        <p className="mt-1 font-mono text-[11px] tracking-[0.2em] text-white/60">LOADING STUDIO · {pct}%</p>
+        <div className="mt-2.5 h-[2px] w-[min(22%,220px)] overflow-hidden rounded-full bg-white/10">
+          <div className="h-full bg-gradient-to-r from-[#F2A33A] via-[#8B63E8] to-[#2DB39A] transition-[width] duration-100" style={{ width: `${pct}%` }} />
         </div>
-        <p className="relative font-mono text-[10px] text-white/40">{pct}%</p>
       </div>
+
+      {/* three windows */}
+      <div className="absolute inset-0 [perspective:1600px]">
+        <div
+          className={win}
+          style={{ left: "6%", top: "24%", width: "32%", aspectRatio: "16/10.6", opacity: phase >= 1 ? 0.85 : 0, filter: phase >= 1 ? "none" : "blur(10px)", transform: phase >= 1 ? "rotateY(16deg) translateZ(-60px)" : "rotateY(30deg) translateX(-12%) translateZ(-120px)" }}
+        >
+          {bar}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={`${C}sim-writer.webp`} alt="Writer stage" className="h-[93%] w-full object-cover object-top" />
+        </div>
+        <div
+          className={win}
+          style={{ right: "6%", top: "24%", width: "32%", aspectRatio: "16/10.6", opacity: phase >= 2 ? 0.85 : 0, filter: phase >= 2 ? "none" : "blur(10px)", transform: phase >= 2 ? "rotateY(-16deg) translateZ(-60px)" : "rotateY(-30deg) translateX(12%) translateZ(-120px)" }}
+        >
+          {bar}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={`${C}sim-director.webp`} alt="Director stage" className="h-[93%] w-full object-cover object-top" />
+        </div>
+        <div
+          className={clsx(win, "z-10 ring-white/25")}
+          style={{ left: "50%", top: "16%", width: "44%", aspectRatio: "16/10.6", opacity: phase >= 3 ? 1 : 0, filter: phase >= 3 ? "none" : "blur(12px)", transform: phase >= 3 ? "translateX(-50%)" : "translateX(-50%) translateY(10%) scale(.92)" }}
+        >
+          {bar}
+          <video className="h-[93%] w-full object-cover object-top" muted loop playsInline autoPlay poster={`${C}site-hero.webp`} aria-label="Main site first screen — the word Lumi types out and turns into Lumi">
+            <source src={`${C}site-hero.mp4`} type="video/mp4" />
+            <source src={`${C}site-hero.webm`} type="video/webm" />
+          </video>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** The billboard: a white-pearl Lumi that turns into the iridescent complete Lumi and hops. */
+export function BillboardLumi() {
+  const box = useRef<HTMLDivElement>(null);
+  const [persona, setPersona] = useState("pearl");
+  const [hop, setHop] = useState(0);
+  useEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    let ts: ReturnType<typeof setTimeout>[] = [];
+    const run = () => {
+      ts.forEach(clearTimeout);
+      ts = [];
+      setPersona("pearl");
+      ts.push(setTimeout(() => {
+        setPersona("complete");
+        setHop((h) => h + 1);
+      }, 1400));
+      ts.push(setTimeout(run, 7000));
+    };
+    const io = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) run();
+      else ts.forEach(clearTimeout);
+    }, { threshold: 0.5 });
+    io.observe(el);
+    return () => {
+      io.disconnect();
+      ts.forEach(clearTimeout);
+    };
+  }, []);
+  return (
+    <div ref={box} className="relative overflow-hidden rounded-2xl">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/media/tale/bi/billboard-wide.webp" alt="Billboard — 글 한 줄이 영상이 되기까지" loading="lazy" className="block w-full" />
+      <div className="absolute" style={{ left: "58.6%", top: "33.5%", width: "21.5%" }}>
+        <div key={hop} className={clsx(hop > 0 && "lumi-hop")}>
+          <Lumi persona={persona} state="idle" />
+        </div>
+      </div>
+      <span className="absolute bottom-3 left-3 rounded-full bg-black/55 px-3 py-1 font-mono text-[11px] text-white/85 backdrop-blur">
+        pearl → complete
+      </span>
+    </div>
+  );
+}
+
+/** The Lumi developer guide, as delivered — a living page, framed. */
+export function LumiGuide() {
+  return (
+    <div className="overflow-hidden rounded-2xl bg-[#1b1b1f] ring-1 ring-white/10">
+      <div className="flex items-center gap-2 border-b border-white/10 px-4 py-2.5">
+        <i className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
+        <i className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
+        <i className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
+        <span className="ml-3 truncate font-mono text-[11px] text-white/45">lumi-persona · developer guide</span>
+        <a href="/proto/lumi-guide/" target="_blank" rel="noopener noreferrer" className="ml-auto shrink-0 rounded-md bg-white/10 px-2.5 py-1 text-[11.5px] text-white/80 hover:bg-white/20">
+          Open ↗
+        </a>
+      </div>
+      <iframe src="/proto/lumi-guide/" title="Lumi persona developer guide" loading="lazy" className="block h-[min(82svh,860px)] w-full bg-white" />
     </div>
   );
 }
@@ -375,102 +474,107 @@ export function FlowChart() {
   );
 }
 
-// ---------------------------------------------------------------- stage show
 
-export const SHOW = [
-  { id: "producer", name: "Producer", color: "#F2A33A", line: "One line in. Lumi asks for genre, length and ratio with recommended cards, then sums it up.", lumi: "producer" },
-  { id: "writer", name: "Writer", color: "#E8606F", line: "Prose only. Pick a paragraph, ask for a change, compare and apply — or lock the prose and break it down.", lumi: "writer" },
-  { id: "artist", name: "Artist", color: "#8B63E8", line: "Lumi asks one question — which style — then draws the cast and sets as versioned cards.", lumi: "artist" },
-  { id: "storyboard", name: "Storyboard", color: "#5A6AE6", line: "Scenes split into shots and sketched as roughs; empty shots fill in while you watch.", lumi: "storyboard" },
-  { id: "director", name: "Director", color: "#3E9BE0", line: "Cast and sets wire into each shot as nodes; shots render to video one by one.", lumi: "director" },
-  { id: "editor", name: "Editor", color: "#2DB39A", line: "The shots land on a timeline — trim, add sound, preview and export.", lumi: "editor" },
+// ---------------------------------------------------------------- before / after
+
+export const CHANGES = [
+  {
+    id: "start",
+    tab: "Starting a project",
+    color: "#F2A33A",
+    before: { img: "old-start", note: "A format picker (short film, ad, music video…) came first — before there was any story — then a blank script box with no hint of what the AI needed." },
+    after: { video: "sim-producer", note: "Producer: write one line and Lumi asks one thing at a time — genre, length, ratio — with a recommended card already marked." },
+  },
+  {
+    id: "handoff",
+    tab: "Hand-off",
+    color: "#F2A33A",
+    before: { img: "old-handoff", note: "Every hand-off to the Writer opened a long confirmation sheet of settings on top of a live workspace." },
+    after: { img: "sim-producer", note: "One summary card — “Here’s how we’ll start” — with the ratio locked and a single yes. The screen locks while the AI writes." },
+  },
+  {
+    id: "writing",
+    tab: "Writing",
+    color: "#E8606F",
+    before: { img: "old-meeting", note: "Scene card, casting, sets and the script shared one screen that stayed editable while the agent kept talking." },
+    after: { video: "sim-writer", note: "Writer: prose only. Pick a paragraph, ask for a change, compare the revision in place and apply — then lock the prose." },
+  },
+  {
+    id: "style",
+    tab: "Cast & style",
+    color: "#8B63E8",
+    before: { img: "old-style", note: "The art style was picked mid-conversation, in a carousel layered over the Writer’s workspace." },
+    after: { img: "sim-artist-style", note: "Artist: once the prose is locked, Lumi asks the one question it needs — which style — in a single popup, then draws every cast member and set." },
+  },
+  {
+    id: "shots",
+    tab: "Shots",
+    color: "#5A6AE6",
+    before: { img: "old-writers", note: "The Writers’ Room also handled art and shots, so one stage did three jobs and its steps ran 01 to 15." },
+    after: { video: "sim-storyboard", note: "Storyboard gets its own stage: scenes split into shots and sketched as roughs before anything is rendered." },
+  },
 ] as const;
 
-/**
- * The renewed product in motion, stage by stage — recorded from the live
- * stage demo on the main site. Plays through on its own; tabs jump around.
- */
-export function StageShow() {
-  const [i, setI] = useState(0);
-  const [inView, setInView] = useState(false);
-  const [prog, setProg] = useState(0);
-  const root = useRef<HTMLDivElement>(null);
-  const vids = useRef<(HTMLVideoElement | null)[]>([]);
-
-  useEffect(() => {
-    const el = root.current;
-    if (!el) return;
-    const io = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { threshold: 0.35 });
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
-
-  useEffect(() => {
-    vids.current.forEach((v, k) => {
-      if (!v) return;
-      if (k === i && inView) {
-        v.currentTime = 0;
-        v.play().catch(() => {});
-      } else v.pause();
-    });
-  }, [i, inView]);
-
-  const s = SHOW[i];
+function Frame({ label, tone, children }: { label: string; tone: "before" | "after"; children: React.ReactNode }) {
   return (
-    <div ref={root}>
-      <div role="tablist" aria-label="Stage" className="no-scrollbar -mx-5 flex gap-2 overflow-x-auto px-5 md:mx-0 md:flex-wrap md:justify-center md:px-0">
-        {SHOW.map((x, k) => (
+    <figure>
+      <div className="mb-2 flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.16em]">
+        <span className={clsx("h-1.5 w-1.5 rounded-full", tone === "before" ? "bg-white/35" : "bg-[#2DB39A]")} />
+        <span className={tone === "before" ? "text-white/45" : "text-white/80"}>{label}</span>
+      </div>
+      <div className={clsx("rounded-[12px] p-[1.2%] ring-1", tone === "before" ? "bg-[#151518] ring-white/10" : "bg-[#1b1b1f] ring-white/20")}>
+        <div className="relative aspect-[16/10] overflow-hidden rounded-[6px] bg-black">{children}</div>
+      </div>
+    </figure>
+  );
+}
+
+/** Each change on its own: pick it above, see before and after side by side. */
+export function BeforeAfter() {
+  const [i, setI] = useState(0);
+  const c = CHANGES[i];
+  return (
+    <div>
+      <div role="tablist" aria-label="Change" className="no-scrollbar -mx-5 flex gap-2 overflow-x-auto px-5 md:mx-0 md:flex-wrap md:px-0">
+        {CHANGES.map((x, k) => (
           <button
             key={x.id}
             type="button"
             role="tab"
             aria-selected={k === i}
             onClick={() => setI(k)}
-            className={clsx(
-              "relative flex h-12 shrink-0 items-center gap-2 overflow-hidden rounded-2xl pl-2 pr-4 text-[13.5px] font-medium ring-1 backdrop-blur transition-colors",
-              k === i ? "bg-white/[0.08] text-white ring-white/30" : "bg-white/[0.03] text-white/55 ring-white/10 hover:text-white"
-            )}
+            className={clsx("flex h-10 shrink-0 items-center gap-2 rounded-xl px-4 text-[13.5px] transition-colors", k === i ? "text-black" : "bg-white/[0.05] text-white/65 ring-1 ring-white/10 hover:text-white")}
+            style={k === i ? { background: x.color } : undefined}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={`/media/tale/lumi/${x.lumi}.webp`} alt="" className="h-9 w-9 object-contain" />
-            {x.name}
-            {k === i && <span className="absolute bottom-0 left-0 h-[2px]" style={{ width: `${prog * 100}%`, background: x.color }} />}
+            <span className="font-mono text-[10.5px] opacity-60">{String(k + 1).padStart(2, "0")}</span>
+            {x.tab}
           </button>
         ))}
       </div>
 
-      <div className="relative mt-5">
-        <div className="absolute -inset-x-10 -inset-y-6 -z-10 opacity-60 blur-3xl transition-colors duration-700" style={{ background: `radial-gradient(50% 50% at 50% 50%, ${s.color}33, transparent 70%)` }} />
-        <div className="rounded-[16px] bg-[#1b1b1f] p-[0.8%] shadow-[0_40px_80px_-30px_rgba(0,0,0,0.7)] ring-1 ring-white/10">
-          <div className="relative aspect-[1152/720] overflow-hidden rounded-[8px] bg-[#1f1e1d]">
-            {SHOW.map((x, k) => (
-              <video
-                key={x.id}
-                ref={(v) => {
-                  vids.current[k] = v;
-                }}
-                poster={`/media/tale/case/sim-${x.id}.webp`}
-                muted
-                playsInline
-                preload={k === 0 ? "auto" : "metadata"}
-                onTimeUpdate={(e) => k === i && setProg(e.currentTarget.currentTime / (e.currentTarget.duration || 1))}
-                onEnded={() => k === i && setI((i + 1) % SHOW.length)}
-                className={clsx("absolute inset-0 h-full w-full object-cover transition-opacity duration-500", k === i ? "opacity-100" : "opacity-0")}
-                aria-label={`${x.name} stage in motion`}
-              >
-                <source src={`/media/tale/case/sim-${x.id}.mp4`} type="video/mp4" />
-                <source src={`/media/tale/case/sim-${x.id}.webm`} type="video/webm" />
+      <div key={c.id} className="flow-in mt-6 grid gap-6 md:grid-cols-2">
+        <div>
+          <Frame label="Before" tone="before">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={`${C}${c.before.img}.webp`} alt={`Before — ${c.tab}`} className="h-full w-full object-cover object-top" />
+          </Frame>
+          <p className="mt-3 text-[14px] leading-[1.65] text-white/55">{c.before.note}</p>
+        </div>
+        <div>
+          <Frame label="After" tone="after">
+            {"video" in c.after ? (
+              <video key={c.after.video} className="h-full w-full object-cover object-top" muted loop playsInline autoPlay poster={`${C}${c.after.video}.webp`} aria-label={`After — ${c.tab}`}>
+                <source src={`${C}${c.after.video}.mp4`} type="video/mp4" />
+                <source src={`${C}${c.after.video}.webm`} type="video/webm" />
               </video>
-            ))}
-          </div>
+            ) : (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={`${C}${c.after.img}.webp`} alt={`After — ${c.tab}`} className="h-full w-full object-cover object-top" />
+            )}
+          </Frame>
+          <p className="mt-3 text-[14px] leading-[1.65] text-white/80">{c.after.note}</p>
         </div>
       </div>
-      <p className="mx-auto mt-5 max-w-[60ch] text-center text-[15px] leading-[1.6] text-white/70">
-        <b className="font-medium" style={{ color: s.color }}>
-          {s.name}.
-        </b>{" "}
-        {s.line}
-      </p>
     </div>
   );
 }

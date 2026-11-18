@@ -1,9 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import Script from "next/script";
 import { useEffect, useRef, useState } from "react";
 import clsx from "clsx";
-import { FlowChart, HeroReel, OldFlow, StageShow } from "./tale-parts";
+import { BeforeAfter, BillboardLumi, FlowChart, HeroStage, LumiGuide, OldFlow } from "./tale-parts";
+
+/** Where “Open the website” points. */
+const SITE_URL = "#";
 
 const C = "/media/tale/case/";
 const L = "/media/tale/lumi/";
@@ -44,18 +48,6 @@ const NEUTRALS = [
 ];
 
 // ---------------------------------------------------------------- pieces
-
-/** A desktop display drawn in CSS around a real screen. */
-function Display({ src, alt, className, style }: { src: string; alt: string; className?: string; style?: React.CSSProperties }) {
-  return (
-    <figure className={clsx(!className?.includes("absolute") && "relative", className)} style={style}>
-      <div className="rounded-[14px] bg-[#1b1b1f] p-[1.1%] shadow-[0_40px_80px_-30px_rgba(0,0,0,0.6)] ring-1 ring-white/10">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={src} alt={alt} loading="lazy" className="block w-full rounded-[6px]" />
-      </div>
-    </figure>
-  );
-}
 
 function Label({ children }: { children: React.ReactNode }) {
   return <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-white/45">{children}</p>;
@@ -101,110 +93,6 @@ function useReveal() {
   return ref;
 }
 
-/** Drag to compare the planning prototype with the shipped design. */
-function Compare({ before, after, beforeLabel, afterLabel }: { before: string; after: string; beforeLabel: string; afterLabel: string }) {
-  const [x, setX] = useState(50);
-  const box = useRef<HTMLDivElement>(null);
-  const drag = (clientX: number) => {
-    const r = box.current!.getBoundingClientRect();
-    setX(Math.min(100, Math.max(0, ((clientX - r.left) / r.width) * 100)));
-  };
-  return (
-    <div className="select-none">
-      <div
-        ref={box}
-        className="relative aspect-[16/10] cursor-ew-resize overflow-hidden rounded-2xl bg-black ring-1 ring-white/10"
-        onPointerDown={(e) => {
-          (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
-          drag(e.clientX);
-        }}
-        onPointerMove={(e) => e.buttons && drag(e.clientX)}
-      >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={after} alt={afterLabel} loading="lazy" className="absolute inset-0 h-full w-full object-cover object-top" />
-        <div className="absolute inset-0" style={{ clipPath: `inset(0 ${100 - x}% 0 0)` }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={before} alt={beforeLabel} loading="lazy" className="absolute inset-0 h-full w-full object-cover object-top" />
-        </div>
-        <div className="pointer-events-none absolute inset-y-0 w-px bg-white" style={{ left: `${x}%` }}>
-          <span className="absolute left-1/2 top-1/2 flex h-10 w-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white text-[13px] text-black shadow-lg">
-            ⇆
-          </span>
-        </div>
-        <span className="absolute left-3 top-3 rounded-full bg-black/70 px-3 py-1 font-mono text-[11px] text-white">{beforeLabel}</span>
-        <span className="absolute right-3 top-3 rounded-full bg-white/90 px-3 py-1 font-mono text-[11px] text-black">{afterLabel}</span>
-      </div>
-      <label className="mt-3 flex items-center gap-3 font-mono text-[11px] text-white/45">
-        <span className="sr-only">Compare position</span>
-        <input type="range" min={0} max={100} value={x} onChange={(e) => setX(+e.target.value)} className="w-full accent-white" />
-      </label>
-    </div>
-  );
-}
-
-/** Pick a stage, see that stage's Lumi, its states and its role. */
-function LumiPicker() {
-  const [i, setI] = useState(0);
-  const s = STAGES[i];
-  return (
-    <div className="grid gap-4 lg:grid-cols-[1.1fr_1fr]">
-      <div
-        className="relative flex aspect-square items-end overflow-hidden rounded-3xl p-6 transition-colors duration-700 md:p-8"
-        style={{ background: `linear-gradient(160deg, ${s.color}ee, ${s.color})` }}
-      >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img key={s.id} src={`${L}${s.id}-xl.webp`} alt={`Lumi as ${s.name}`} className="lumi-pop absolute left-1/2 top-[44%] w-[62%]" />
-        <p className="relative text-[clamp(28px,4vw,44px)] font-semibold tracking-[-0.03em] text-black/85">{s.name}</p>
-      </div>
-      <div className="flex flex-col gap-4">
-        <div className="grid grid-cols-3 gap-2 sm:grid-cols-6 lg:grid-cols-3">
-          {STAGES.map((x, k) => (
-            <button
-              key={x.id}
-              type="button"
-              onClick={() => setI(k)}
-              onMouseEnter={() => setI(k)}
-              aria-pressed={k === i}
-              className={clsx("flex flex-col items-center gap-1 rounded-2xl border p-2 transition-colors", k === i ? "border-transparent" : "border-white/10 hover:border-white/30")}
-              style={k === i ? { background: x.color } : undefined}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={`${L}${x.id}.webp`} alt="" className="h-12 w-12 object-contain" loading="lazy" />
-              <span className={clsx("text-[12px] font-medium", k === i ? "text-black" : "text-white/80")}>{x.name}</span>
-            </button>
-          ))}
-        </div>
-        <dl className="divide-y divide-white/10 rounded-2xl border border-white/10 px-5 text-[14px]">
-          {[
-            ["Role", s.role],
-            ["Colour", s.color],
-            ["Prop", s.prop],
-            ["Personality", s.mood],
-          ].map(([k, v]) => (
-            <div key={k} className="grid grid-cols-[110px_1fr] gap-3 py-3">
-              <dt className="font-mono text-[11px] uppercase tracking-wide text-white/45">{k}</dt>
-              <dd className="text-white/85">{v}</dd>
-            </div>
-          ))}
-        </dl>
-        <div className="flex items-start gap-3 rounded-2xl bg-[#1f1e1d] p-4">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={`${L}${s.id}.webp`} alt="" className="h-10 w-10 object-contain" />
-          <div className="rounded-2xl bg-white/5 px-4 py-3 text-[14px]">
-            <p className="text-[12px]" style={{ color: s.color }}>
-              Lumi <span className="text-white/45">{s.name}</span>
-            </p>
-            <p className="mt-0.5">“{s.line}”</p>
-          </div>
-        </div>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={`${C}lumi-row-${s.id}.webp`} alt={`${s.name} Lumi: idle, listening, thinking, complete, error, loading`} className="w-full rounded-2xl bg-[#f3f1ec]" loading="lazy" />
-        <p className="-mt-2 font-mono text-[11px] text-white/40">idle · listening · thinking · complete · error · loading</p>
-      </div>
-    </div>
-  );
-}
-
 // ---------------------------------------------------------------- page
 
 export function TaleCase() {
@@ -232,6 +120,8 @@ export function TaleCase() {
 
   return (
     <div ref={ref} className="tale-case bg-[#0b0b0f] text-white">
+      {/* The real Lumi: the <lumi-persona> web component from the Lumi dev guide */}
+      <Script src="/media/tale/lumi-persona.js" strategy="afterInteractive" />
       {/* Close / back to the database */}
       <Link
         href="/#portfolio"
@@ -278,29 +168,9 @@ export function TaleCase() {
           </div>
         </div>
 
-        {/* Mockups */}
-        <div className="mx-auto mt-12 max-w-[1280px] px-3 md:mt-16 md:px-8">
-          <div className="relative overflow-hidden rounded-t-[36px] bg-gradient-to-b from-[#d9d7d0] to-[#a9a7a0] px-[4%] pb-0 pt-[5%] [perspective:1800px]">
-            <div className="relative mx-auto max-w-[1080px]">
-              <Display
-                src={`${C}sim-producer.webp`}
-                alt="Producer stage with Lumi"
-                className="hero-left absolute left-[-6%] top-[8%] w-[52%] opacity-95"
-                style={{ transform: "rotateY(22deg) rotateZ(-2deg)" }}
-              />
-              <Display
-                src={`${C}sim-director.webp`}
-                alt="Director node view"
-                className="hero-right absolute right-[-6%] top-[8%] w-[52%] opacity-95"
-                style={{ transform: "rotateY(-22deg) rotateZ(2deg)" }}
-              />
-              <figure className="relative z-10 mx-auto w-[72%]">
-                <div className="rounded-[14px] bg-[#1b1b1f] p-[1.1%] shadow-[0_40px_80px_-30px_rgba(0,0,0,0.6)] ring-1 ring-white/10">
-                  <HeroReel />
-                </div>
-              </figure>
-            </div>
-          </div>
+        {/* Hero stage */}
+        <div className="mx-auto mt-12 max-w-[1180px] px-3 pb-4 md:mt-16 md:px-8">
+          <HeroStage />
         </div>
       </header>
 
@@ -441,7 +311,15 @@ export function TaleCase() {
               <div key={s.label}>
                 <div className="flex aspect-[16/9] items-center justify-center gap-3 rounded-2xl" style={{ background: s.bg }}>
                   {s.mono ? (
-                    <span className="block h-9 w-9 rounded-[10px] bg-white" />
+                    <span
+                      aria-hidden
+                      className="block h-9 w-9"
+                      style={{
+                        background: "linear-gradient(135deg, #fff 0%, rgba(255,255,255,.92) 45%, rgba(255,255,255,.55) 100%)",
+                        WebkitMask: "url(/media/tale/tale-symbol.svg) center / contain no-repeat",
+                        mask: "url(/media/tale/tale-symbol.svg) center / contain no-repeat",
+                      }}
+                    />
                   ) : (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src="/media/tale/tale-symbol.svg" alt="" className="h-9" />
@@ -516,11 +394,9 @@ export function TaleCase() {
                 ["goods-1", "Goods"],
                 ["sign-lobby", "Lobby sign", "md:col-span-2"],
                 ["subway", "Subway ad"],
-                ["billboard", "Billboard"],
                 ["mobile", "Mobile"],
                 ["web", "Website"],
-                ["desktop", "Desktop", "md:col-span-2"],
-                ["sign-ext", "Exterior sign"],
+                ["sign-ext", "Exterior sign", "md:col-span-2"],
               ].map(([f, t, span]) => (
                 <figure key={f} className={clsx("group overflow-hidden rounded-2xl bg-white/5", span)}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -529,6 +405,9 @@ export function TaleCase() {
                 </figure>
               ))}
             </div>
+            <div className="mt-3">
+              <BillboardLumi />
+            </div>
           </div>
         </div>
       </section>
@@ -536,7 +415,7 @@ export function TaleCase() {
       {/* ================================================= CHARACTER */}
       <section id="character" className="scroll-mt-10 border-t border-white/10 py-24 md:py-32">
         <div className="mx-auto max-w-[1100px] px-5 md:px-8">
-          <div data-r className="grid gap-10 md:grid-cols-[1fr_1fr] md:items-center">
+          <div data-r className="max-w-[820px]">
             <div>
               <Label>02 · Character</Label>
               <div className="mt-4"><H2>Lumi — an AI teammate with a tail.</H2></div>
@@ -556,43 +435,15 @@ export function TaleCase() {
                 ))}
               </dl>
             </div>
-            <div className="relative aspect-square overflow-hidden rounded-3xl bg-[#121116]">
-              <video src="/media/tale/lumi-complete.mp4" poster="/media/tale/lumi-complete.webp" autoPlay muted loop playsInline className="h-full w-full object-cover" />
-              <span className="absolute bottom-4 left-4 rounded-full bg-black/50 px-3 py-1 font-mono text-[11px] text-white/80">Lumi · complete</span>
-            </div>
           </div>
 
-          {/* Growth lineup */}
-          <div data-r className="mt-16 overflow-hidden rounded-3xl bg-[#f3f1ec] px-4 py-10 text-[#141312] md:px-8">
-            <p className="font-mono text-[11px] text-black/45">GROWTH · starts as a white pearl, puts on each stage’s colour, ends as an iridescent pearl</p>
-            <div className="no-scrollbar mt-6 flex snap-x gap-2 overflow-x-auto md:grid md:grid-cols-8 md:overflow-visible">
-              {[["pearl", "White pearl"], ...STAGES.map((s) => [s.id, s.name]), ["complete", "Complete"]].map(([id, n], k) => (
-                <div key={id} className="lineup w-[30%] shrink-0 snap-start text-center md:w-auto" style={{ animationDelay: `${k * 90}ms` }}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={`${L}${id}.webp`} alt={n} loading="lazy" className="mx-auto w-full max-w-[120px] transition-transform duration-500 hover:-translate-y-2" />
-                  <p className="mt-2 text-[12.5px] font-medium">{n}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Stage picker */}
-          <div data-r className="mt-20">
-            <H3>Six stages, six outfits.</H3>
-            <P className="mt-3 mb-8">Each stage has its own colour, prop and personality. The colour also drives the product: the chat name, the stage badge and the progress bar all wear it. Pick one.</P>
-            <LumiPicker />
-          </div>
-
-          {/* In product */}
-          <div data-r className="mt-20 grid gap-4 md:grid-cols-2">
-            <div>
-              <Display src={`${C}sim-producer.webp`} alt="Lumi asking about length and ratio on the Producer stage" />
-              <p className="mt-3 text-[14px] text-white/60"><b className="font-medium text-white">Guiding.</b> Lumi asks one thing at a time — length, then ratio — with a recommended card already marked.</p>
-            </div>
-            <div>
-              <Display src={`${C}v3-as.webp`} alt="Lumi asking which style to draw" />
-              <p className="mt-3 text-[14px] text-white/60"><b className="font-medium text-white">Asking.</b> Before the AI works, Lumi asks the one question it needs — here, which style to draw the cast in.</p>
-            </div>
+          {/* The guide itself */}
+          <div data-r className="mt-14">
+            <H3>Handed over as a living guide.</H3>
+            <P className="mt-3 mb-8">
+              Lumi ships as one web component, <code className="rounded bg-white/10 px-1.5 py-0.5 font-mono text-[13px]">&lt;lumi-persona&gt;</code>: eight personas, six states and the stage-to-stage loading scenes. This is the developer guide exactly as delivered — pick a persona and state, and it writes the code.
+            </P>
+            <LumiGuide />
           </div>
         </div>
       </section>
@@ -605,51 +456,40 @@ export function TaleCase() {
             <div className="mt-4"><H2>Stages by the work they do — every branch designed before a single screen.</H2></div>
           </div>
 
-          <div data-r className="mt-12 grid gap-10 md:grid-cols-2">
-            <div>
-              <p className="font-mono text-[11px] uppercase tracking-wide text-white/45">Problem</p>
-              <P className="mt-3">
-                Stages were tangled. Writer handled prose, then drawings and shots, with checks like a runtime gate at every hand-off. Parts of the screen stayed live while the AI worked, so requests collided — and design and engineering struggled to share one picture of what was changing where.
-              </P>
-            </div>
-            <div>
-              <p className="font-mono text-[11px] uppercase tracking-wide text-white/45">Goal</p>
-              <P className="mt-3">
-                Re-split the stages by the work each one does, design every branch and exception first, and deliver it in a form you can click through and hand straight to engineering.
-              </P>
-            </div>
-          </div>
-
-          {/* The previous service */}
-          <div data-r className="mt-16">
-            <H3>Where it started — the previous service.</H3>
+          {/* 01 · Problems found */}
+          <div data-r className="mt-14">
+            <Label>01 · What was broken</Label>
+            <div className="mt-3"><H3>Auditing the flow first: five problems.</H3></div>
             <P className="mt-3">
-              The first version was organised around five AI crews in one conversation: a Producer in the Meeting Room, a Writer in the Writers’ Room, then Artist, Director and Editor. On paper it was a clean hand-off; on screen, one stage did several jobs at once.
+              The first version ran on five AI crews in one conversation — a Producer in the Meeting Room, a Writer in the Writers’ Room, then Artist, Director and Editor. On paper, a clean hand-off. Walking every step of the live product said otherwise.
             </P>
             <div className="mt-8"><OldFlow /></div>
             <p className="mt-3 font-mono text-[11px] text-white/40">Previous service plan v1.0 · overall workflow (redrawn in English)</p>
-            <div className="mt-10 grid gap-4 md:grid-cols-2">
+            <ol className="mt-10 grid gap-3 md:grid-cols-2">
               {[
-                ["old-start", "Start", "A format picker first — short film, ad, music video… — before any story existed."],
-                ["old-idea", "Idea input", "A raw script box with no guidance on length or what the AI needs."],
-                ["old-meeting", "Meeting Room", "Scene, cast, sets and script on one live screen while the agent kept talking."],
-                ["old-style", "Style pick", "Style chosen mid-conversation, on top of a workspace that stayed editable."],
-                ["old-handoff", "Hand-off check", "A long confirmation sheet at every hand-off to the Writer."],
-                ["old-writers", "Writers’ Room", "Writer did prose, then art and shots — stages tangled together."],
-              ].map(([f, t, d]) => (
-                <figure key={f}>
-                  <Display src={`${C}${f}.webp`} alt={`Previous service — ${t}`} />
-                  <figcaption className="mt-3 text-[14px] leading-[1.6] text-white/60">
-                    <b className="font-medium text-white">{t}.</b> {d}
-                  </figcaption>
-                </figure>
+                ["Stages were tangled", "The Writer wrote prose, then drew and split shots — Writer 01 to 15 — so one stage did three jobs and nobody could say where the art came from."],
+                ["The screen stayed live while the AI worked", "You could keep typing and editing mid-generation, so requests collided and results overwrote each other."],
+                ["Settings before story", "A format picker and language choices came before there was a single line of story."],
+                ["Heavy hand-offs", "Every move to the next crew opened a long confirmation sheet and a runtime check."],
+                ["Only the happy path was designed", "No states for a wrong file, too little text, a failed read — or for going back when the cast changed."],
+              ].map(([t, d], k) => (
+                <li key={t} className={clsx("rounded-2xl bg-[#E8606F]/[0.07] p-5 ring-1 ring-[#E8606F]/25", k === 4 && "md:col-span-2")}>
+                  <p className="font-mono text-[11px] text-[#ff9aa6]">ISSUE 0{k + 1}</p>
+                  <p className="mt-1 text-[16px] font-medium">{t}</p>
+                  <p className="mt-1.5 text-[14px] leading-[1.6] text-white/60">{d}</p>
+                </li>
               ))}
-            </div>
+            </ol>
           </div>
 
+          {/* 02 · What I changed */}
+          <div data-r className="mt-20">
+            <Label>02 · What I changed</Label>
+            <div className="mt-3 mb-8"><H3>Re-split the stages by the work they do.</H3></div>
+          </div>
           {/* Architecture before / after */}
-          <div data-r className="mt-16 rounded-3xl bg-white/[0.03] p-6 ring-1 ring-white/10 md:p-10">
-            <H3>Architecture, before → after</H3>
+          <div data-r className="rounded-3xl bg-white/[0.03] p-6 ring-1 ring-white/10 md:p-10">
+            <p className="font-mono text-[11px] uppercase tracking-wide text-white/45">Architecture</p>
             {[
               { k: "Before", steps: ["P1 setup", "P2 Producer", "Writer 01–04 scenes", "Hand-off runtime check", "Writer 05–15 art, shots", "Artist (auto)", "Director"], warn: [3, 4] },
               { k: "After", steps: ["Producer · idea & terms", "Writer · prose only", "Lock prose", "Artist · cast & sets", "Storyboard · shots", "Director", "Editor"], ok: [2] },
@@ -690,64 +530,27 @@ export function TaleCase() {
             </div>
           </div>
 
-          {/* The flow, designed */}
+          {/* 03 · The flow */}
           <div data-r className="mt-20">
-            <H3>The flow, designed — every branch before a single screen.</H3>
+            <Label>03 · The flow</Label>
+            <div className="mt-3"><H3>Every branch before a single screen.</H3></div>
             <P className="mt-3 mb-8">
               For each stage I mapped the happy path, every yes/no branch, the error states, where the AI locks the screen and where rollback is allowed. The flow chart, the clickable prototype and the developer spec share one set of node IDs. Pick a stage and drag around.
             </P>
             <FlowChart />
           </div>
 
-          {/* Before / after */}
+          {/* 04 · Screens */}
           <div data-r className="mt-20">
-            <H3>Before → after.</H3>
-            <P className="mt-3 mb-8">Drag to compare the previous service with the renewed v3 for the same step.</P>
-            <div className="grid gap-8">
-              <Compare before={`${C}old-start.webp`} after={`${C}sim-producer.webp`} beforeLabel="Before · Start" afterLabel="After · Producer" />
-              <div className="grid gap-8 md:grid-cols-2">
-                <Compare before={`${C}old-writers.webp`} after={`${C}sim-writer.webp`} beforeLabel="Before · Writers’ Room" afterLabel="After · Writer" />
-                <Compare before={`${C}old-style.webp`} after={`${C}sim-artist.webp`} beforeLabel="Before · Style" afterLabel="After · Artist" />
-              </div>
-            </div>
-          </div>
-
-          {/* Front: the main site */}
-          <div data-r className="mt-20">
-            <H3>The front — main site.</H3>
-            <P className="mt-3">
-              The marketing site is the first screen people meet: one line in, a film out. The hero takes a story right away, then walks through what each stage does, the stories made with Tale, pricing by Takes, and FAQ.
-            </P>
-            <Display src={`${C}site-home.webp`} alt="Main site — hero" className="mt-8" />
-            <div className="mt-4 grid gap-4 md:grid-cols-3">
-              {[
-                ["site-stages", "Six stages, one line"],
-                ["site-write", "It writes with you"],
-                ["site-service", "Service page"],
-                ["site-features", "Chat planning · cast boards"],
-                ["site-board", "Storyboard first"],
-                ["site-pricing", "Pricing by Takes"],
-              ].map(([f, t]) => (
-                <figure key={f}>
-                  <Display src={`${C}${f}.webp`} alt={`Main site — ${t}`} />
-                  <figcaption className="mt-2 text-[13px] text-white/55">{t}</figcaption>
-                </figure>
-              ))}
-            </div>
-          </div>
-
-          {/* After: the product in motion */}
-          <div data-r className="mt-24">
-            <H3>After — the product, stage by stage.</H3>
-            <P className="mt-3 mb-10">
-              One line becomes a film: Lumi plans it, writes the prose, draws the cast, boards the shots, renders and cuts. Recorded from the live stage demo on the main site — it plays through on its own, or pick a stage.
-            </P>
-            <StageShow />
+            <Label>04 · Screens, before → after</Label>
+            <div className="mt-3"><H3>Change by change.</H3></div>
+            <P className="mt-3 mb-8">Pick a change to see the old screen next to the renewed one.</P>
+            <BeforeAfter />
           </div>
 
           <div data-r className="mt-14 flex flex-wrap gap-2">
-            <a href="/proto/tale-studio/" target="_blank" rel="noopener noreferrer" className="rounded-xl bg-white px-5 py-3 text-[14px] font-medium text-black hover:bg-white/85">
-              Open the prototype ↗
+            <a href={SITE_URL} target="_blank" rel="noopener noreferrer" className="rounded-xl bg-white px-5 py-3 text-[14px] font-medium text-black hover:bg-white/85">
+              Open the website ↗
             </a>
           </div>
         </div>
