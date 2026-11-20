@@ -119,7 +119,7 @@ export function TaleCase() {
   }, []);
 
   return (
-    <div ref={ref} className="tale-case bg-[#1c1b1a] text-white">
+    <div ref={ref} className="tale-case overflow-x-clip bg-[#1c1b1a] text-white">
       {/* The real Lumi: the <lumi-persona> web component from the Lumi dev guide */}
       <Script src="/media/tale/lumi-persona.js" strategy="afterInteractive" />
       {/* Close / back to the database */}
@@ -149,7 +149,7 @@ export function TaleCase() {
 
       {/* ================================================= HERO (light) */}
       <header className="bg-[#f3f2ee] pt-24 text-[#141312] md:pt-28">
-        <div className="mx-auto max-w-[1120px] px-8 md:px-16">
+        <div className="mx-auto max-w-[1120px] px-6 md:px-16">
           <p className="font-mono text-[12px] tracking-wide text-black/50">TALE STUDIO</p>
           <h1 className="mt-3 max-w-[16ch] text-[clamp(38px,6vw,72px)] font-medium leading-[1.02] tracking-[-0.045em]">
             Your tale deserves a take — brand, character and product, end to end.
@@ -169,14 +169,14 @@ export function TaleCase() {
         </div>
 
         {/* Hero stage */}
-        <div className="mx-auto mt-12 max-w-[1120px] px-5 pb-4 md:mt-16 md:px-16">
+        <div className="mx-auto mt-12 max-w-[1120px] px-4 pb-4 md:mt-16 md:px-16">
           <HeroStage />
         </div>
       </header>
 
       {/* ================================================= META */}
       <section className="bg-[#f3f2ee] pb-20 text-[#141312] md:pb-28">
-        <div className="mx-auto grid max-w-[1120px] gap-10 border-t border-black/10 px-8 pt-12 md:grid-cols-[1fr_1.4fr] md:px-16">
+        <div className="mx-auto grid max-w-[1120px] gap-10 border-t border-black/10 px-6 pt-12 md:grid-cols-[1fr_1.4fr] md:px-16">
           <dl className="space-y-6 text-[14.5px]">
             <div>
               <dt className="font-mono text-[11px] uppercase tracking-wide text-black/45">Client</dt>
@@ -208,7 +208,7 @@ export function TaleCase() {
                 ["UX/UI renewal", "Re-split the product into six stages, drew every branch, error and rollback as flow charts, then designed every screen in Figma and shipped v3."],
                 ["Prototype & handoff", "A single HTML file where flow, screens and the before → after spec point at each other by screen ID."],
               ].map(([t, d]) => (
-                <li key={t} className="grid grid-cols-[130px_1fr] gap-4 border-b border-black/10 pb-3">
+                <li key={t} className="grid gap-1 border-b border-black/10 pb-3 sm:grid-cols-[130px_1fr] sm:gap-4">
                   <b className="font-medium">{t}</b>
                   <span className="text-black/65">{d}</span>
                 </li>
@@ -219,8 +219,8 @@ export function TaleCase() {
       </section>
 
       {/* ================================================= OVERVIEW */}
-      <section id="overview" className="scroll-mt-10 rounded-t-[40px] bg-[#1c1b1a] py-28 md:py-40">
-        <div className="mx-auto max-w-[1040px] px-8 md:px-16">
+      <section id="overview" className="scroll-mt-10 rounded-t-[40px] bg-[#1c1b1a] py-20 md:py-40">
+        <div className="mx-auto max-w-[1040px] px-6 md:px-16">
           <div data-r className="mx-auto max-w-[760px] text-center">
             <Label>Overview</Label>
             <p className="mt-6 text-[clamp(22px,2.6vw,32px)] font-medium leading-[1.35] tracking-[-0.025em]">
@@ -253,8 +253,8 @@ export function TaleCase() {
       </section>
 
       {/* ================================================= BRAND */}
-      <section id="brand" className="scroll-mt-10 border-t border-white/10 py-28 md:py-40">
-        <div className="mx-auto max-w-[1040px] px-8 md:px-16">
+      <section id="brand" className="scroll-mt-10 border-t border-white/10 py-20 md:py-40">
+        <div className="mx-auto max-w-[1040px] px-6 md:px-16">
           <div data-r>
             <Label>01 · Logo & BI</Label>
             <div className="mt-4"><H2>Tale = tail. A story you can grab by its tail.</H2></div>
@@ -333,7 +333,7 @@ export function TaleCase() {
                   <p className="text-[16px] font-medium">Mark</p>
                   <p className="mt-1 text-[13.5px] leading-[1.55] text-white/55">Only in the symbol. Warm for the first three stages, cool for the last three.</p>
                 </div>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid gap-3 sm:grid-cols-2">
                   {[LOGO_COLORS.slice(0, 3), LOGO_COLORS.slice(3)].map((g, k) => (
                     <div key={k}>
                       <div className="h-14 rounded-xl" style={{ background: `linear-gradient(90deg, ${g.map((c) => c.h).join(", ")})` }} />
@@ -358,7 +358,7 @@ export function TaleCase() {
                       <span key={c.h} className="flex-1" style={{ background: c.h }} title={`${c.n} ${c.h}`} />
                     ))}
                   </div>
-                  <p className="mt-2 grid grid-cols-6 font-mono text-[10.5px] text-white/45">
+                  <p className="mt-2 hidden grid-cols-6 font-mono text-[10.5px] text-white/45 sm:grid">
                     {NEUTRALS.map((c) => (
                       <span key={c.h}>{c.h}</span>
                     ))}
@@ -385,16 +385,16 @@ export function TaleCase() {
 
           {/* Type */}
           <div data-r className="mt-20 grid gap-4 md:grid-cols-[1.4fr_1fr]">
-            <div className="rounded-3xl bg-[#F5F4EE] p-8 text-[#141312]">
+            <div className="rounded-3xl bg-[#F5F4EE] p-6 text-[#141312] sm:p-8">
               <p className="font-mono text-[11px] text-black/45">KOREAN · LATIN</p>
               <p className="mt-2 text-[clamp(48px,7vw,88px)] font-extrabold leading-none tracking-[-0.045em]">Pretendard</p>
-              <p className="mt-6 text-[26px] font-light">가나다라 이야기 Aa Bb 123</p>
-              <p className="text-[26px] font-medium">가나다라 이야기 Aa Bb 123</p>
-              <p className="text-[26px] font-bold">가나다라 이야기 Aa Bb 123</p>
+              <p className="mt-6 text-[18px] font-light sm:text-[26px]">가나다라 이야기 Aa Bb 123</p>
+              <p className="text-[18px] font-medium sm:text-[26px]">가나다라 이야기 Aa Bb 123</p>
+              <p className="text-[18px] font-bold sm:text-[26px]">가나다라 이야기 Aa Bb 123</p>
             </div>
             <div className="flex flex-col justify-between rounded-3xl bg-white/[0.04] p-8 ring-1 ring-white/10">
               <p className="font-mono text-[11px] text-white/45">NUMERALS · INTER</p>
-              <p className="text-[56px] font-semibold leading-none tracking-[-0.03em]">0:05 · 9:16</p>
+              <p className="text-[44px] font-semibold leading-none tracking-[-0.03em] sm:text-[56px]">0:05 · 9:16</p>
               <p className="text-[13px] text-white/55">Time, credits and ratios. H1 64 ExtraBold · H2 40 Bold · body 15–16 at 155%.</p>
             </div>
           </div>
@@ -439,8 +439,8 @@ export function TaleCase() {
       </section>
 
       {/* ================================================= CHARACTER */}
-      <section id="character" className="scroll-mt-10 border-t border-white/10 py-28 md:py-40">
-        <div className="mx-auto max-w-[1040px] px-8 md:px-16">
+      <section id="character" className="scroll-mt-10 border-t border-white/10 py-20 md:py-40">
+        <div className="mx-auto max-w-[1040px] px-6 md:px-16">
           <div data-r className="max-w-[820px]">
             <div>
               <Label>02 · Character</Label>
@@ -448,7 +448,7 @@ export function TaleCase() {
               <P className="mt-5">
                 A round jelly body, a tail of light flowing to the lower left, two tall oval eyes — and no mouth or arms. The tail is the same tail as the symbol, so it is never removed or shortened. Lumi changes outfit and colour at every stage and works next to you.
               </P>
-              <dl className="mt-8 grid grid-cols-3 gap-3 text-[13px]">
+              <dl className="mt-8 grid gap-3 text-[13px] sm:grid-cols-3">
                 {[
                   ["Form", "Jelly body · tail · two eyes"],
                   ["Growth", "White pearl → six stages → complete"],
@@ -475,8 +475,8 @@ export function TaleCase() {
       </section>
 
       {/* ================================================= UX */}
-      <section id="ux" className="scroll-mt-10 border-t border-white/10 py-28 md:py-40">
-        <div className="mx-auto max-w-[1040px] px-8 md:px-16">
+      <section id="ux" className="scroll-mt-10 border-t border-white/10 py-20 md:py-40">
+        <div className="mx-auto max-w-[1040px] px-6 md:px-16">
           <div data-r>
             <Label>03 · UX/UI renewal</Label>
             <div className="mt-4"><H2>Stages by the work they do — every branch designed before a single screen.</H2></div>
@@ -593,8 +593,8 @@ export function TaleCase() {
       </section>
 
       {/* ================================================= REFLECTION */}
-      <section id="reflection" className="scroll-mt-10 border-t border-white/10 py-28 md:py-40">
-        <div className="mx-auto max-w-[900px] px-8 text-center md:px-16">
+      <section id="reflection" className="scroll-mt-10 border-t border-white/10 py-20 md:py-40">
+        <div className="mx-auto max-w-[900px] px-6 text-center md:px-16">
           <Label>Reflection</Label>
           <p data-r className="mt-6 text-[clamp(22px,2.8vw,34px)] font-medium leading-[1.35] tracking-[-0.025em]">
             “Drawing only the happy path gets you screens fast — but this product’s difficulty lived in branches, errors and rollbacks.”

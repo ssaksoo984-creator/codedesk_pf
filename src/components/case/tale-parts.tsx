@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import clsx from "clsx";
 import { FLOW, type FlowNode } from "./tale-flow-data";
 
@@ -36,9 +36,27 @@ export function Lumi({ persona = "pearl", state = "idle", className, style }: Lu
  * A dark, digital stage: Lumi loads, then three windows land — left, right,
  * and the main site's first screen in the centre.
  */
+const narrowQuery = "(max-width: 639px)";
+function useNarrow() {
+  return useSyncExternalStore(
+    (cb) => {
+      const m = matchMedia(narrowQuery);
+      m.addEventListener("change", cb);
+      return () => m.removeEventListener("change", cb);
+    },
+    () => matchMedia(narrowQuery).matches,
+    () => false
+  );
+}
+
 export function HeroStage() {
   const [phase, setPhase] = useState(0); // 0 loading · 1 left · 2 right · 3 centre
   const [pct, setPct] = useState(0);
+  const narrow = useNarrow();
+  // phones: a portrait stage — two windows peek in up top, the main site large below
+  const pos = narrow
+    ? { l: { left: "3%", top: "10%", width: "58%" }, r: { right: "3%", top: "22%", width: "58%" }, c: { left: "50%", top: "47%", width: "92%" } }
+    : { l: { left: "6%", top: "24%", width: "32%" }, r: { right: "6%", top: "24%", width: "32%" }, c: { left: "50%", top: "16%", width: "44%" } };
 
   useEffect(() => {
     const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -82,7 +100,7 @@ export function HeroStage() {
     </div>
   );
   return (
-    <div className="hero-digital relative aspect-[16/9] overflow-hidden rounded-[28px] bg-[#05060a] md:aspect-[2/1]">
+    <div className="hero-digital relative aspect-[4/5] overflow-hidden rounded-[22px] bg-[#05060a] sm:aspect-[16/10] md:aspect-[2/1] md:rounded-[28px]">
       {/* digital backdrop */}
       <div className="absolute inset-0 opacity-60 [background-image:linear-gradient(rgba(120,140,255,.07)_1px,transparent_1px),linear-gradient(90deg,rgba(120,140,255,.07)_1px,transparent_1px)] [background-size:44px_44px] [mask-image:radial-gradient(70%_70%_at_50%_45%,#000,transparent)]" />
       <div className="absolute inset-0" style={{ background: "radial-gradient(40% 55% at 30% 40%, rgba(232,96,111,.16), transparent 70%), radial-gradient(40% 55% at 70% 45%, rgba(62,155,224,.16), transparent 70%), radial-gradient(30% 40% at 50% 60%, rgba(139,99,232,.2), transparent 70%)" }} />
@@ -90,12 +108,12 @@ export function HeroStage() {
       <div className="pointer-events-none absolute inset-0 font-mono text-[10px] text-white/30">
         <span className="absolute left-5 top-4">TALE_STUDIO // v3</span>
         <span className="absolute right-5 top-4">{phase === 0 ? "BOOTING" : "ONLINE"} ●</span>
-        <span className="absolute bottom-4 left-5">LUMI.persona = {phase === 0 ? "\"producer\" · loading" : "\"pearl\" · idle"}</span>
+        <span className="absolute bottom-4 left-5 hidden sm:inline">LUMI.persona = {phase === 0 ? "\"producer\" · loading" : "\"pearl\" · idle"}</span>
       </div>
 
       {/* Lumi loading */}
       <div className={clsx("absolute inset-0 flex flex-col items-center justify-center transition-[opacity,transform] duration-700", phase === 0 ? "opacity-100" : "pointer-events-none scale-90 opacity-0")}>
-        <Lumi persona="producer" state="loading" className="w-[min(34%,340px)]" />
+        <Lumi persona="producer" state="loading" className="w-[min(70%,340px)] sm:w-[min(34%,340px)]" />
         <p className="mt-1 font-mono text-[11px] tracking-[0.2em] text-white/60">LOADING STUDIO · {pct}%</p>
         <div className="mt-2.5 h-[2px] w-[min(22%,220px)] overflow-hidden rounded-full bg-white/10">
           <div className="h-full bg-gradient-to-r from-[#F2A33A] via-[#8B63E8] to-[#2DB39A] transition-[width] duration-100" style={{ width: `${pct}%` }} />
@@ -106,7 +124,7 @@ export function HeroStage() {
       <div className="absolute inset-0 [perspective:1600px]">
         <div
           className={win}
-          style={{ left: "6%", top: "24%", width: "32%", aspectRatio: "16/10.6", opacity: phase >= 1 ? 0.85 : 0, filter: phase >= 1 ? "none" : "blur(10px)", transform: phase >= 1 ? "rotateY(16deg) translateZ(-60px)" : "rotateY(30deg) translateX(-12%) translateZ(-120px)" }}
+          style={{ ...pos.l, aspectRatio: "16/10.6", opacity: phase >= 1 ? 0.85 : 0, filter: phase >= 1 ? "none" : "blur(10px)", transform: phase >= 1 ? "rotateY(16deg) translateZ(-60px)" : "rotateY(30deg) translateX(-12%) translateZ(-120px)" }}
         >
           {bar}
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -114,7 +132,7 @@ export function HeroStage() {
         </div>
         <div
           className={win}
-          style={{ right: "6%", top: "24%", width: "32%", aspectRatio: "16/10.6", opacity: phase >= 2 ? 0.85 : 0, filter: phase >= 2 ? "none" : "blur(10px)", transform: phase >= 2 ? "rotateY(-16deg) translateZ(-60px)" : "rotateY(-30deg) translateX(12%) translateZ(-120px)" }}
+          style={{ ...pos.r, aspectRatio: "16/10.6", opacity: phase >= 2 ? 0.85 : 0, filter: phase >= 2 ? "none" : "blur(10px)", transform: phase >= 2 ? "rotateY(-16deg) translateZ(-60px)" : "rotateY(-30deg) translateX(12%) translateZ(-120px)" }}
         >
           {bar}
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -122,7 +140,7 @@ export function HeroStage() {
         </div>
         <div
           className={clsx(win, "z-10 ring-white/25")}
-          style={{ left: "50%", top: "16%", width: "44%", aspectRatio: "16/10.6", opacity: phase >= 3 ? 1 : 0, filter: phase >= 3 ? "none" : "blur(12px)", transform: phase >= 3 ? "translateX(-50%)" : "translateX(-50%) translateY(10%) scale(.92)" }}
+          style={{ ...pos.c, aspectRatio: "16/10.6", opacity: phase >= 3 ? 1 : 0, filter: phase >= 3 ? "none" : "blur(12px)", transform: phase >= 3 ? "translateX(-50%)" : "translateX(-50%) translateY(10%) scale(.92)" }}
         >
           {bar}
           <video className="h-[93%] w-full object-cover object-top" muted loop playsInline autoPlay poster={`${C}site-hero.webp`} aria-label="Main site first screen — the word Lumi types out and turns into Lumi">
@@ -829,7 +847,7 @@ export function StageShow() {
       </div>
 
       <div className="relative mt-5">
-        <div className="absolute -inset-x-10 -inset-y-6 -z-10 opacity-60 blur-3xl transition-colors duration-700" style={{ background: `radial-gradient(50% 50% at 50% 50%, ${s.color}33, transparent 70%)` }} />
+        <div className="absolute -inset-y-6 inset-x-0 -z-10 md:-inset-x-10 opacity-60 blur-3xl transition-colors duration-700" style={{ background: `radial-gradient(50% 50% at 50% 50%, ${s.color}33, transparent 70%)` }} />
         <div className="rounded-[16px] bg-[#1b1b1f] p-[0.8%] shadow-[0_40px_80px_-30px_rgba(0,0,0,0.7)] ring-1 ring-white/10">
           <div className="relative aspect-[1152/720] overflow-hidden rounded-[8px] bg-[#1f1e1d]">
             {SHOW.map((x, k) => (
