@@ -39,11 +39,11 @@ export const RECENT_PROJECTS: WorkProject[] = [
       { label: { ko: "UI 디자인", en: "UI design" }, value: { ko: "Figma — 파운데이션 · 컴포넌트 · 4단계 화면", en: "Figma — foundations, components, 4 stages" } },
       { label: { ko: "프로토타입", en: "Prototype" }, value: { ko: "플로우와 연동된 단일 HTML 파일", en: "Single-file HTML, wired to the flow" } },
       { label: { ko: "개발 전달", en: "Dev handoff" }, value: { ko: "기존 → 리뉴얼 변경 명세", en: "Before → after change spec" } },
-      { label: { ko: "캐릭터 · 로고", en: "Character & logo" }, value: { ko: "Lumi 상태 17종 · TAil 로고", en: "17 Lumi states · TAil logo" } },
+      { label: { ko: "브랜드 · 캐릭터", en: "Brand & character" }, value: { ko: "2026 BI 가이드 · Lumi 6단계 컬러 · 적용 예시", en: "2026 BI guide · Lumi in 6 stage colours · applications" } },
     ],
     description: {
-      ko: "아이디어 한 줄에서 영상까지 만들어 주는 AI 제작 서비스 Tale Studio의 리뉴얼을 처음부터 끝까지 맡았습니다. 뒤섞여 있던 제작 단계를 Producer → Writer → Artist → Storyboard로 다시 나누는 아키텍처를 세우고, 단계마다 정상 · 분기 · 오류 · 롤백 흐름을 플로우 차트로 설계했습니다. 그 위에 Figma로 디자인 시스템과 전 단계 화면을 디자인하고, 플로우와 연동되는 단일 파일 프로토타입과 개발 전달 문서까지 만들었습니다. 에이전트 캐릭터 Lumi의 상태 17종도 함께 설계했습니다.",
-      en: "I led Tale Studio's renewal end to end — an AI service that takes a one-line idea to video. I re-architected a tangled pipeline into Producer → Writer → Artist → Storyboard, designed every stage's happy, branching, error and rollback flows as flow charts, then designed the design system and every screen in Figma, built a single-file prototype wired to those flows, and wrote the dev handoff. I also designed 17 states for the agent character, Lumi.",
+      ko: "아이디어 한 줄에서 영상까지 만들어 주는 AI 제작 서비스 Tale Studio의 리뉴얼을 처음부터 끝까지 맡았습니다. 뒤섞여 있던 제작 단계를 Producer → Writer → Artist → Storyboard로 다시 나누는 아키텍처를 세우고, 단계마다 정상 · 분기 · 오류 · 롤백 흐름을 플로우 차트로 설계했습니다. 그 위에 Figma로 디자인 시스템과 전 단계 화면을 디자인하고, 플로우와 연동되는 단일 파일 프로토타입과 개발 전달 문서까지 만들었습니다. 2026년에는 ‘Your Tale Deserves a Take’를 중심으로 심볼 · 컬러 · 에이전트 캐릭터 Lumi를 담은 BI 가이드라인까지 새로 정리했습니다.",
+      en: "I led Tale Studio's renewal end to end — an AI service that takes a one-line idea to video. I re-architected a tangled pipeline into Producer → Writer → Artist → Storyboard, designed every stage's happy, branching, error and rollback flows as flow charts, then designed the design system and every screen in Figma, built a single-file prototype wired to those flows, and wrote the dev handoff. In 2026 I rebuilt the brand guideline around “Your Tale Deserves a Take” — symbol, colour system and the agent character Lumi.",
     },
     situation: {
       ko: "기존 제품은 단계가 섞여 있었습니다. Writer 안에서 산문을 쓰다가 그림과 샷까지 다뤘고, 넘어가는 순간마다 러닝타임 검사 같은 장벽이 있었습니다. AI가 작업하는 동안에도 화면 일부가 열려 있어 요청이 겹쳤고, 어디서 무엇이 바뀌었는지 개발과 기획이 같은 그림을 보기 어려웠습니다.",

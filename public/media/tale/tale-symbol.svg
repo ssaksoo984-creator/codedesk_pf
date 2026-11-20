@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- Rebuilt from the BI guide A-03: 2u × 2u, u = 100, outer radius u/2 -->
+  <defs>
+    <linearGradient id="t" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFA600"/><stop offset=".55" stop-color="#FF3D5A"/><stop offset="1" stop-color="#C13C9E"/>
+    </linearGradient>
+    <linearGradient id="tail" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2F45FF"/><stop offset=".5" stop-color="#0096FF"/><stop offset="1" stop-color="#00C9A7"/>
+    </linearGradient>
+    <linearGradient id="drop" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FF8A7A"/><stop offset="1" stop-color="#E95CE8"/>
+    </linearGradient>
+  </defs>
+  <!-- T bar + stem -->
+  <path fill="url(#t)" d="M50 0H150A50 50 0 0 1 150 100H100V150A50 50 0 0 1 50 200A50 50 0 0 1 0 150V50A50 50 0 0 1 50 0Z"/>
+  <!-- tail -->
+  <path fill="url(#tail)" d="M50 100H150A50 50 0 0 1 150 200H50A50 50 0 0 1 50 100Z"/>
+  <!-- droplet where stem meets tail (top-right corner square) -->
+  <path fill="url(#drop)" d="M50 100H100V150A50 50 0 0 1 50 200A50 50 0 0 1 0 150A50 50 0 0 1 50 100Z"/>
+</svg>
