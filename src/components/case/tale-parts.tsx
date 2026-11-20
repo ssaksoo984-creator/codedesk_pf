@@ -138,56 +138,92 @@ export function HeroStage() {
 /** The billboard: the white pearl fills with colour into the complete Lumi, bouncing as it goes. */
 export function BillboardLumi() {
   const box = useRef<HTMLDivElement>(null);
-  const [full, setFull] = useState(false);
-  const [hop, setHop] = useState(0);
+  const cv = useRef<HTMLCanvasElement>(null);
+  const hopEl = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const el = box.current;
-    if (!el) return;
+    const canvas = cv.current;
+    if (!el || !canvas) return;
+    const ctx = canvas.getContext("2d")!;
+    // the dev guide's own pearl → complete transition, recorded frame by frame
+    const N = FILL_FRAMES;
+    // frames load the first time the billboard comes near the viewport
+    const imgs: HTMLImageElement[] = [];
+    const load = () => {
+      if (imgs.length) return;
+      for (let k = 0; k < N; k++) {
+        const im = new Image();
+        im.src = `${C}fill/${String(k).padStart(2, "0")}.webp`;
+        imgs.push(im);
+      }
+      imgs[0].onload = () => draw(0);
+    };
+    const draw = (k: number) => {
+      const im = imgs[k];
+      if (!im || !im.complete || !im.naturalWidth) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(im, 0, 0, canvas.width, canvas.height);
+    };
+    let raf = 0;
     let ts: ReturnType<typeof setTimeout>[] = [];
-    const clear = () => {
+    const stop = () => {
+      cancelAnimationFrame(raf);
       ts.forEach(clearTimeout);
       ts = [];
     };
-    // pearl → fills with colour while bouncing → holds → colour drains back → again
-    const cycle = () => {
-      ts.push(setTimeout(() => {
-        setFull(true);
-        setHop((h) => h + 1);
-      }, 900));
-      ts.push(setTimeout(() => setFull(false), 5200));
-      ts.push(setTimeout(cycle, 7400));
+    const play = (dir: 1 | -1, done: () => void) => {
+      const t0 = performance.now();
+      const step = () => {
+        const f = Math.min(N - 1, Math.floor((performance.now() - t0) / FILL_MS));
+        draw(dir === 1 ? f : N - 1 - f);
+        if (f < N - 1) raf = requestAnimationFrame(step);
+        else done();
+      };
+      raf = requestAnimationFrame(step);
+    };
+    // pearl → fill (forward) → hop → hold → the same animation backwards → pearl → again
+    const loop = () => {
+      ts.push(
+        setTimeout(
+          () =>
+            play(1, () => {
+              // restart the bounce without remounting the canvas
+              const h = hopEl.current;
+              if (h) {
+                h.classList.remove("bb-bounce");
+                void h.offsetWidth;
+                h.classList.add("bb-bounce");
+              }
+              ts.push(setTimeout(() => play(-1, () => ts.push(setTimeout(loop, 400))), 2600));
+            }),
+          1100
+        )
+      );
     };
     const io = new IntersectionObserver(
       ([e]) => {
-        clear();
-        if (e.isIntersecting) cycle();
+        stop();
+        if (e.isIntersecting) {
+          load();
+          draw(0);
+          loop();
+        }
       },
-      { threshold: 0.5 }
+      { threshold: 0.4 }
     );
     io.observe(el);
     return () => {
       io.disconnect();
-      clear();
+      stop();
     };
   }, []);
   return (
     <div ref={box} className="relative overflow-hidden rounded-2xl">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src="/media/tale/bi/billboard-wide.webp" alt="Billboard — One line, to film. All-in-one previz studio." loading="lazy" className="block w-full" />
-      <div className="absolute" style={{ left: "53.4%", top: "37.6%", width: "17%", transform: "rotate(-2.6deg)" }}>
-        <div key={hop} className={clsx("relative", hop > 0 && "bb-bounce")}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={`${C}bb-pearl.webp`} alt="" className="block w-full" />
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={`${C}bb-complete.webp`}
-            alt=""
-            className="absolute inset-0 w-full"
-            style={{
-              clipPath: full ? "circle(120% at 22% 62%)" : "circle(0% at 22% 62%)",
-              transition: full ? "clip-path 1.5s cubic-bezier(.5,0,.3,1) .35s" : "clip-path 1.8s cubic-bezier(.4,0,.2,1)",
-            }}
-          />
+      <div className="absolute" style={{ left: "52.6%", top: "36.5%", width: "17.8%", transform: "rotate(-2.6deg)" }}>
+        <div ref={hopEl}>
+          <canvas ref={cv} width={420} height={313} className="block h-auto w-full" aria-hidden />
         </div>
       </div>
       <span className="absolute bottom-3 left-3 rounded-full bg-black/55 px-3 py-1 font-mono text-[11px] text-white/85 backdrop-blur">
@@ -196,6 +232,9 @@ export function BillboardLumi() {
     </div>
   );
 }
+
+const FILL_FRAMES = 96;
+const FILL_MS = 31;
 
 /** A desktop mockup with the product playing on its screen. */
 export function DesktopVideo({ video = "sim-producer" }: { video?: string }) {
@@ -516,7 +555,7 @@ export function FlowChart() {
 
   const scale = 0.82;
   return (
-    <div className="rounded-3xl bg-[#101015] ring-1 ring-white/10">
+    <div className="rounded-3xl bg-[#141312] ring-1 ring-white/10">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 p-3 md:p-4">
         <div role="tablist" aria-label="Stage" className="flex flex-wrap gap-1.5">
           {STAGE_TABS.map((t) => (
@@ -603,7 +642,7 @@ export function FlowChart() {
                 <foreignObject key={k} x={e.lx - 80} y={e.ly - 10} width="160" height="20" className="overflow-visible">
                   <div className="flex h-full items-center justify-center">
                     <span
-                      className="whitespace-nowrap rounded-md bg-[#101015] px-1.5 text-[10.5px] leading-[16px]"
+                      className="whitespace-nowrap rounded-md bg-[#141312] px-1.5 text-[10.5px] leading-[16px]"
                       style={{ color: e.kind === "yes" ? "#7fe0c8" : e.kind === "back" ? "#ff9aa6" : "rgba(255,255,255,.6)" }}
                     >
                       {e.label}

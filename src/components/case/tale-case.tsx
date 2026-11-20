@@ -119,7 +119,7 @@ export function TaleCase() {
   }, []);
 
   return (
-    <div ref={ref} className="tale-case bg-[#0b0b0f] text-white">
+    <div ref={ref} className="tale-case bg-[#1c1b1a] text-white">
       {/* The real Lumi: the <lumi-persona> web component from the Lumi dev guide */}
       <Script src="/media/tale/lumi-persona.js" strategy="afterInteractive" />
       {/* Close / back to the database */}
@@ -149,7 +149,7 @@ export function TaleCase() {
 
       {/* ================================================= HERO (light) */}
       <header className="bg-[#f3f2ee] pt-24 text-[#141312] md:pt-28">
-        <div className="mx-auto max-w-[1180px] px-5 md:px-8">
+        <div className="mx-auto max-w-[1120px] px-8 md:px-16">
           <p className="font-mono text-[12px] tracking-wide text-black/50">TALE STUDIO</p>
           <h1 className="mt-3 max-w-[16ch] text-[clamp(38px,6vw,72px)] font-medium leading-[1.02] tracking-[-0.045em]">
             Your tale deserves a take — brand, character and product, end to end.
@@ -169,14 +169,14 @@ export function TaleCase() {
         </div>
 
         {/* Hero stage */}
-        <div className="mx-auto mt-12 max-w-[1180px] px-3 pb-4 md:mt-16 md:px-8">
+        <div className="mx-auto mt-12 max-w-[1120px] px-5 pb-4 md:mt-16 md:px-16">
           <HeroStage />
         </div>
       </header>
 
       {/* ================================================= META */}
       <section className="bg-[#f3f2ee] pb-20 text-[#141312] md:pb-28">
-        <div className="mx-auto grid max-w-[1180px] gap-10 border-t border-black/10 px-5 pt-12 md:grid-cols-[1fr_1.4fr] md:px-8">
+        <div className="mx-auto grid max-w-[1120px] gap-10 border-t border-black/10 px-8 pt-12 md:grid-cols-[1fr_1.4fr] md:px-16">
           <dl className="space-y-6 text-[14.5px]">
             <div>
               <dt className="font-mono text-[11px] uppercase tracking-wide text-black/45">Client</dt>
@@ -219,8 +219,8 @@ export function TaleCase() {
       </section>
 
       {/* ================================================= OVERVIEW */}
-      <section id="overview" className="scroll-mt-10 rounded-t-[40px] bg-[#0b0b0f] py-24 md:py-32">
-        <div className="mx-auto max-w-[1100px] px-5 md:px-8">
+      <section id="overview" className="scroll-mt-10 rounded-t-[40px] bg-[#1c1b1a] py-28 md:py-40">
+        <div className="mx-auto max-w-[1040px] px-8 md:px-16">
           <div data-r className="mx-auto max-w-[760px] text-center">
             <Label>Overview</Label>
             <p className="mt-6 text-[clamp(22px,2.6vw,32px)] font-medium leading-[1.35] tracking-[-0.025em]">
@@ -253,8 +253,8 @@ export function TaleCase() {
       </section>
 
       {/* ================================================= BRAND */}
-      <section id="brand" className="scroll-mt-10 border-t border-white/10 py-24 md:py-32">
-        <div className="mx-auto max-w-[1100px] px-5 md:px-8">
+      <section id="brand" className="scroll-mt-10 border-t border-white/10 py-28 md:py-40">
+        <div className="mx-auto max-w-[1040px] px-8 md:px-16">
           <div data-r>
             <Label>01 · Logo & BI</Label>
             <div className="mt-4"><H2>Tale = tail. A story you can grab by its tail.</H2></div>
@@ -265,7 +265,7 @@ export function TaleCase() {
 
           {/* Symbol anatomy */}
           <div data-r className="mt-14 grid gap-4 lg:grid-cols-[1.3fr_1fr]">
-            <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-3xl bg-[#F5F4EE]">
+            <div className="relative flex min-h-[340px] items-center justify-center overflow-hidden rounded-3xl bg-[#F5F4EE]">
               <svg viewBox="0 0 100 100" className="absolute h-[64%] text-black/25" aria-hidden>
                 <g fill="none" stroke="currentColor" strokeWidth="0.4" strokeDasharray="1.2 1.2">
                   <rect x="0.5" y="0.5" width="99" height="99" />
@@ -281,23 +281,20 @@ export function TaleCase() {
               <img src="/media/tale/tale-symbol.svg" alt="Tale Studio symbol" className="symbol-breathe relative h-[64%]" />
               <span className="absolute left-5 top-5 font-mono text-[11px] text-black/45">2u × 2u · r = u/2</span>
             </div>
-            <div className="grid gap-3">
+            <div className="grid auto-rows-fr gap-3">
               {[
                 { t: "Half T", d: "The first stroke of Tale’s T, left half-drawn. The first three stages — planning, writing, drawing — in warm colours.", c: "linear-gradient(120deg,#FFA600,#FF3D5A,#C13C9E)" },
                 { t: "Story tail", d: "The tail running off below the T. The last three stages — boards, direction, edit — in cool colours.", c: "linear-gradient(120deg,#2F45FF,#0096FF,#00C9A7)" },
                 { t: "The droplet", d: "Where the stem meets the tail. Lumi-shaped, the two colours blend like light (screen 90%).", c: "linear-gradient(120deg,#FF8A7A,#E95CE8)" },
               ].map((x) => (
-                <div key={x.t} className="flex gap-4 rounded-2xl bg-white/[0.04] p-5 ring-1 ring-white/10">
-                  <span className="mt-1 h-10 w-10 shrink-0 rounded-xl" style={{ background: x.c }} />
+                <div key={x.t} className="flex items-center gap-4 rounded-2xl bg-white/[0.04] p-6 ring-1 ring-white/10">
+                  <span className="h-10 w-10 shrink-0 rounded-xl" style={{ background: x.c }} />
                   <div>
                     <p className="text-[17px] font-medium">{x.t}</p>
                     <p className="mt-1 text-[14px] leading-[1.6] text-white/60">{x.d}</p>
                   </div>
                 </div>
               ))}
-              <div className="rounded-2xl bg-white/[0.04] p-5 font-mono text-[12px] leading-[1.8] text-white/55 ring-1 ring-white/10">
-                Whole 2u×2u · T bar 2u×u, right end round · T stem u×2u · tail 2u×u, both ends round · outer corners r = u/2 · gradient top-left → bottom-right
-              </div>
             </div>
           </div>
 
@@ -309,7 +306,7 @@ export function TaleCase() {
               { bg: "#7B2FFF", fg: "#ffffff", label: "On colour · mono white", mono: true },
             ].map((s) => (
               <div key={s.label}>
-                <div className="flex aspect-[16/9] items-center justify-center gap-3 rounded-2xl" style={{ background: s.bg }}>
+                <div className="flex aspect-[16/9] items-center justify-center gap-3 rounded-2xl ring-1 ring-white/10" style={{ background: s.bg }}>
                   {s.mono ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src="/media/tale/tale-symbol-white.svg" alt="" className="h-9" />
@@ -327,34 +324,62 @@ export function TaleCase() {
           </div>
 
           {/* Colour */}
-          <div data-r className="mt-20">
-            <H3>Colour — vivid for the mark, warm neutrals for the work.</H3>
-            <P className="mt-3">The six logo colours live only in the symbol. Screens and print sit on warm neutrals, and the product uses one muted stage colour at a time.</P>
-            <div className="mt-8 grid grid-cols-3 gap-2 md:grid-cols-6">
-              {LOGO_COLORS.map((c) => (
-                <div key={c.h} className="group">
-                  <div className="h-24 rounded-xl transition-[height] duration-500 group-hover:h-32" style={{ background: c.h }} />
-                  <p className="mt-2 text-[13px] font-medium">{c.n}</p>
-                  <p className="font-mono text-[11px] text-white/45">{c.h}</p>
+          <div data-r className="mt-24">
+            <H3>Colour — three jobs, three palettes.</H3>
+            <div className="mt-8 divide-y divide-white/10 rounded-3xl bg-white/[0.03] ring-1 ring-white/10">
+              {/* the mark */}
+              <div className="grid gap-4 p-6 md:grid-cols-[220px_1fr] md:items-center md:p-8">
+                <div>
+                  <p className="text-[16px] font-medium">Mark</p>
+                  <p className="mt-1 text-[13.5px] leading-[1.55] text-white/55">Only in the symbol. Warm for the first three stages, cool for the last three.</p>
                 </div>
-              ))}
-            </div>
-            <div className="mt-6 grid grid-cols-3 gap-2 md:grid-cols-6">
-              {NEUTRALS.map((c) => (
-                <div key={c.h}>
-                  <div className="h-16 rounded-xl ring-1 ring-white/10" style={{ background: c.h }} />
-                  <p className="mt-2 text-[13px] font-medium">{c.n}</p>
-                  <p className="font-mono text-[11px] text-white/45">{c.h}</p>
+                <div className="grid grid-cols-2 gap-3">
+                  {[LOGO_COLORS.slice(0, 3), LOGO_COLORS.slice(3)].map((g, k) => (
+                    <div key={k}>
+                      <div className="h-14 rounded-xl" style={{ background: `linear-gradient(90deg, ${g.map((c) => c.h).join(", ")})` }} />
+                      <p className="mt-2 flex justify-between font-mono text-[10.5px] text-white/45">
+                        {g.map((c) => (
+                          <span key={c.h}>{c.h}</span>
+                        ))}
+                      </p>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-            <div className="mt-6 grid grid-cols-3 gap-2 md:grid-cols-6">
-              {STAGES.map((c) => (
-                <div key={c.id} className="flex items-center gap-2 rounded-xl p-2.5" style={{ background: `${c.color}22` }}>
-                  <span className="h-6 w-6 rounded-full" style={{ background: c.color }} />
-                  <span className="text-[12.5px]">{c.name}</span>
+              </div>
+              {/* surfaces */}
+              <div className="grid gap-4 p-6 md:grid-cols-[220px_1fr] md:items-center md:p-8">
+                <div>
+                  <p className="text-[16px] font-medium">Surface</p>
+                  <p className="mt-1 text-[13.5px] leading-[1.55] text-white/55">Warm neutrals for every screen and print — ink to paper.</p>
                 </div>
-              ))}
+                <div>
+                  <div className="flex h-14 overflow-hidden rounded-xl ring-1 ring-white/10">
+                    {NEUTRALS.map((c) => (
+                      <span key={c.h} className="flex-1" style={{ background: c.h }} title={`${c.n} ${c.h}`} />
+                    ))}
+                  </div>
+                  <p className="mt-2 grid grid-cols-6 font-mono text-[10.5px] text-white/45">
+                    {NEUTRALS.map((c) => (
+                      <span key={c.h}>{c.h}</span>
+                    ))}
+                  </p>
+                </div>
+              </div>
+              {/* stages */}
+              <div className="grid gap-4 p-6 md:grid-cols-[220px_1fr] md:items-center md:p-8">
+                <div>
+                  <p className="text-[16px] font-medium">Stage</p>
+                  <p className="mt-1 text-[13.5px] leading-[1.55] text-white/55">Muted, one at a time — the stage you’re in, worn by Lumi and the UI.</p>
+                </div>
+                <div className="flex flex-wrap gap-x-5 gap-y-3">
+                  {STAGES.map((c) => (
+                    <span key={c.id} className="flex items-center gap-2 text-[13px] text-white/80">
+                      <span className="h-5 w-5 rounded-full" style={{ background: c.color }} />
+                      {c.name}
+                    </span>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
 
@@ -414,8 +439,8 @@ export function TaleCase() {
       </section>
 
       {/* ================================================= CHARACTER */}
-      <section id="character" className="scroll-mt-10 border-t border-white/10 py-24 md:py-32">
-        <div className="mx-auto max-w-[1100px] px-5 md:px-8">
+      <section id="character" className="scroll-mt-10 border-t border-white/10 py-28 md:py-40">
+        <div className="mx-auto max-w-[1040px] px-8 md:px-16">
           <div data-r className="max-w-[820px]">
             <div>
               <Label>02 · Character</Label>
@@ -450,8 +475,8 @@ export function TaleCase() {
       </section>
 
       {/* ================================================= UX */}
-      <section id="ux" className="scroll-mt-10 border-t border-white/10 py-24 md:py-32">
-        <div className="mx-auto max-w-[1100px] px-5 md:px-8">
+      <section id="ux" className="scroll-mt-10 border-t border-white/10 py-28 md:py-40">
+        <div className="mx-auto max-w-[1040px] px-8 md:px-16">
           <div data-r>
             <Label>03 · UX/UI renewal</Label>
             <div className="mt-4"><H2>Stages by the work they do — every branch designed before a single screen.</H2></div>
@@ -568,8 +593,8 @@ export function TaleCase() {
       </section>
 
       {/* ================================================= REFLECTION */}
-      <section id="reflection" className="scroll-mt-10 border-t border-white/10 py-24 md:py-32">
-        <div className="mx-auto max-w-[900px] px-5 text-center md:px-8">
+      <section id="reflection" className="scroll-mt-10 border-t border-white/10 py-28 md:py-40">
+        <div className="mx-auto max-w-[900px] px-8 text-center md:px-16">
           <Label>Reflection</Label>
           <p data-r className="mt-6 text-[clamp(22px,2.8vw,34px)] font-medium leading-[1.35] tracking-[-0.025em]">
             “Drawing only the happy path gets you screens fast — but this product’s difficulty lived in branches, errors and rollbacks.”
