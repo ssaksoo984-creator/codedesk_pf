@@ -143,18 +143,17 @@ export function PortfolioView({ onClose, onReady }: { onClose: () => void; onRea
         <button type="button" onClick={onClose} aria-label="Back to the room" className="glass flex h-11 w-11 items-center justify-center rounded-full text-[18px]">
           ←
         </button>
-        <div className="glass min-w-0 flex-1 rounded-2xl px-3 py-2">
+        <div className="glass flex h-11 min-w-0 flex-1 items-center rounded-2xl px-4">
           <p className="truncate font-sans text-[15px] font-medium">Portfolio</p>
-          <p className="truncate text-[10.5px] text-white/50">{stack ? "tap a layer" : "tap a database to split it"}</p>
         </div>
       </div>
-      <div className="no-scrollbar absolute inset-x-3 top-[68px] flex gap-1.5 overflow-x-auto md:hidden">
+      <div className="no-scrollbar absolute inset-x-0 top-[78px] flex gap-2 overflow-x-auto px-3 md:hidden">
         {STACKS.map((s) => (
           <button
             key={s.id}
             type="button"
             onClick={() => (stack === s.id ? (setStack(null), setProject(null)) : choose(s.id, null))}
-            className={clsx("glass flex h-8 shrink-0 items-center gap-1.5 rounded-xl px-3 text-[11.5px]", stack === s.id && "ring-1 ring-white/60")}
+            className={clsx("glass flex h-10 shrink-0 items-center gap-2 rounded-xl px-4 text-[12px]", stack === s.id && "ring-1 ring-white/60")}
           >
             <span className="h-2 w-2 rounded-full" style={{ background: s.color }} />
             {s.name}
@@ -162,7 +161,14 @@ export function PortfolioView({ onClose, onReady }: { onClose: () => void; onRea
         ))}
       </div>
 
-      {/* ---- Split-open stack: its discs unfold into an image list ---- */}
+      {/* ---- Split-open stack (desktop): pick a layer in 3D ---- */}
+      {stack && !current && (
+        <p className="glass absolute right-3 top-3 hidden rounded-2xl px-4 py-2.5 text-[12px] text-white/70 md:block">
+          {STACKS.find((s) => s.id === stack)?.name} — pick a layer
+        </p>
+      )}
+
+      {/* ---- Split-open stack (phones): its discs unfold into an image list ---- */}
       {stack && !current && (
         <ProjectList
           stack={STACKS.find((s) => s.id === stack)!}
@@ -230,7 +236,7 @@ export function PortfolioView({ onClose, onReady }: { onClose: () => void; onRea
       <div
         className={clsx(
           "glass absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1 rounded-2xl p-1 text-[11.5px] transition-opacity md:bottom-4",
-          (current || stack) && "pointer-events-none opacity-0 md:pointer-events-auto md:opacity-100", stack && !current && "md:hidden"
+          (current || stack) && "pointer-events-none opacity-0 md:pointer-events-auto md:opacity-100"
         )}
       >
         {[

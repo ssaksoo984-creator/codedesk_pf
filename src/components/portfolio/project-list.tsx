@@ -43,17 +43,17 @@ export function ProjectList({ stack, onClose }: { stack: Stack; onClose: () => v
   return (
     <section
       aria-label={`${stack.name} — projects`}
-      className="pf-list absolute inset-x-0 bottom-0 top-[108px] z-10 flex flex-col overflow-hidden md:bottom-3 md:left-[288px] md:right-3 md:top-3 md:rounded-2xl md:border md:border-white/10"
+      className="pf-list absolute inset-x-0 bottom-0 top-[134px] z-10 md:hidden flex flex-col overflow-hidden md:bottom-3 md:left-[288px] md:right-3 md:top-3 md:rounded-2xl md:border md:border-white/10"
       style={{ ["--c" as string]: stack.color }}
     >
       <div className="absolute inset-0 bg-[rgba(8,7,16,0.86)] backdrop-blur-md" />
       <div className="pf-grid pointer-events-none absolute inset-0 opacity-50" />
 
-      <header className="relative flex items-center gap-3 border-b border-white/10 px-4 py-3 md:px-5">
+      <header className="relative flex items-center gap-3 border-b border-white/10 px-4 py-3.5 md:px-5">
         <span className="h-3 w-3 rounded-full shadow-[0_0_12px_var(--c)]" style={{ background: stack.color }} />
         <div className="min-w-0 flex-1">
           <p className="truncate font-sans text-[16px] font-medium">{stack.name}</p>
-          <p className="truncate text-[10.5px] text-white/45">
+          <p className="mt-0.5 truncate text-[10.5px] leading-[1.5] text-white/45">
             SELECT * FROM {stack.id} ORDER BY updated DESC · {items.length} rows
           </p>
         </div>
@@ -66,7 +66,7 @@ export function ProjectList({ stack, onClose }: { stack: Stack; onClose: () => v
         </button>
       </header>
 
-      <ol key={stack.id} className="relative grid flex-1 auto-rows-min grid-cols-1 gap-3 overflow-y-auto p-3 sm:grid-cols-2 md:p-5 xl:grid-cols-3">
+      <ol key={stack.id} className="relative grid flex-1 auto-rows-min grid-cols-1 gap-4 overflow-y-auto p-4 sm:grid-cols-2 md:p-5 xl:grid-cols-3">
         {items.map((p, i) => (
           <li key={p.index} className="pf-unfold min-w-0" style={{ animationDelay: `${120 + i * 110}ms` }}>
             <Link
@@ -85,10 +85,10 @@ export function ProjectList({ stack, onClose }: { stack: Stack; onClose: () => v
                   </span>
                 )}
               </div>
-              <div className="flex items-start gap-3 p-3.5">
+              <div className="flex items-start gap-3 px-4 py-4">
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-sans text-[15px] font-medium text-white">{p.title.en}</p>
-                  <p className="mt-0.5 truncate text-[11px] text-white/50">
+                  <p className="truncate font-sans text-[15px] font-medium leading-[1.4] text-white">{p.title.en}</p>
+                  <p className="mt-1 truncate text-[11px] leading-[1.5] text-white/50">
                     {p.category.en}
                     {p.client ? ` · ${p.client.en}` : ""}
                   </p>
