@@ -148,6 +148,12 @@ export function Room() {
   const go = useCallback(
     (id: SpotId) => {
       if (timer.current) clearTimeout(timer.current);
+      // Phones: the portfolio opens as a full-screen popup straight away.
+      if (id === "portfolio" && matchMedia("(max-width: 767px)").matches) {
+        setActive(null);
+        setOpen("portfolio");
+        return;
+      }
       setOpen(null);
       setActive(id);
       // Let the camera arrive before opening what's there.
@@ -463,7 +469,7 @@ export function Room() {
         </button>
       </header>
 
-      {!active && L.panRange > 1 && (
+      {!active && !open && L.panRange > 1 && (
         <p className="pointer-events-none glass absolute bottom-[70px] left-1/2 sm:bottom-4 -translate-x-1/2 rounded-xl px-3 py-1.5 font-mono text-[11px] text-muted [@media(pointer:fine)]:hidden">
           ← drag to look around →
         </p>
