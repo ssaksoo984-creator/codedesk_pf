@@ -4,13 +4,11 @@ import Link from "next/link";
 import Script from "next/script";
 import { useEffect, useRef, useState } from "react";
 import clsx from "clsx";
-import { BeforeAfter, BillboardLumi, DesktopVideo, FlowChart, HeroStage, LumiPlayground, OldFlow, StageShow } from "./tale-parts";
+import { BeforeAfter, BillboardLumi, DesktopVideo, FlowChart, HeroStage, Lumi, LogoDraw, LumiPlayground, OldFlow, StageShow } from "./tale-parts";
 
 /** Where “Open the website” points. */
 const SITE_URL = "#";
 
-const C = "/media/tale/case/";
-const L = "/media/tale/lumi/";
 const BI = "/media/tale/bi/";
 
 const NAV = [
@@ -232,14 +230,21 @@ export function TaleCase() {
           </div>
           <div className="mt-16 grid gap-4 md:grid-cols-3">
             {[
-              { href: "#brand", k: "01", t: "Logo & BI", d: "Tale = tail. A half-T with a story tail, in two colour families for the two halves of the pipeline.", img: "/media/tale/tale-symbol.svg", bg: "#F5F4EE", contain: true },
-              { href: "#character", k: "02", t: "Character · Lumi", d: "A jelly-bodied AI teammate with a tail, who changes outfit and colour at every stage.", img: `${L}complete.webp`, bg: "#1f1e1d", contain: true },
-              { href: "#ux", k: "03", t: "UX/UI renewal", d: "Six stages by the work they do, every branch designed first, shipped as v3.", img: `${C}sim-storyboard.webp`, bg: "#141312" },
+              { href: "#brand", k: "01", t: "Logo & BI", d: "Tale = tail. A half-T with a story tail, in two colour families for the two halves of the pipeline.", bg: "#F5F4EE" },
+              { href: "#character", k: "02", t: "Character · Lumi", d: "A jelly-bodied AI teammate with a tail, who changes outfit and colour at every stage.", bg: "#1f1e1d" },
+              { href: "#ux", k: "03", t: "UX/UI renewal", d: "Six stages by the work they do, every branch designed first, shipped as v3.", bg: "#e9e4dc" },
             ].map((c) => (
               <a key={c.k} href={c.href} data-r className="group overflow-hidden rounded-3xl bg-white/[0.04] ring-1 ring-white/10 transition-colors hover:bg-white/[0.07]">
-                <div className="flex aspect-[4/3] items-center justify-center overflow-hidden" style={{ background: c.bg }}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={c.img} alt="" loading="lazy" className={clsx("transition-transform duration-700 group-hover:scale-105", c.contain ? "h-[60%] w-auto object-contain" : "h-full w-full object-cover object-left-top")} />
+                <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden" style={{ background: c.bg }}>
+                  {c.k === "01" ? (
+                    <LogoDraw className="h-[70%] w-auto" />
+                  ) : c.k === "02" ? (
+                    <Lumi persona="complete" state="idle" className="w-[92%] transition-transform duration-700 group-hover:scale-105" />
+                  ) : (
+                    <div className="w-full transition-transform duration-700 group-hover:scale-105">
+                      <DesktopVideo video="sim-storyboard" />
+                    </div>
+                  )}
                 </div>
                 <div className="p-5">
                   <p className="font-mono text-[11px] text-white/40">{c.k}</p>
