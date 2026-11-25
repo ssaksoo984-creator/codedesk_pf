@@ -881,3 +881,60 @@ export function StageShow() {
     </div>
   );
 }
+
+// ---------------------------------------------------------------- logo, drawn
+
+const T_PATH = "M50 0H150A50 50 0 0 1 150 100H100V150A50 50 0 0 1 50 200A50 50 0 0 1 0 150V50A50 50 0 0 1 50 0Z";
+const TAIL_PATH = "M50 100H150A50 50 0 0 1 150 200H50A50 50 0 0 1 50 100Z";
+const DROP_PATH = "M50 100H100V150A50 50 0 0 1 50 200A50 50 0 0 1 0 150A50 50 0 0 1 50 100Z";
+
+/**
+ * The symbol being built: construction guides sketch in (2u grid, u/2
+ * circles), the outlines are traced over them, then the colour pours in.
+ * Loops.
+ */
+export function LogoDraw({ className }: { className?: string }) {
+  const guide = { fill: "none", stroke: "#141312", strokeOpacity: 0.28, strokeWidth: 0.8, pathLength: 1 } as const;
+  return (
+    <svg viewBox="-14 -14 228 228" className={clsx("logo-draw", className)} aria-label="The Tale Studio symbol being drawn">
+      <defs>
+        <linearGradient id="ld-t" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#FFA600" />
+          <stop offset=".55" stopColor="#FF3D5A" />
+          <stop offset="1" stopColor="#C13C9E" />
+        </linearGradient>
+        <linearGradient id="ld-tail" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#2F45FF" />
+          <stop offset=".5" stopColor="#0096FF" />
+          <stop offset="1" stopColor="#00C9A7" />
+        </linearGradient>
+        <linearGradient id="ld-drop" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#FF8A7A" />
+          <stop offset="1" stopColor="#E95CE8" />
+        </linearGradient>
+      </defs>
+      {/* construction */}
+      <g className="ld-guides">
+        <rect x="0" y="0" width="200" height="200" {...guide} strokeDasharray="1" />
+        <line x1="100" y1="-10" x2="100" y2="210" {...guide} />
+        <line x1="-10" y1="100" x2="210" y2="100" {...guide} />
+        <circle cx="50" cy="50" r="50" {...guide} />
+        <circle cx="150" cy="50" r="50" {...guide} />
+        <circle cx="50" cy="150" r="50" {...guide} />
+        <circle cx="150" cy="150" r="50" {...guide} />
+      </g>
+      {/* colour */}
+      <g className="ld-fill">
+        <path d={T_PATH} fill="url(#ld-t)" />
+        <path d={TAIL_PATH} fill="url(#ld-tail)" />
+        <path d={DROP_PATH} fill="url(#ld-drop)" />
+      </g>
+      {/* outlines traced over the guides */}
+      <g className="ld-lines" fill="none" strokeWidth="1.6" strokeLinejoin="round">
+        <path d={T_PATH} stroke="#141312" pathLength={1} />
+        <path d={TAIL_PATH} stroke="#141312" pathLength={1} />
+        <path d={DROP_PATH} stroke="#141312" pathLength={1} />
+      </g>
+    </svg>
+  );
+}
