@@ -5,6 +5,7 @@ import Link from "next/link";
 import clsx from "clsx";
 import { DbCanvas } from "./db-canvas";
 import { ALL_PROJECTS, STACKS, yearOf } from "./db-data";
+import { newestFirst, ProjectList, Thumb } from "./project-list";
 
 /** What you see inside the computer: the work as databases. Pick a stack to
  * split it open, pick a layer to see the project, open it to read the case. */
@@ -29,7 +30,7 @@ export function PortfolioView({ onClose, onReady }: { onClose: () => void; onRea
 
   return (
     <div
-      className={clsx("fixed inset-0 z-40 bg-[#07060d] font-mono text-white transition-opacity duration-[900ms] ease-out", shown ? "opacity-100" : "opacity-0")}
+      className={clsx("fixed inset-0 z-40 bg-[#07060d] font-mono text-white transition-[opacity,transform] duration-[900ms] ease-out", shown ? "scale-100 opacity-100" : "scale-[0.97] opacity-0")}
       style={{ ["--glass" as string]: "rgba(12,11,22,0.78)", ["--line" as string]: "rgba(255,255,255,0.1)", ["--fg" as string]: "#fff", ["--muted" as string]: "#8d8aa6" }}
       onPointerDown={(e) => e.stopPropagation()}
       onPointerMove={(e) => e.stopPropagation()}
@@ -79,7 +80,7 @@ export function PortfolioView({ onClose, onReady }: { onClose: () => void; onRea
         </label>
         <ul className="min-h-0 flex-1 overflow-y-auto px-2 pb-2 text-[12.5px]">
           {STACKS.map((s) => {
-            const items = s.projects.filter((p) => !q || p.title.en.toLowerCase().includes(q) || s.name.toLowerCase().includes(q));
+            const items = newestFirst(s.projects).filter((p) => !q || p.title.en.toLowerCase().includes(q) || s.name.toLowerCase().includes(q));
             if (q && !items.length) return null;
             const isOpen = q ? true : stack === s.id;
             return (
@@ -142,18 +143,17 @@ export function PortfolioView({ onClose, onReady }: { onClose: () => void; onRea
         <button type="button" onClick={onClose} aria-label="Back to the room" className="glass flex h-11 w-11 items-center justify-center rounded-full text-[18px]">
           ←
         </button>
-        <div className="glass min-w-0 flex-1 rounded-2xl px-3 py-2">
+        <div className="glass flex h-11 min-w-0 flex-1 items-center rounded-2xl px-4">
           <p className="truncate font-sans text-[15px] font-medium">Portfolio</p>
-          <p className="truncate text-[10.5px] text-white/50">{stack ? "tap a layer" : "tap a database to split it"}</p>
         </div>
       </div>
-      <div className="no-scrollbar absolute inset-x-3 top-[68px] flex gap-1.5 overflow-x-auto md:hidden">
+      <div className="no-scrollbar absolute inset-x-0 top-[78px] flex gap-2 overflow-x-auto px-3 md:hidden">
         {STACKS.map((s) => (
           <button
             key={s.id}
             type="button"
             onClick={() => (stack === s.id ? (setStack(null), setProject(null)) : choose(s.id, null))}
-            className={clsx("glass flex h-8 shrink-0 items-center gap-1.5 rounded-xl px-3 text-[11.5px]", stack === s.id && "ring-1 ring-white/60")}
+            className={clsx("glass flex h-10 shrink-0 items-center gap-2 rounded-xl px-4 text-[12px]", stack === s.id && "ring-1 ring-white/60")}
           >
             <span className="h-2 w-2 rounded-full" style={{ background: s.color }} />
             {s.name}
@@ -161,11 +161,22 @@ export function PortfolioView({ onClose, onReady }: { onClose: () => void; onRea
         ))}
       </div>
 
-      {/* ---- Split-open stack: hint ---- */}
+      {/* ---- Split-open stack (desktop): pick a layer in 3D ---- */}
       {stack && !current && (
         <p className="glass absolute right-3 top-3 hidden rounded-2xl px-4 py-2.5 text-[12px] text-white/70 md:block">
           {STACKS.find((s) => s.id === stack)?.name} — pick a layer
         </p>
+      )}
+
+      {/* ---- Split-open stack (phones): its discs unfold into an image list ---- */}
+      {stack && !current && (
+        <ProjectList
+          stack={STACKS.find((s) => s.id === stack)!}
+          onClose={() => {
+            setStack(null);
+            setProject(null);
+          }}
+        />
       )}
 
       {/* ---- Right: selected project ---- */}
@@ -191,14 +202,9 @@ export function PortfolioView({ onClose, onReady }: { onClose: () => void; onRea
               </button>
             </div>
             <p className="mt-1 text-[12px] text-white/55">{current.project.category.en}</p>
-            {(current.project.cover ?? current.project.image) && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={current.project.cover ?? current.project.image}
-                alt=""
-                className="mt-4 block aspect-[16/10] w-full rounded-xl border border-line object-cover"
-              />
-            )}
+            <div className="mt-4 aspect-[16/10] w-full overflow-hidden rounded-xl border border-line bg-black">
+              <Thumb p={current.project} />
+            </div>
             {current.project.description && (
               <p className="mt-4 line-clamp-5 text-[12.5px] leading-[1.65] text-white/70">{current.project.description.en}</p>
             )}
@@ -230,7 +236,7 @@ export function PortfolioView({ onClose, onReady }: { onClose: () => void; onRea
       <div
         className={clsx(
           "glass absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1 rounded-2xl p-1 text-[11.5px] transition-opacity md:bottom-4",
-          current && "pointer-events-none opacity-0 md:pointer-events-auto md:opacity-100"
+          (current || stack) && "pointer-events-none opacity-0 md:pointer-events-auto md:opacity-100"
         )}
       >
         {[

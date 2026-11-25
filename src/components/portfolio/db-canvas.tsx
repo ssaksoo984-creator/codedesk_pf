@@ -8,6 +8,7 @@ import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
 import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass.js";
 import { STACKS } from "./db-data";
+import { newestFirst } from "./project-list";
 
 const BG = 0x07060d;
 const LAYOUT: [number, number][] = [
@@ -242,7 +243,8 @@ export function DbCanvas({
         split: 0,
       };
 
-      st.projects.forEach((p, i) => {
+      // oldest at the bottom, the newest on top of the stack
+      newestFirst(st.projects).reverse().forEach((p, i) => {
         const g = new THREE.Group();
         group.add(g);
         const geo = new THREE.CylinderGeometry(R, R, DH, 56, 1, false);
